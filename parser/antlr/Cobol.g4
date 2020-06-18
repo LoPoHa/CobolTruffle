@@ -63,11 +63,13 @@ functionSectionEnd : EXIT DOT;
 programExit : EXIT PROGRAM DOT;
 
 
-statement : (moveStatement | ifStatement | functionCallStatement);
+statement : (moveStatement | initializeStatement | ifStatement | functionCallStatement);
 
 
 // todo allow substrings with brackets + indices
 moveStatement : MOVE (ID | NUMBER | STRING | SPACE) TO ID+ DOT?;
+
+initializeStatement : INITIALIZE ID DOT?;
 
 // todo: support and, or, ...
 ifStatement : IF ifCondition THEN? statement* (ELSE statement*)? (ENDIF | ENDIF DOT | DOT);

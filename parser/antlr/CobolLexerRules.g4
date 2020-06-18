@@ -24,6 +24,7 @@ SECTION : S E C T I O N;
 TRUE : T R U E; 
 FALSE : F A L S E;
 
+INITIALIZE : I N I T I A L I Z E;
 EQUAL: E Q U A L | '=';
 LESS : (L E S S | '<');
 NUMERIC : N U M E R I C;
