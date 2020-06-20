@@ -22,7 +22,7 @@
       *
       *
        LINKAGE SECTION.
-      *
+      * todo only allow copy in linkage section.
       *
        PROCEDURE DIVISION.
       *
