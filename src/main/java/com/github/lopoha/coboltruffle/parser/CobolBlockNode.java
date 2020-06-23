@@ -3,7 +3,6 @@ package com.github.lopoha.coboltruffle.parser;
 // Modified version of https://github.com/graalvm/simplelanguage/blob/a25e385dd8626a85e8374f213e708b2f813ab9b7/language/src/main/java/com/oracle/truffle/sl/nodes/controlflow/SLBlockNode.java#L59
 
 
-import com.github.lopoha.coboltruffle.parser.antlr.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
  * A statement node that just executes a list of other statements.
  */
 @NodeInfo(shortName = "block", description = "The node implementing a source code block")
-public final class CobolBlockNode extends BaseStatementNode implements BlockNode.ElementExecutor<BaseStatementNode> {
+public final class CobolBlockNode extends CobolStatementNode implements BlockNode.ElementExecutor<CobolStatementNode> {
 
     /**
      * The block of child nodes. Using the block node allows Truffle to split the block into
@@ -29,9 +28,9 @@ public final class CobolBlockNode extends BaseStatementNode implements BlockNode
      * Truffle from compiling big methods, so these methods might fail to compile with a compilation
      * bailout.
      */
-    @Child private BlockNode<BaseStatementNode> block;
+    @Child private BlockNode<CobolStatementNode> block;
 
-    public CobolBlockNode(BaseStatementNode[] bodyNodes) {
+    public CobolBlockNode(CobolStatementNode[] bodyNodes) {
         /*
          * Truffle block nodes cannot be empty, that is why we just set the entire block to null if
          * there are no elements. This is good practice as it safes memory.
@@ -51,24 +50,15 @@ public final class CobolBlockNode extends BaseStatementNode implements BlockNode
         }
     }
 
-    public List<BaseStatementNode> getStatements() {
+    public List<CobolStatementNode> getStatements() {
         if (block == null) {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(Arrays.asList(block.getElements()));
     }
 
-    /**
-     * Truffle nodes don't have a fixed execute signature. The {@link ElementExecutor} interface
-     * tells the framework how block element nodes should be executed. The executor allows to add a
-     * custom exception handler for each element, e.g. to handle a specific
-     * {@link ControlFlowException} or to pass a customizable argument, that allows implement
-     * startsWith semantics if needed. For SL we don't need to pass any argument as we just have
-     * plain block nodes, therefore we pass {@link BlockNode#NO_ARGUMENT}. In our case the executor
-     * does not need to remember any state so we reuse a singleton instance.
-     */
-    public void executeVoid(VirtualFrame frame, BaseStatementNode node, int index, int argument) {
+    @Override
+    public void executeVoid(VirtualFrame frame, CobolStatementNode node, int index, int argument) {
         node.executeVoid(frame);
     }
-
 }

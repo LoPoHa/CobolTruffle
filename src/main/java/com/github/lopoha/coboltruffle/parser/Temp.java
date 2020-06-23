@@ -5,6 +5,9 @@ import com.github.lopoha.coboltruffle.parser.antlr.*;
 import com.github.lopoha.coboltruffle.parser.common.*;
 import com.github.lopoha.coboltruffle.parser.preprocessor.*;
 
+import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.nodes.RootNode;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
@@ -12,6 +15,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class Temp {
@@ -21,7 +25,7 @@ public class Temp {
         return preprocessedSource;
     }
 
-    public void demo_processPreprocessed(String source) {
+    public Map<String, RootCallTarget> demo_processPreprocessed(String source, CobolLanguage cobolLanguage) {
         try {
             CharStream input = CharStreams.fromString(source);
             CobolLexer lexer = new CobolLexer(input);
@@ -54,12 +58,14 @@ public class Temp {
             HeapPointer copystring = workingStorageHeap.getHeapPointer("COPY-STRING");
             copystring.setValue("");
 
-            HeapPointer copystringredefine1= workingStorageHeap.getHeapPointer("COPY-STRING-REDEFINE1");
-            copystringredefine1.setValue("H");
+            HeapPointer copystringredefine1 = workingStorageHeap.getHeapPointer("COPY-STRING-REDEFINE1");
 
-            System.out.print("[");
-            System.out.print(workingStorageHeap.getHeap());
-            System.out.println("]");
+            CobolNodeFactory cobolNodeFactory = new CobolNodeFactory(cobolLanguage);
+            cobolNodeFactory.startSection("main");
+            CobolMoveNode moveNode = new CobolMoveNode("ABC", copystringredefine1);
+            cobolNodeFactory.addMove(moveNode);
+            cobolNodeFactory.finishSection();
+            return cobolNodeFactory.getAllSections();
 
         } catch (Exception e) {
             throw new RuntimeException(e);

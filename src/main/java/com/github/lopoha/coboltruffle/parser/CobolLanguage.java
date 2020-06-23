@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.github.lopoha.coboltruffle.parser.common.ParserSettings;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.RootCallTarget;
@@ -74,27 +75,34 @@ import com.oracle.truffle.sl.runtime.SLNull;
 */
 
 @TruffleLanguage.Registration(id = CobolLanguage.ID, name = "Cobol", defaultMimeType = CobolLanguage.MIME_TYPE, characterMimeTypes = CobolLanguage.MIME_TYPE, contextPolicy = ContextPolicy.SHARED)
+/*
 // todo: check each tag...
 @ProvidedTags({StandardTags.CallTag.class, StandardTags.StatementTag.class, StandardTags.RootTag.class, StandardTags.RootBodyTag.class, StandardTags.ExpressionTag.class, DebuggerTags.AlwaysHalt.class,
                 StandardTags.ReadVariableTag.class, StandardTags.WriteVariableTag.class})
+ */
 public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     public static final String ID = "Cobol";
     public static final String MIME_TYPE = "application/x-cbl";
 
     @Override
-    protected CobolContext createContext(Env env) {
-        return new CobolContext(this, env, new ArrayList<>(EXTERNAL_BUILTINS));
+    public CobolContext createContext(Env env) {
+        return new CobolContext(this, env);
     }
 
     @Override
     protected CallTarget parse(ParsingRequest request) throws Exception {
-        Source source = request.getSource();
-        Map<String, RootCallTarget> functions = new HashMap<>();
-        /*
-         * Parse the provided source. At this point, we do not have a CobolContext yet. Registration of
-         * the functions with the CobolContext happens lazily in CobolEvalRootNode.
-         */
+        System.out.println("parsing");
+        //Source source = request.getSource();
+        List<String> programSearchPath = new ArrayList<>();
+        programSearchPath.add("./teststuff/program");
+        List<String> copySearchPath = new ArrayList<>();
+        copySearchPath.add("./teststuff/copy");
+        ParserSettings parserSettings = new ParserSettings(copySearchPath, programSearchPath);
+        String preprocessed = new Temp().demo_getPreprocessedString("test", parserSettings);
+
+        Map<String, RootCallTarget> functions = new Temp().demo_processPreprocessed(preprocessed, this);
         RootCallTarget main = functions.get("main");
+
         RootNode evalMain;
         if (main != null) {
             /*
@@ -128,27 +136,6 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     @Override
     protected boolean isVisible(CobolContext context, Object value) {
         return !InteropLibrary.getFactory().getUncached(value).isNull(value);
-    }
-
-    @Override
-    protected boolean isObjectOfLanguage(Object object) {
-        /*
-        if (!(object instanceof TruffleObject)) {
-            return false;
-        } else if (object instanceof SLBigNumber || object instanceof SLFunction || object instanceof SLNull) {
-            return true;
-        } else if (SLContext.isSLObject(object)) {
-            return true;
-        } else {
-            return false;
-        }
-        */
-        throw new NotImplementedException();
-    }
-
-    @Override
-    protected String toString(CobolContext context, Object value) {
-        return toString(value);
     }
 
     public static String toString(Object value) {
@@ -185,11 +172,6 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
         }
     }
 
-    @Override
-    protected Object findMetaObject(CobolContext context, Object value) {
-        return getMetaObject(value);
-    }
-
     public static String getMetaObject(Object value) {
         return "ANY";
         /*
@@ -213,16 +195,6 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
             return "Unsupported";
         }
         */
-    }
-
-    @Override
-    protected SourceSection findSourceLocation(CobolContext context, Object value) {
-        /*
-        if (value instanceof SLFunction) {
-            return ((SLFunction) value).getDeclaredLocation();
-        }
-        */
-        return null;
     }
 
     @Override
@@ -266,10 +238,12 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
         };
     }
 
+    /*
     @Override
     protected Iterable<Scope> findTopScopes(CobolContext context) {
         return context.getTopScopes();
     }
+     */
 
     public static CobolContext getCurrentContext() {
         return getCurrentContext(CobolLanguage.class);
