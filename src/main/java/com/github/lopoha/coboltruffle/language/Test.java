@@ -7,8 +7,7 @@ import com.github.lopoha.coboltruffle.parser.*;
 import com.github.lopoha.coboltruffle.parser.common.*;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.*;
 import com.oracle.truffle.api.source.Source;
 
 import java.io.File;
@@ -42,7 +41,7 @@ public class Test {
         ParserSettings parserSettings = new ParserSettings(copySearchPath, programSearchPath);
         String preprocessed = new Temp().demo_getPreprocessedString("test", parserSettings);
 
-        Map<String, RootCallTarget> functions = new Temp().demo_processPreprocessed(preprocessed, cobolLanguage);
+        Map<String, RootCallTarget> functions = new Temp().demo_processPreprocessed(preprocessed, null);
         RootCallTarget main = functions.get("main");
 
         main.call();

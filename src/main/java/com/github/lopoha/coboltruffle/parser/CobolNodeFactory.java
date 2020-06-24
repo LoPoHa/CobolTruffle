@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
 public class CobolNodeFactory {
@@ -30,6 +31,7 @@ public class CobolNodeFactory {
                 = new CobolBlockNode(this.sectionNodes.toArray(new CobolStatementNode[this.sectionNodes.size()]));
         final CobolSectionBodyNode sectionBody = new CobolSectionBodyNode(sectionBlock);
         final CobolRootNode rootNode = new CobolRootNode(language, frameDescriptor, sectionBody, null, this.functionName);
+        allSections.put(this.functionName, Truffle.getRuntime().createCallTarget(rootNode));
     }
 
     public void addMove(CobolMoveNode move) {
