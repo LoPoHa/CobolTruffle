@@ -1,14 +1,13 @@
 package com.github.lopoha.coboltruffle.parser;
 
-import com.github.lopoha.coboltruffle.parser.antlr.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.github.lopoha.coboltruffle.parser.builtins.CobolBuiltinNode;
 import com.github.lopoha.coboltruffle.parser.common.ParserSettings;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -17,19 +16,12 @@ import com.oracle.truffle.api.Scope;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.ContextPolicy;
-import com.oracle.truffle.api.debug.DebuggerTags;
 import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.frame.Frame;
-import com.oracle.truffle.api.instrumentation.ProvidedTags;
-import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
-import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.api.source.SourceSection;
 /*
 import com.oracle.truffle.sl.builtins.SLBuiltinNode;
 import com.oracle.truffle.sl.builtins.SLDefineFunctionBuiltin;
@@ -91,7 +83,6 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
 
     @Override
     protected CallTarget parse(ParsingRequest request) throws Exception {
-        System.out.println("parsing");
         //Source source = request.getSource();
         List<String> programSearchPath = new ArrayList<>();
         programSearchPath.add("./teststuff/program");
@@ -103,22 +94,13 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
         Map<String, RootCallTarget> functions = new Temp().demo_processPreprocessed(preprocessed, this);
         RootCallTarget main = functions.get("main");
 
-        RootNode evalMain;
-        if (main != null) {
-            /*
-             * We have a main function, so "evaluating" the parsed source means invoking that main
-             * function. However, we need to lazily register functions into the SLContext first, so
-             * we cannot use the original SLRootNode for the main function. Instead, we create a new
-             * SLEvalRootNode that does everything we need.
-             */
-            evalMain = new CobolEvalRootNode(this, main, functions);
-        } else {
-            /*
-             * Even without a main function, "evaluating" the parsed source needs to register the
-             * functions into the SLContext.
-             */
-            evalMain = new CobolEvalRootNode(this, null, functions);
+        if (main == null) {
+            main.getRootNode();
         }
+        for(String key : functions.keySet()) {
+            System.out.println("Found key " + key);
+        }
+        RootNode evalMain = new CobolEvalRootNode(this, main, functions);
         return Truffle.getRuntime().createCallTarget(evalMain);
     }
 
@@ -200,50 +182,43 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     @Override
     public Iterable<Scope> findLocalScopes(CobolContext context, Node node, Frame frame) {
         final CobolLexicalScope scope = CobolLexicalScope.createScope(node);
-        return new Iterable<Scope>() {
+        return () -> new Iterator<>() {
+            private CobolLexicalScope previousScope;
+            private CobolLexicalScope nextScope = scope;
+
             @Override
-            public Iterator<Scope> iterator() {
-                return new Iterator<Scope>() {
-                    private CobolLexicalScope previousScope;
-                    private CobolLexicalScope nextScope = scope;
+            public boolean hasNext() {
+                if (nextScope == null) {
+                    nextScope = previousScope.findParent();
+                }
+                return nextScope != null;
+            }
 
-                    @Override
-                    public boolean hasNext() {
-                        if (nextScope == null) {
-                            nextScope = previousScope.findParent();
-                        }
-                        return nextScope != null;
-                    }
+            @Override
+            public Scope next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                Object functionObject = findFunctionObject();
+                Scope vscope = Scope.newBuilder(nextScope.getName(), nextScope.getVariables(frame)).node(nextScope.getNode()).arguments(nextScope.getArguments(frame)).rootInstance(
+                                functionObject).build();
+                previousScope = nextScope;
+                nextScope = null;
+                return vscope;
+            }
 
-                    @Override
-                    public Scope next() {
-                        if (!hasNext()) {
-                            throw new NoSuchElementException();
-                        }
-                        Object functionObject = findFunctionObject();
-                        Scope vscope = Scope.newBuilder(nextScope.getName(), nextScope.getVariables(frame)).node(nextScope.getNode()).arguments(nextScope.getArguments(frame)).rootInstance(
-                                        functionObject).build();
-                        previousScope = nextScope;
-                        nextScope = null;
-                        return vscope;
-                    }
-
-                    private Object findFunctionObject() {
-                        String name = node.getRootNode().getName();
-                        //return context.getFunctionRegistry().getFunction(name);
-                        throw new NotImplementedException();
-                    }
-                };
+            private Object findFunctionObject() {
+                String name = node.getRootNode().getName();
+                //return context.getFunctionRegistry().getFunction(name);
+                throw new NotImplementedException();
             }
         };
     }
 
-    /*
     @Override
     protected Iterable<Scope> findTopScopes(CobolContext context) {
         return context.getTopScopes();
     }
-     */
 
     public static CobolContext getCurrentContext() {
         return getCurrentContext(CobolLanguage.class);

@@ -51,10 +51,11 @@ public final class CobolEvalRootNode extends RootNode {
             CompilerDirectives.transferToInterpreterAndInvalidate();
             //lookupContextReference(CobolLanguage.class).get().getFunctionRegistry().register(functions);
             registered = true;
-            throw new NotImplementedException();
+            // todo
+            //throw new NotImplementedException();
         }
 
         // TODO: should this be null every time?
-        return null;
+        return CobolNull.SINGLETON;
     }
 }

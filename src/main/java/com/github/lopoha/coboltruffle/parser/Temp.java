@@ -58,11 +58,11 @@ public class Temp {
             HeapPointer copystring = workingStorageHeap.getHeapPointer("COPY-STRING");
             copystring.setValue("");
 
-            HeapPointer copystringredefine1 = workingStorageHeap.getHeapPointer("COPY-STRING-REDEFINE1");
+            HeapPointer programName = workingStorageHeap.getHeapPointer("PROGRAMNAME");
 
             CobolNodeFactory cobolNodeFactory = new CobolNodeFactory(cobolLanguage);
             cobolNodeFactory.startSection("main");
-            CobolMoveNode moveNode = new CobolMoveNode("ABC", copystringredefine1);
+            CobolMoveNode moveNode = new CobolMoveNode("ABC", programName);
             cobolNodeFactory.addMove(moveNode);
             cobolNodeFactory.finishSection();
             return cobolNodeFactory.getAllSections();

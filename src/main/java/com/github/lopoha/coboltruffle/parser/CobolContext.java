@@ -1,28 +1,21 @@
 package com.github.lopoha.coboltruffle.parser;
 
-import com.github.lopoha.coboltruffle.parser.antlr.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.List;
-
+import com.github.lopoha.coboltruffle.parser.builtins.CobolBuiltinNode;
+import com.github.lopoha.coboltruffle.parser.runtime.CobolSectionRegistry;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.Scope;
-import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.instrumentation.AllocationReporter;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Layout;
-import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.Source;
+
+import java.io.PrintWriter;
+import java.util.Collections;
 
 public final class CobolContext {
 
@@ -31,23 +24,19 @@ public final class CobolContext {
 
     private final Env env;
     //private final BufferedReader input;
-    //private final PrintWriter output;
-    //private final SLFunctionRegistry functionRegistry;
+    private final PrintWriter output;
+    private final CobolSectionRegistry functionRegistry;
     //private final Shape emptyShape;
     private final CobolLanguage language;
     //private final AllocationReporter allocationReporter;
-    //private final Iterable<Scope> topScopes; // Cache the top scopes
-
-    public CobolContext() {
-        this.env = null;
-        this.language = null;
-        installBuiltins();
-    }
+    private final Iterable<Scope> topScopes; // Cache the top scopes
 
     public CobolContext(CobolLanguage language, Env env) {
+        System.out.println("CobolContext created");
         this.env = env;
-        //this.functionRegistry = new SLFunctionRegistry(language);
-        //this.topScopes = Collections.singleton(Scope.newBuilder("global", functionRegistry.getFunctionsObject()).build());
+        this.output = new PrintWriter(env.out());
+        this.functionRegistry = new CobolSectionRegistry(language);
+        this.topScopes = Collections.singleton(Scope.newBuilder("global", functionRegistry.getFunctionsObject()).build());
         this.language = language;
         installBuiltins();
 
@@ -68,31 +57,27 @@ public final class CobolContext {
         return env;
     }
 
+    public PrintWriter getOutput() {
+        return output;
+    }
 
     /*
     public BufferedReader getInput() {
         return input;
     }
 
-    public PrintWriter getOutput() {
-        return output;
-    }
      */
 
     /**
      * Returns the registry of all functions that are currently defined.
      */
-    /*
-    public SLFunctionRegistry getFunctionRegistry() {
+    public CobolSectionRegistry getFunctionRegistry() {
         return functionRegistry;
     }
-    */
 
-    /*
     public Iterable<Scope> getTopScopes() {
         return topScopes;
     }
-     */
 
     private void installBuiltins() {
         /*
