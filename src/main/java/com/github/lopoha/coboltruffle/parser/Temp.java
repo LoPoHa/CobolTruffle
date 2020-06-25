@@ -3,20 +3,15 @@ package com.github.lopoha.coboltruffle.parser;
 
 import com.github.lopoha.coboltruffle.parser.antlr.*;
 import com.github.lopoha.coboltruffle.parser.common.*;
+import com.github.lopoha.coboltruffle.parser.nodes.CobolMoveNode;
 import com.github.lopoha.coboltruffle.parser.preprocessor.*;
 
-import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.RootCallTarget;
-import com.oracle.truffle.api.nodes.RootNode;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class Temp {
     public String demo_getPreprocessedString(String programName, ParserSettings settings) throws IOException {
@@ -36,27 +31,10 @@ public class Temp {
             CobolBaseListenerImpl listener = new CobolBaseListenerImpl();
             walker.walk(listener, fileContext);
 
-
-            System.out.println("\n=============   Definitions   =============\n");
-            System.out.println("\n------------- WORKING STORAGE HEAP HEAP -------------\n");
-            listener.workingStorageHeap.prettyPrint();
-            System.out.println("\n\n------------- LINKAGE HEAP -------------\n");
-            listener.linkageHeap.prettyPrint();
-
-            System.out.println("\n=============   Actual Heap =============\n");
             CobolHeap workingStorageHeap = new CobolHeap();
             workingStorageHeap.addToHeap(listener.workingStorageHeap);
 
-            CobolHeap linkageHeap = new CobolHeap();
-            linkageHeap.addToHeap(listener.linkageHeap);
-
-            System.out.println("\n------------- WORKING STORAGE HEAP HEAP -------------\n");
-            System.out.print("[");
-            System.out.print(workingStorageHeap.getHeap());
-            System.out.println("]");
-
             HeapPointer copystring = workingStorageHeap.getHeapPointer("COPY-STRING");
-            copystring.setValue("");
 
             HeapPointer programName = workingStorageHeap.getHeapPointer("PROGRAMNAME");
 
@@ -64,6 +42,8 @@ public class Temp {
             cobolNodeFactory.startSection("main");
             CobolMoveNode moveNode = new CobolMoveNode("ABC", programName);
             cobolNodeFactory.addMove(moveNode);
+            CobolMoveNode moveNode2 = new CobolMoveNode(copystring, programName);
+            cobolNodeFactory.addMove(moveNode2);
             cobolNodeFactory.finishSection();
             return cobolNodeFactory.getAllSections();
 
