@@ -97,9 +97,7 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
         if (main == null) {
             main.getRootNode();
         }
-        for(String key : functions.keySet()) {
-            System.out.println("Found key " + key);
-        }
+
         RootNode evalMain = new CobolEvalRootNode(this, main, functions);
         return Truffle.getRuntime().createCallTarget(evalMain);
     }

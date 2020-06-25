@@ -32,7 +32,6 @@ public final class CobolContext {
     private final Iterable<Scope> topScopes; // Cache the top scopes
 
     public CobolContext(CobolLanguage language, Env env) {
-        System.out.println("CobolContext created");
         this.env = env;
         this.output = new PrintWriter(env.out());
         this.functionRegistry = new CobolSectionRegistry(language);

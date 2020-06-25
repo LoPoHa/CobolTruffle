@@ -77,7 +77,6 @@ public final class CobolType implements TruffleObject {
     private final TypeCheck isInstance;
 
     private CobolType(String name, TypeCheck isInstance) {
-        System.out.println("CobolType");
         this.name = name;
         this.isInstance = isInstance;
     }

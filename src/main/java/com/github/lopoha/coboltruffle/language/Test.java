@@ -45,10 +45,6 @@ public class Test {
         try {
             Value result = context.eval(source);
 
-            System.out.println(context.getBindings(CobolLanguage.ID).getMemberKeys().size());
-            for (String member : context.getBindings(CobolLanguage.ID).getMemberKeys()) {
-                System.out.println(member);
-            }
             if (context.getBindings(CobolLanguage.ID).getMember("main") == null) {
                 err.println("No function main defined in Cobol source file. ->  internal error");
                 return 1;

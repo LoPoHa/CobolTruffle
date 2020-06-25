@@ -54,7 +54,6 @@ public final class CobolSectionRegistry {
     private final SectionsObject functionsObject = new SectionsObject();
 
     public CobolSectionRegistry(CobolLanguage language) {
-        System.out.println("CobolSectionRegistry");
         this.language = language;
     }
 

@@ -60,7 +60,6 @@ final class SectionsObject implements TruffleObject {
     final Map<String, CobolSection> functions = new HashMap<>();
 
     SectionsObject() {
-        System.out.println("SectionsObject");
     }
 
     @ExportMessage

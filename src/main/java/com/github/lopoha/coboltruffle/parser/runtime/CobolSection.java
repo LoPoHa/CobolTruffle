@@ -80,7 +80,6 @@ public final class CobolSection implements TruffleObject {
     private final CyclicAssumption callTargetStable;
 
     protected CobolSection(CobolLanguage language, String name) {
-        System.out.println("CobolSection");
         this.name = name;
         this.callTarget = Truffle.getRuntime().createCallTarget(new CobolUndefinedSectionRootNode(language, name));
         this.callTargetStable = new CyclicAssumption(name);
