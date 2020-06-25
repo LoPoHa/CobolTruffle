@@ -5,18 +5,19 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 
 @NodeInfo(shortName = "section_body")
 public class CobolSectionBodyNode extends CobolExpressionNode {
-    @Child
-    private CobolStatementNode bodyNode;
 
-    public CobolSectionBodyNode(CobolStatementNode bodyNode) {
-        this.bodyNode = bodyNode;
-        addRootTag();
-    }
+  @Child
+  private CobolStatementNode bodyNode;
+
+  public CobolSectionBodyNode(CobolStatementNode bodyNode) {
+    this.bodyNode = bodyNode;
+    addRootTag();
+  }
 
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        bodyNode.executeVoid(frame);
-        return CobolNull.SINGLETON;
-    }
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    bodyNode.executeVoid(frame);
+    return CobolNull.SINGLETON;
+  }
 }
