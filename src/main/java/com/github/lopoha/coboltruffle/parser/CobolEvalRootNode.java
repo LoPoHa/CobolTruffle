@@ -49,12 +49,11 @@ public final class CobolEvalRootNode extends RootNode {
         if (!registered) {
             /* Function registration is a slow-path operation that must not be compiled. */
             CompilerDirectives.transferToInterpreterAndInvalidate();
-            //lookupContextReference(CobolLanguage.class).get().getFunctionRegistry().register(functions);
+            lookupContextReference(CobolLanguage.class).get().getFunctionRegistry().register(functions);
             registered = true;
-            throw new NotImplementedException();
         }
 
         // TODO: should this be null every time?
-        return null;
+        return CobolNull.SINGLETON;
     }
 }

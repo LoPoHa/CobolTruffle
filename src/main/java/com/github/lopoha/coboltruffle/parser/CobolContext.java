@@ -1,83 +1,44 @@
 package com.github.lopoha.coboltruffle.parser;
 
-import com.github.lopoha.coboltruffle.parser.antlr.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.List;
-
+import com.github.lopoha.coboltruffle.parser.builtins.CobolBuiltinNode;
+import com.github.lopoha.coboltruffle.parser.runtime.CobolSectionRegistry;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.Scope;
-import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.instrumentation.AllocationReporter;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Layout;
-import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.Source;
-/*
-import com.oracle.truffle.sl.SLLanguage;
-import com.oracle.truffle.sl.builtins.SLBuiltinNode;
-import com.oracle.truffle.sl.builtins.SLDefineFunctionBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLEvalBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLGetSizeBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLHasSizeBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLHelloEqualsWorldBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLImportBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLIsExecutableBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLIsNullBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLNanoTimeBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLNewObjectBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLPrintlnBuiltin;
-import com.oracle.truffle.sl.builtins.SLPrintlnBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLReadlnBuiltin;
-import com.oracle.truffle.sl.builtins.SLReadlnBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLStackTraceBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLWrapPrimitiveBuiltinFactory;
-import com.oracle.truffle.sl.nodes.SLExpressionNode;
-import com.oracle.truffle.sl.nodes.SLRootNode;
-import com.oracle.truffle.sl.nodes.local.SLReadArgumentNode;
-*/
 
-/**
- * The run-time state of SL during execution. The context is created by the {@link SLLanguage}. It
- * is used, for example, by {@link SLBuiltinNode builtin functions}.
- * <p>
- * It would be an error to have two different context instances during the execution of one script.
- * However, if two separate scripts run in one Java VM at the same time, they have a different
- * context. Therefore, the context is not a singleton.
- */
+import java.io.PrintWriter;
+import java.util.Collections;
+
 public final class CobolContext {
 
     private static final Source BUILTIN_SOURCE = Source.newBuilder(CobolLanguage.ID, "", "SL builtin").build();
     static final Layout LAYOUT = Layout.createLayout();
 
     private final Env env;
-    private final BufferedReader input;
+    //private final BufferedReader input;
     private final PrintWriter output;
-    //private final SLFunctionRegistry functionRegistry;
-    private final Shape emptyShape;
+    private final CobolSectionRegistry functionRegistry;
+    //private final Shape emptyShape;
     private final CobolLanguage language;
-    private final AllocationReporter allocationReporter;
+    //private final AllocationReporter allocationReporter;
     private final Iterable<Scope> topScopes; // Cache the top scopes
 
-    public CobolContext(CobolLanguage language, TruffleLanguage.Env env, List<NodeFactory<? extends CobolBuiltinNode>> externalBuiltins) {
+    public CobolContext(CobolLanguage language, Env env) {
         this.env = env;
-        this.input = new BufferedReader(new InputStreamReader(env.in()));
-        this.output = new PrintWriter(env.out(), true);
+        this.output = new PrintWriter(env.out());
+        this.functionRegistry = new CobolSectionRegistry(language);
+        this.topScopes = Collections.singleton(Scope.newBuilder("global", functionRegistry.getFunctionsObject()).build());
         this.language = language;
-        this.allocationReporter = env.lookup(AllocationReporter.class);
-        //this.functionRegistry = new SLFunctionRegistry(language);
-        //this.topScopes = Collections.singleton(Scope.newBuilder("global", functionRegistry.getFunctionsObject()).build());
         installBuiltins();
+
 
         /*
             TODO
@@ -86,7 +47,6 @@ public final class CobolContext {
         }
         */
         //this.emptyShape = LAYOUT.createShape(SLObjectType.SINGLETON);
-        throw new NotImplementedException();
     }
 
     /**
@@ -96,39 +56,28 @@ public final class CobolContext {
         return env;
     }
 
-    /**
-     * Returns the default input, i.e., the source for the {@link SLReadlnBuiltin}. To allow unit
-     * testing, we do not use {@link System#in} directly.
-     */
-    public BufferedReader getInput() {
-        return input;
-    }
-
-    /**
-     * The default default, i.e., the output for the {@link SLPrintlnBuiltin}. To allow unit
-     * testing, we do not use {@link System#out} directly.
-     */
     public PrintWriter getOutput() {
         return output;
     }
 
+    /*
+    public BufferedReader getInput() {
+        return input;
+    }
+
+     */
+
     /**
      * Returns the registry of all functions that are currently defined.
      */
-    /*
-    public SLFunctionRegistry getFunctionRegistry() {
+    public CobolSectionRegistry getFunctionRegistry() {
         return functionRegistry;
     }
-    */
 
     public Iterable<Scope> getTopScopes() {
         return topScopes;
     }
 
-    /**
-     * Adds all builtin functions to the {@link SLFunctionRegistry}. This method lists all
-     * {@link SLBuiltinNode builtin implementation classes}.
-     */
     private void installBuiltins() {
         /*
         installBuiltin(SLReadlnBuiltinFactory.getInstance());
@@ -196,16 +145,10 @@ public final class CobolContext {
     }
 
     /*
-     * Methods for object creation / object property access.
-     */
     public AllocationReporter getAllocationReporter() {
         return allocationReporter;
     }
 
-    /**
-     * Allocate an empty object. All new objects initially have no properties. Properties are added
-     * when they are first stored, i.e., the store triggers a shape change of the object.
-     */
     public DynamicObject createObject(AllocationReporter reporter) {
         DynamicObject object = null;
         reporter.onEnter(null, 0, AllocationReporter.SIZE_UNKNOWN);
@@ -213,6 +156,7 @@ public final class CobolContext {
         reporter.onReturnValue(object, 0, AllocationReporter.SIZE_UNKNOWN);
         return object;
     }
+     */
 
     public static boolean isSLObject(Object value) {
         /*

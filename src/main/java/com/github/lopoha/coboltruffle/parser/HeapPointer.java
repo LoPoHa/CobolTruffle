@@ -1,13 +1,9 @@
 package com.github.lopoha.coboltruffle.parser;
 
-import com.github.lopoha.coboltruffle.parser.antlr.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 // todo: make class abstract and have multiple implementations: Number, String, ...
+// todo: save name (could be useful for errors...)
 public class HeapPointer {
     final int position;
     final int length;
@@ -22,6 +18,7 @@ public class HeapPointer {
     }
 
     public void initialize() {
+        // is this even possible?
         if (defaultValue != null) {
             this.setValue(this.defaultValue);
         }
@@ -36,6 +33,7 @@ public class HeapPointer {
     }
 
     public void setValue(String value) {
+        assert value != null : "Value required but was null";
         // todo: check if the alignment etc. is correct
         // todo: is the default for number here space or zero?
         if (value.length() < this.length) {

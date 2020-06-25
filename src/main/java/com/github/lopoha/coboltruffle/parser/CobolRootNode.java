@@ -2,7 +2,6 @@ package com.github.lopoha.coboltruffle.parser;
 
 // Modeled after the SLRootNode from SimpleLanguage
 
-import com.github.lopoha.coboltruffle.parser.antlr.*;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
