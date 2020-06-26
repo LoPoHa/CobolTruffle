@@ -5,50 +5,59 @@ import java.util.List;
 // todo: make class abstract and have multiple implementations: Number, String, ...
 // todo: save name (could be useful for errors...)
 public class HeapPointer {
-    final int position;
-    final int length;
-    final String defaultValue;
-    private final List<Character> heap;
+  final int position;
+  final int length;
+  final String defaultValue;
+  private final List<Character> heap;
 
-    public HeapPointer(int position, int length, List<Character> heap, String defaultValue) {
-        this.position = position;
-        this.length = length;
-        this.heap = heap;
-        this.defaultValue = defaultValue;
-    }
+  HeapPointer(int position, int length, List<Character> heap, String defaultValue) {
+    this.position = position;
+    this.length = length;
+    this.heap = heap;
+    this.defaultValue = defaultValue;
+  }
 
-    public void initialize() {
-        // is this even possible?
-        if (defaultValue != null) {
-            this.setValue(this.defaultValue);
-        }
+  void initialize() {
+    // is this even possible?
+    if (defaultValue != null) {
+      this.setValue(this.defaultValue);
     }
+  }
 
-    public String getValue() {
-        StringBuilder value = new StringBuilder();
-        for (int i = position; i < position + length; i++) {
-            value.append(heap.get(i));
-        }
-        return value.toString();
+  /**
+   * Get the Value the pointer points to.
+   * @return the value.
+   */
+  public String getValue() {
+    StringBuilder value = new StringBuilder();
+    for (int i = position; i < position + length; i++) {
+      value.append(heap.get(i));
     }
+    return value.toString();
+  }
 
-    public void setValue(String value) {
-        assert value != null : "Value required but was null";
-        // todo: check if the alignment etc. is correct
-        // todo: is the default for number here space or zero?
-        if (value.length() < this.length) {
-            value = new String(new char[this.length - value.length()]).replace('\0', ' ') + value;
-            for (int i = 0; i < value.length(); i++) {
-                heap.set(position + i, value.charAt(i));
-            }
-        } else if (value.length() == this.length) {
-            for (int i = 0; i < value.length(); i++) {
-                heap.set(position + i, value.charAt(i));
-            }
-        } else {
-            for (int i = 0; i < this.length; i++) {
-                heap.set(position + i, value.charAt(i));
-            }
-        }
+  /**
+   * Set the value at the pointer location.
+   * The value is automatically aligned/cut/...
+   * @param value the new value
+   */
+  public void setValue(String value) {
+    assert value != null : "Value required but was null";
+    // todo: check if the alignment etc. is correct
+    // todo: is the default for number here space or zero?
+    if (value.length() < this.length) {
+      value = new String(new char[this.length - value.length()]).replace('\0', ' ') + value;
+      for (int i = 0; i < value.length(); i++) {
+        heap.set(position + i, value.charAt(i));
+      }
+    } else if (value.length() == this.length) {
+      for (int i = 0; i < value.length(); i++) {
+        heap.set(position + i, value.charAt(i));
+      }
+    } else {
+      for (int i = 0; i < this.length; i++) {
+        heap.set(position + i, value.charAt(i));
+      }
     }
+  }
 }
