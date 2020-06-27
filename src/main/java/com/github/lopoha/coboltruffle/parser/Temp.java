@@ -48,16 +48,10 @@ public class Temp {
       CobolHeap workingStorageHeap = new CobolHeap();
       workingStorageHeap.addToHeap(listener.workingStorageHeap);
 
-      HeapPointer copystring = workingStorageHeap.getHeapPointer("COPY-STRING");
 
-      HeapPointer programName = workingStorageHeap.getHeapPointer("PROGRAMNAME");
 
       CobolNodeFactory cobolNodeFactory = new CobolNodeFactory(cobolLanguage);
       cobolNodeFactory.startSection("main");
-      CobolMoveNode moveNode = new CobolMoveNode("ABC", programName);
-      cobolNodeFactory.addMove(moveNode);
-      CobolMoveNode moveNode2 = new CobolMoveNode(copystring, programName);
-      cobolNodeFactory.addMove(moveNode2);
 
       CobolStringLiteralNode stringConstant = new CobolStringLiteralNode("hello World");
       CobolFunctionLiteralNode println = new CobolFunctionLiteralNode("display");
@@ -65,6 +59,19 @@ public class Temp {
       printlnArgs.add(stringConstant);
       cobolNodeFactory.addCall(println, printlnArgs);
 
+      HeapPointer programName = workingStorageHeap.getHeapPointer("PROGRAMNAME");
+      List<CobolExpressionNode> println2Args = new ArrayList<>();
+      println2Args.add(programName);
+      cobolNodeFactory.addCall(println, println2Args);
+
+      CobolMoveNode moveNode = new CobolMoveNode("ABC", programName);
+      cobolNodeFactory.addMove(moveNode);
+      cobolNodeFactory.addCall(println, println2Args);
+
+      HeapPointer copyString = workingStorageHeap.getHeapPointer("COPY-STRING");
+      CobolMoveNode moveNode2 = new CobolMoveNode(copyString, programName);
+      cobolNodeFactory.addMove(moveNode2);
+      cobolNodeFactory.addCall(println, println2Args);
 
       cobolNodeFactory.finishSection();
       return cobolNodeFactory.getAllSections();
