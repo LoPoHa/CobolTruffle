@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.parser;
+package com.github.lopoha.coboltruffle.nodes;
 
 // modeled / copied from SimpleLanguage
 import com.github.lopoha.coboltruffle.runtime.CobolNull;

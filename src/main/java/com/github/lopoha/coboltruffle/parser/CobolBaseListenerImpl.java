@@ -1,5 +1,8 @@
 package com.github.lopoha.coboltruffle.parser;
 
+import com.github.lopoha.coboltruffle.heap.HeapBuilder;
+import com.github.lopoha.coboltruffle.heap.HeapBuilderVariable;
+import com.github.lopoha.coboltruffle.heap.HeapVariableType;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.IfConditionContext;
@@ -24,8 +27,8 @@ import java.util.List;
 //       so this can be checked...
 
 public class CobolBaseListenerImpl extends CobolBaseListener {
-  final HeapBuilder workingStorageHeap = new HeapBuilder();
-  final HeapBuilder linkageHeap = new HeapBuilder();
+  public final HeapBuilder workingStorageHeap = new HeapBuilder();
+  public final HeapBuilder linkageHeap = new HeapBuilder();
 
   @Override
   public void enterFile(CobolParser.FileContext ctx) {

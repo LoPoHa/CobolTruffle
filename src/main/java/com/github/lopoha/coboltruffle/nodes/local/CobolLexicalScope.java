@@ -1,7 +1,10 @@
-package com.github.lopoha.coboltruffle.parser;
+package com.github.lopoha.coboltruffle.nodes.local;
 
 // modeled / copied from CobolLexicalScope
 
+import com.github.lopoha.coboltruffle.nodes.CobolEvalRootNode;
+import com.github.lopoha.coboltruffle.nodes.CobolRootNode;
+import com.github.lopoha.coboltruffle.nodes.controlflow.CobolBlockNode;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.frame.FrameSlot;
@@ -13,7 +16,6 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.nodes.NodeVisitor;
 import com.oracle.truffle.api.nodes.RootNode;
 import java.util.Collections;
 import java.util.LinkedHashMap;

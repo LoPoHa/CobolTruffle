@@ -1,5 +1,6 @@
-package com.github.lopoha.coboltruffle.parser;
+package com.github.lopoha.coboltruffle.heap;
 
+import com.github.lopoha.coboltruffle.parser.NotImplementedException;
 import java.lang.RuntimeException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,17 +12,26 @@ public class HeapBuilderVariable {
   // size = 0 => combined size of all children.
   // todo : size of 0 + children size 0 => error
   private int size;
-  final String variableName;
+  public final String variableName;
   final HeapVariableType heapVariableType;
   private String value;
   private final List<HeapBuilderVariable> children = new ArrayList<>();
   private int childLevel = 0;
-  final String redefines;
+  public final String redefines;
 
-  HeapBuilderVariable(int level,
-                      String variableName,
-                      HeapVariableType heapVariableType,
-                      String redefines) {
+  /**
+   * Create a new Variable that can be added to the heap.
+   * This does *NOT* represent an actual variable on the heap!
+   *
+   * @param level the level.
+   * @param variableName the name.
+   * @param heapVariableType the type.
+   * @param redefines the variable it redefines.
+   */
+  public HeapBuilderVariable(int level,
+                             String variableName,
+                             HeapVariableType heapVariableType,
+                             String redefines) {
     this.level = level;
     this.size = 0;
     this.variableName = variableName;
@@ -30,7 +40,17 @@ public class HeapBuilderVariable {
     this.redefines = redefines;
   }
 
-  HeapBuilderVariable(int level,
+  /**
+   * Create a new Variable that can be added to the heap.
+   * This does *NOT* represent an actual variable on the heap!
+   *
+   * @param level the level.
+   * @param variableName the name of the variable.
+   * @param heapVariableType the type.
+   * @param size the size of the variable.
+   * @param value the default value.
+   */
+  public HeapBuilderVariable(int level,
                       String variableName,
                       HeapVariableType heapVariableType,
                       int size,
@@ -50,7 +70,12 @@ public class HeapBuilderVariable {
 
   // todo: better name
   // todo: create default value from children
-  void finalizeHeapBuilder() {
+
+  /**
+   * Finalize the heap builder.]
+   * TODO
+   */
+  public void finalizeHeapBuilder() {
     if (this.children.size() > 0) {
       int childrenSize = 0;
       StringBuilder value = new StringBuilder();
@@ -92,7 +117,7 @@ public class HeapBuilderVariable {
     }
   }
 
-  int getSize() {
+  public int getSize() {
     return this.size;
   }
 

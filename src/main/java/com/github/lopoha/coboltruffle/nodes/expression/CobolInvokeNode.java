@@ -1,6 +1,6 @@
-package com.github.lopoha.coboltruffle.expression;
+package com.github.lopoha.coboltruffle.nodes.expression;
 
-import com.github.lopoha.coboltruffle.parser.CobolExpressionNode;
+import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.runtime.CobolSection;
 import com.github.lopoha.coboltruffle.runtime.CobolUndefinedNameException;
 import com.oracle.truffle.api.CompilerAsserts;

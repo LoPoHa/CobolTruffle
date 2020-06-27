@@ -1,7 +1,8 @@
-package com.github.lopoha.coboltruffle.parser;
+package com.github.lopoha.coboltruffle;
 
 // modeled / copied from SLException
 
+import com.github.lopoha.coboltruffle.runtime.CobolContext;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleException;
 import com.oracle.truffle.api.interop.InteropLibrary;

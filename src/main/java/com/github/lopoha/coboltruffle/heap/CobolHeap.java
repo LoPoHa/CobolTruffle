@@ -1,5 +1,7 @@
-package com.github.lopoha.coboltruffle.parser;
+package com.github.lopoha.coboltruffle.heap;
 
+import com.github.lopoha.coboltruffle.parser.CobolUnknownVariableRedefineException;
+import com.github.lopoha.coboltruffle.parser.CobolVariableNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

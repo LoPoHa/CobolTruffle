@@ -21,18 +21,24 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 // todo: how do programs behave when they are included multiple times? do the share the memory or
 //       do they get separate one? -> investigate
 public class ParserPreprocessor {
+  public static String getPreprocessedString(String programName,
+                                                  ParserSettings settings) {
+    ParserPreprocessor parserPreprocessor = new ParserPreprocessor(settings);
+    return parserPreprocessor.getPreprocessedProgramSource(programName);
+  }
+
   private final ParserSettings parserSettings;
 
-  public ParserPreprocessor(ParserSettings parserSettings) {
+  ParserPreprocessor(ParserSettings parserSettings) {
     this.parserSettings = parserSettings;
   }
 
-  public String getPreprocessedCopySource(String name) {
+  String getPreprocessedCopySource(String name) {
     String source = ParserCommonHelper.loadCopyFromFile(name, this.parserSettings);
     return getPreprocessedSource(source);
   }
 
-  public String getPreprocessedProgramSource(String name) {
+  String getPreprocessedProgramSource(String name) {
     String source = ParserCommonHelper.loadProgramFromFile(name, this.parserSettings);
     return getPreprocessedSource(source);
   }

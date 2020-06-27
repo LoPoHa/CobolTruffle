@@ -1,8 +1,9 @@
-package com.github.lopoha.coboltruffle.parser;
+package com.github.lopoha.coboltruffle.nodes.controlflow;
 
 // Modified version of https://github.com/graalvm/simplelanguage/blob/a25e385dd8626a85e8374f213e708b2f813ab9b7/language/src/main/java/com/oracle/truffle/sl/nodes/controlflow/SLBlockNode.java#L59
 
 
+import com.github.lopoha.coboltruffle.nodes.CobolStatementNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.BlockNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
@@ -35,7 +36,7 @@ public final class CobolBlockNode extends CobolStatementNode
    * TODO: replace sllanguage comment
    * Execute all block statements. The block node makes sure that {@link ExplodeLoop full
    * unrolling} of the loop is triggered during compilation. This allows the
-   * {@link BaseStatementNode#executeVoid} method of all children to be inlined.
+   * {@link CobolStatementNode#executeVoid} method of all children to be inlined.
    */
   @Override
   public void executeVoid(VirtualFrame frame) {

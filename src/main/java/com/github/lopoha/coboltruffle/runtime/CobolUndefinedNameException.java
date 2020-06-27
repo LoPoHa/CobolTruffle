@@ -1,6 +1,6 @@
 package com.github.lopoha.coboltruffle.runtime;
 
-import com.github.lopoha.coboltruffle.parser.CobolException;
+import com.github.lopoha.coboltruffle.CobolException;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
 

@@ -1,7 +1,6 @@
 package com.github.lopoha.coboltruffle.nodes;
 
-import com.github.lopoha.coboltruffle.parser.CobolStatementNode;
-import com.github.lopoha.coboltruffle.parser.HeapPointer;
+import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 

@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.parser;
+package com.github.lopoha.coboltruffle.heap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.List;
 // todo: split heapbuilder into heapbuilder and variable class
 // todo: handle redefines
 // todo: handle arrays (table)
-class HeapBuilder {
+public class HeapBuilder {
   private final List<HeapBuilderVariable> variables = new ArrayList<>();
 
   // root level is either 1 or 77 (todo: what does the 77 mean?)
@@ -15,8 +15,12 @@ class HeapBuilder {
     return level == 1 || level == 77;
   }
 
+  /**
+   * Add a heapVariable to the heap.
+   * @param heapVariable The variable to add.
+   */
   // todo handle levels
-  void add(HeapBuilderVariable heapVariable) {
+  public void add(HeapBuilderVariable heapVariable) {
     if (isRootLevel(heapVariable.level)) {
       this.variables.add(heapVariable);
     } else {
@@ -26,7 +30,10 @@ class HeapBuilder {
   }
 
 
-  void prettyPrint() {
+  /**
+   * Pretty print the Heap.
+   */
+  public void prettyPrint() {
     for (HeapBuilderVariable heapVariable : this.variables) {
       heapVariable.prettyPrint(0);
     }

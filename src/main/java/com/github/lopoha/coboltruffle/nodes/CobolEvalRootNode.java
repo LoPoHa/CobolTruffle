@@ -1,5 +1,6 @@
-package com.github.lopoha.coboltruffle.parser;
+package com.github.lopoha.coboltruffle.nodes;
 
+import com.github.lopoha.coboltruffle.CobolLanguage;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.RootCallTarget;

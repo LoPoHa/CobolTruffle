@@ -1,6 +1,5 @@
 package com.github.lopoha.coboltruffle;
 
-import com.github.lopoha.coboltruffle.parser.CobolLanguage;
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;

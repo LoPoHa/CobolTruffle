@@ -1,18 +1,30 @@
-package com.github.lopoha.coboltruffle.parser;
+package com.github.lopoha.coboltruffle.heap;
 
-import com.github.lopoha.coboltruffle.expression.CobolStringLiteralNode;
+import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.List;
 
 // todo: make class abstract and have multiple implementations: Number, String, ...
 public class HeapPointer extends CobolExpressionNode {
   final String name;
-  final int position;
+  public final int position;
   final int length;
   final String defaultValue;
   private final List<Character> heap;
 
-  HeapPointer(String name, int position, int length, List<Character> heap, String defaultValue) {
+  /**
+   * Create a Pointer to the heap.
+   * @param name name of the variable.
+   * @param position start position on the heap.
+   * @param length length of the variable
+   * @param heap the heap.
+   * @param defaultValue the default value.
+   */
+  public HeapPointer(String name,
+                     int position,
+                     int length,
+                     List<Character> heap,
+                     String defaultValue) {
     this.name = name;
     this.position = position;
     this.length = length;
@@ -20,7 +32,10 @@ public class HeapPointer extends CobolExpressionNode {
     this.defaultValue = defaultValue;
   }
 
-  void initialize() {
+  /**
+   * Initialize the variable with the default value.
+   */
+  public void initialize() {
     // is this even possible?
     if (defaultValue != null) {
       this.setValue(this.defaultValue);

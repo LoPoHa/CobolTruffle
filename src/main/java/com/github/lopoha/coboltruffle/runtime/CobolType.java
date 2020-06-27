@@ -1,6 +1,6 @@
 package com.github.lopoha.coboltruffle.runtime;
 
-import com.github.lopoha.coboltruffle.parser.CobolLanguage;
+import com.github.lopoha.coboltruffle.CobolLanguage;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;

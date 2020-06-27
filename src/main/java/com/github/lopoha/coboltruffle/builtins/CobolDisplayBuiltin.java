@@ -1,7 +1,7 @@
 package com.github.lopoha.coboltruffle.builtins;
 
-import com.github.lopoha.coboltruffle.parser.CobolContext;
-import com.github.lopoha.coboltruffle.parser.CobolLanguage;
+import com.github.lopoha.coboltruffle.CobolLanguage;
+import com.github.lopoha.coboltruffle.runtime.CobolContext;
 import com.github.lopoha.coboltruffle.runtime.CobolLanguageView;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.CachedContext;
