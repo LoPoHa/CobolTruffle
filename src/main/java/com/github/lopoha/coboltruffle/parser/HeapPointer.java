@@ -1,6 +1,6 @@
 package com.github.lopoha.coboltruffle.parser;
 
-import com.github.lopoha.coboltruffle.parser.expression.CobolStringLiteralNode;
+import com.github.lopoha.coboltruffle.expression.CobolStringLiteralNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.List;
 

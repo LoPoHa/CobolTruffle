@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.parser.runtime;
+package com.github.lopoha.coboltruffle.runtime;
 
 import com.github.lopoha.coboltruffle.parser.CobolLanguage;
 import com.oracle.truffle.api.CompilerDirectives;

@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.parser.runtime;
+package com.github.lopoha.coboltruffle.runtime;
 
 // modeled / copied from SL
 

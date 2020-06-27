@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.parser.runtime;
+package com.github.lopoha.coboltruffle.runtime;
 
 import com.github.lopoha.coboltruffle.parser.CobolLanguage;
 import com.oracle.truffle.api.CompilerAsserts;
@@ -12,7 +12,6 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.library.GenerateLibrary;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")

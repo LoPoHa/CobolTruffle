@@ -1,7 +1,7 @@
-package com.github.lopoha.coboltruffle.parser.local;
+package com.github.lopoha.coboltruffle.nodes.local;
 
 import com.github.lopoha.coboltruffle.parser.CobolExpressionNode;
-import com.github.lopoha.coboltruffle.parser.runtime.CobolNull;
+import com.github.lopoha.coboltruffle.runtime.CobolNull;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.BranchProfile;
 

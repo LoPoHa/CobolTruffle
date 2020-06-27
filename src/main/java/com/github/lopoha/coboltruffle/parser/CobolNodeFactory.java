@@ -1,7 +1,7 @@
 package com.github.lopoha.coboltruffle.parser;
 
-import com.github.lopoha.coboltruffle.parser.expression.CobolInvokeNode;
-import com.github.lopoha.coboltruffle.parser.nodes.CobolMoveNode;
+import com.github.lopoha.coboltruffle.expression.CobolInvokeNode;
+import com.github.lopoha.coboltruffle.nodes.CobolMoveNode;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.antlr.v4.runtime.Token;
 
 
 public class CobolNodeFactory {

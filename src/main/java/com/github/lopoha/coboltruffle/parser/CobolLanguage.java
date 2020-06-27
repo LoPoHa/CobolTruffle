@@ -1,6 +1,6 @@
 package com.github.lopoha.coboltruffle.parser;
 
-import com.github.lopoha.coboltruffle.parser.builtins.CobolBuiltinNode;
+import com.github.lopoha.coboltruffle.builtins.CobolBuiltinNode;
 import com.github.lopoha.coboltruffle.parser.common.ParserSettings;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;

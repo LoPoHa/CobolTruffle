@@ -1,7 +1,7 @@
-package com.github.lopoha.coboltruffle.parser.runtime;
+package com.github.lopoha.coboltruffle.runtime;
 
+import com.github.lopoha.coboltruffle.nodes.CobolUndefinedSectionRootNode;
 import com.github.lopoha.coboltruffle.parser.CobolLanguage;
-import com.github.lopoha.coboltruffle.parser.nodes.CobolUndefinedSectionRootNode;
 import com.oracle.truffle.api.Assumption;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;

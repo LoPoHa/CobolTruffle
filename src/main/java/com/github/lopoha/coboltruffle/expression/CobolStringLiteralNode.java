@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.parser.expression;
+package com.github.lopoha.coboltruffle.expression;
 
 import com.github.lopoha.coboltruffle.parser.CobolExpressionNode;
 import com.oracle.truffle.api.frame.VirtualFrame;

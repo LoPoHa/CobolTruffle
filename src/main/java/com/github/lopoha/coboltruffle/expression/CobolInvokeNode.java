@@ -1,7 +1,8 @@
-package com.github.lopoha.coboltruffle.parser.expression;
+package com.github.lopoha.coboltruffle.expression;
 
 import com.github.lopoha.coboltruffle.parser.CobolExpressionNode;
-import com.github.lopoha.coboltruffle.parser.runtime.CobolUndefinedNameException;
+import com.github.lopoha.coboltruffle.runtime.CobolSection;
+import com.github.lopoha.coboltruffle.runtime.CobolUndefinedNameException;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.instrumentation.StandardTags;
@@ -15,10 +16,11 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
 /**
- * The node for function invocation in SL. Since SL has first class functions, the {@link SLFunction
- * target function} can be computed by an arbitrary expression. This node is responsible for
- * evaluating this expression, as well as evaluating the {@link #argumentNodes arguments}. The
- * actual invocation is delegated to a {@link InteropLibrary} instance.
+ * The node for function invocation in SL. Since SL has first class functions, the
+ * {@link CobolSection target function} can be computed by an arbitrary expression.
+ * This node is responsible for * evaluating this expression, as well as evaluating the
+ * {@link #argumentNodes arguments}.
+ * The actual invocation is delegated to a {@link InteropLibrary} instance.
  *
  * @see InteropLibrary#execute(Object, Object...)
  */

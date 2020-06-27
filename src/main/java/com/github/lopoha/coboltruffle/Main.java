@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.language;
+package com.github.lopoha.coboltruffle;
 
 import com.github.lopoha.coboltruffle.parser.CobolLanguage;
 import java.io.File;
@@ -17,7 +17,7 @@ import org.graalvm.polyglot.Value;
 //       for the preprocessor -> parser pipeline
 //       the parser should call the preprocessor, it is called separatly here for demo purpose;
 
-public class Test {
+public class Main {
 
   /**
    * Entry point.

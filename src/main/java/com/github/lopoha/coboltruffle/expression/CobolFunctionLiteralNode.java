@@ -1,8 +1,8 @@
-package com.github.lopoha.coboltruffle.parser.expression;
+package com.github.lopoha.coboltruffle.expression;
 
 import com.github.lopoha.coboltruffle.parser.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.parser.CobolLanguage;
-import com.github.lopoha.coboltruffle.parser.runtime.CobolSection;
+import com.github.lopoha.coboltruffle.runtime.CobolSection;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;

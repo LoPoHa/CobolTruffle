@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.parser.nodes;
+package com.github.lopoha.coboltruffle.nodes;
 
 import com.github.lopoha.coboltruffle.parser.CobolStatementNode;
 import com.github.lopoha.coboltruffle.parser.HeapPointer;

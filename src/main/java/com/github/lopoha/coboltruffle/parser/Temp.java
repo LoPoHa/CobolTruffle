@@ -1,14 +1,13 @@
 package com.github.lopoha.coboltruffle.parser;
 
+import com.github.lopoha.coboltruffle.expression.CobolFunctionLiteralNode;
+import com.github.lopoha.coboltruffle.expression.CobolStringLiteralNode;
+import com.github.lopoha.coboltruffle.nodes.CobolMoveNode;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolLexer;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
 import com.github.lopoha.coboltruffle.parser.common.ParserSettings;
-import com.github.lopoha.coboltruffle.parser.expression.CobolFunctionLiteralNode;
-import com.github.lopoha.coboltruffle.parser.expression.CobolStringLiteralNode;
-import com.github.lopoha.coboltruffle.parser.nodes.CobolMoveNode;
 import com.github.lopoha.coboltruffle.parser.preprocessor.ParserPreprocessor;
 import com.oracle.truffle.api.RootCallTarget;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

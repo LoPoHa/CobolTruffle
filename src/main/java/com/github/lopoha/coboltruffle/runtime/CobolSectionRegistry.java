@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.parser.runtime;
+package com.github.lopoha.coboltruffle.runtime;
 
 import com.github.lopoha.coboltruffle.parser.CobolLanguage;
 import com.github.lopoha.coboltruffle.parser.NotImplementedException;
@@ -6,7 +6,6 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.source.Source;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;

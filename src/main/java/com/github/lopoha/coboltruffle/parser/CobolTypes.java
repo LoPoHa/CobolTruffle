@@ -1,7 +1,7 @@
 package com.github.lopoha.coboltruffle.parser;
 
 // modeled / copied from SimpleLanguage
-import com.github.lopoha.coboltruffle.parser.runtime.CobolNull;
+import com.github.lopoha.coboltruffle.runtime.CobolNull;
 import com.oracle.truffle.api.dsl.TypeCast;
 import com.oracle.truffle.api.dsl.TypeCheck;
 import com.oracle.truffle.api.dsl.TypeSystem;

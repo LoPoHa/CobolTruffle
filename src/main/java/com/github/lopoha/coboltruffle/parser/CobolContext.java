@@ -1,9 +1,9 @@
 package com.github.lopoha.coboltruffle.parser;
 
-import com.github.lopoha.coboltruffle.parser.builtins.CobolBuiltinNode;
-import com.github.lopoha.coboltruffle.parser.builtins.CobolDisplayBuiltinFactory;
-import com.github.lopoha.coboltruffle.parser.local.CobolReadArgumentNode;
-import com.github.lopoha.coboltruffle.parser.runtime.CobolSectionRegistry;
+import com.github.lopoha.coboltruffle.builtins.CobolBuiltinNode;
+import com.github.lopoha.coboltruffle.builtins.CobolDisplayBuiltinFactory;
+import com.github.lopoha.coboltruffle.nodes.local.CobolReadArgumentNode;
+import com.github.lopoha.coboltruffle.runtime.CobolSectionRegistry;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
