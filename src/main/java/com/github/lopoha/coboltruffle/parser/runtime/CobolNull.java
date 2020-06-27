@@ -1,6 +1,6 @@
-package com.github.lopoha.coboltruffle.parser;
+package com.github.lopoha.coboltruffle.parser.runtime;
 
-// modeled / copied from CobolException
+// modeled / copied from SL
 
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
@@ -34,7 +34,7 @@ public final class CobolNull implements TruffleObject {
    * {@link CobolNull} values are interpreted as null values by other languages.
    */
   @ExportMessage
-  boolean isNull() {
+  public boolean isNull() {
     return true;
   }
 }

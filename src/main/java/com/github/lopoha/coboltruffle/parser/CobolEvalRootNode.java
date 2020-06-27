@@ -1,5 +1,6 @@
 package com.github.lopoha.coboltruffle.parser;
 
+import com.github.lopoha.coboltruffle.parser.runtime.CobolNull;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.RootCallTarget;
@@ -60,6 +61,6 @@ public final class CobolEvalRootNode extends RootNode {
     }
 
     // TODO: should this be null every time?
-    return CobolNull.SINGLETON;
+    return mainCallNode.call();
   }
 }

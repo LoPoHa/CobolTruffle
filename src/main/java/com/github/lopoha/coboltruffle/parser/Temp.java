@@ -3,10 +3,14 @@ package com.github.lopoha.coboltruffle.parser;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolLexer;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
 import com.github.lopoha.coboltruffle.parser.common.ParserSettings;
+import com.github.lopoha.coboltruffle.parser.expression.CobolFunctionLiteralNode;
+import com.github.lopoha.coboltruffle.parser.expression.CobolStringLiteralNode;
 import com.github.lopoha.coboltruffle.parser.nodes.CobolMoveNode;
 import com.github.lopoha.coboltruffle.parser.preprocessor.ParserPreprocessor;
 import com.oracle.truffle.api.RootCallTarget;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -54,6 +58,14 @@ public class Temp {
       cobolNodeFactory.addMove(moveNode);
       CobolMoveNode moveNode2 = new CobolMoveNode(copystring, programName);
       cobolNodeFactory.addMove(moveNode2);
+
+      CobolStringLiteralNode stringConstant = new CobolStringLiteralNode("hello World");
+      CobolFunctionLiteralNode println = new CobolFunctionLiteralNode("display");
+      List<CobolExpressionNode> printlnArgs = new ArrayList<>();
+      printlnArgs.add(stringConstant);
+      cobolNodeFactory.addCall(println, printlnArgs);
+
+
       cobolNodeFactory.finishSection();
       return cobolNodeFactory.getAllSections();
 
