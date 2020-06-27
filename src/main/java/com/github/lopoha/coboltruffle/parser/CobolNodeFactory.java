@@ -1,6 +1,7 @@
 package com.github.lopoha.coboltruffle.parser;
 
 import com.github.lopoha.coboltruffle.CobolLanguage;
+import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.CobolMoveNode;
 import com.github.lopoha.coboltruffle.nodes.CobolRootNode;
@@ -47,12 +48,14 @@ public class CobolNodeFactory {
     allSections.put(this.functionName, Truffle.getRuntime().createCallTarget(rootNode));
   }
 
-  /**
-   * Todo.
-   * @param move the move to add.
-   */
-  public void addMove(CobolMoveNode move) {
-    this.sectionNodes.add(move);
+  public void addMove(String from, HeapPointer to) {
+    CobolMoveNode moveNode = new CobolMoveNode(from, to);
+    this.sectionNodes.add(moveNode);
+  }
+
+  public void addMove(HeapPointer from, HeapPointer to) {
+    CobolMoveNode moveNode = new CobolMoveNode(from, to);
+    this.sectionNodes.add(moveNode);
   }
 
   /**
@@ -61,7 +64,7 @@ public class CobolNodeFactory {
    * @param parameterNodes the parameters for the function.
    */
   public void addCall(CobolExpressionNode functionNode,
-                                 List<CobolExpressionNode> parameterNodes) {
+                      List<CobolExpressionNode> parameterNodes) {
     if (functionNode == null || parameterNodes.contains(null)) {
       // todo: should this fail?
       return;
