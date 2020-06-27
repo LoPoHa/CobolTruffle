@@ -1,16 +1,19 @@
 package com.github.lopoha.coboltruffle.parser;
 
+import com.github.lopoha.coboltruffle.parser.expression.CobolStringLiteralNode;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.List;
 
 // todo: make class abstract and have multiple implementations: Number, String, ...
-// todo: save name (could be useful for errors...)
-public class HeapPointer {
+public class HeapPointer extends CobolExpressionNode {
+  final String name;
   final int position;
   final int length;
   final String defaultValue;
   private final List<Character> heap;
 
-  HeapPointer(int position, int length, List<Character> heap, String defaultValue) {
+  HeapPointer(String name, int position, int length, List<Character> heap, String defaultValue) {
+    this.name = name;
     this.position = position;
     this.length = length;
     this.heap = heap;
@@ -59,5 +62,10 @@ public class HeapPointer {
         heap.set(position + i, value.charAt(i));
       }
     }
+  }
+
+  @Override
+  public String executeGeneric(VirtualFrame frame) {
+    return this.getValue();
   }
 }

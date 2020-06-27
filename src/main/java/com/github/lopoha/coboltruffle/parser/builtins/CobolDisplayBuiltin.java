@@ -2,6 +2,7 @@ package com.github.lopoha.coboltruffle.parser.builtins;
 
 import com.github.lopoha.coboltruffle.parser.CobolContext;
 import com.github.lopoha.coboltruffle.parser.CobolLanguage;
+import com.github.lopoha.coboltruffle.parser.runtime.CobolLanguageView;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.CachedContext;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -28,8 +29,7 @@ public abstract class CobolDisplayBuiltin extends CobolBuiltinNode {
   public Object println(Object value,
                         @CachedLibrary(limit = "3") InteropLibrary interop,
                         @CachedContext(CobolLanguage.class) CobolContext context) {
-    // todo: implement SLLanguageView
-    //context.getOutput().println(interop.toDisplayString(SLLanguageView.forValue(value)));
+    context.getOutput().println(interop.toDisplayString(CobolLanguageView.forValue(value)));
     return value;
   }
 

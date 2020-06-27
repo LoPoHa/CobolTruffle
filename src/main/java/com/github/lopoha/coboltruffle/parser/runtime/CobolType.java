@@ -12,6 +12,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.library.GenerateLibrary;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
@@ -24,6 +25,7 @@ public final class CobolType implements TruffleObject {
    * additional checks need to be performed (similar to number checking for SLBigNumber).
    */
   public static final CobolType NULL = new CobolType("NULL", InteropLibrary::isNull);
+  public static final CobolType STRING = new CobolType("String", InteropLibrary::isString);
   public static final CobolType SECTION = new CobolType("Section", InteropLibrary::isExecutable);
 
   /*
@@ -34,7 +36,7 @@ public final class CobolType implements TruffleObject {
    * functions and not objects.
    */
   @CompilationFinal(dimensions = 1)
-  public static final CobolType[] PRECEDENCE = new CobolType[]{NULL, SECTION};
+  public static final CobolType[] PRECEDENCE = new CobolType[]{NULL, STRING, SECTION};
 
   private final String name;
   private final TypeCheck isInstance;

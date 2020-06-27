@@ -47,7 +47,8 @@ public class CobolHeap {
     // todo should a check if the variable is already defined be here?
     //      this time it should be an error? or not?
     if (initialize) {
-      HeapPointer basePointer = new HeapPointer(variableBasePosition,
+      HeapPointer basePointer = new HeapPointer(variable.variableName,
+                                                variableBasePosition,
                                                 variable.getSize(),
                                                 this.heap,
                                                 variable.getValue());
@@ -56,7 +57,8 @@ public class CobolHeap {
 
     if (variable.variableName != null) {
       this.pointerMap.put(variable.variableName.toLowerCase(),
-                          new HeapPointer(variableBasePosition,
+                          new HeapPointer(variable.variableName,
+                                          variableBasePosition,
                                           variable.getSize(),
                                           this.heap,
                                           variable.getValue()));

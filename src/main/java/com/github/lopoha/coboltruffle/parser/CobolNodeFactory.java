@@ -1,5 +1,6 @@
 package com.github.lopoha.coboltruffle.parser;
 
+import com.github.lopoha.coboltruffle.parser.expression.CobolInvokeNode;
 import com.github.lopoha.coboltruffle.parser.nodes.CobolMoveNode;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.antlr.v4.runtime.Token;
 
 
 public class CobolNodeFactory {
@@ -40,8 +42,23 @@ public class CobolNodeFactory {
     allSections.put(this.functionName, Truffle.getRuntime().createCallTarget(rootNode));
   }
 
-  public void addMove(CobolMoveNode move) {
+  void addMove(CobolMoveNode move) {
     this.sectionNodes.add(move);
+  }
+
+  void addCall(CobolExpressionNode functionNode,
+                                 List<CobolExpressionNode> parameterNodes) {
+    if (functionNode == null || parameterNodes.contains(null)) {
+      // todo: should this fail?
+      return;
+    }
+
+    final CobolExpressionNode result
+        = new CobolInvokeNode(functionNode, parameterNodes.toArray(new CobolExpressionNode[0]));
+
+    result.addExpressionTag();
+
+    this.sectionNodes.add(result);
   }
 
   public Map<String, RootCallTarget> getAllSections() {

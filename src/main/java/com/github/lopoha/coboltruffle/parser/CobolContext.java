@@ -1,11 +1,14 @@
 package com.github.lopoha.coboltruffle.parser;
 
 import com.github.lopoha.coboltruffle.parser.builtins.CobolBuiltinNode;
+import com.github.lopoha.coboltruffle.parser.builtins.CobolDisplayBuiltinFactory;
+import com.github.lopoha.coboltruffle.parser.local.CobolReadArgumentNode;
 import com.github.lopoha.coboltruffle.parser.runtime.CobolSectionRegistry;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.Scope;
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -39,7 +42,7 @@ public final class CobolContext {
    */
   public CobolContext(CobolLanguage language, Env env) {
     this.env = env;
-    this.output = new PrintWriter(env.out());
+    this.output = new PrintWriter(env.out(), true);
     this.functionRegistry = new CobolSectionRegistry(language);
     this.topScopes = Collections.singleton(
         Scope.newBuilder("global", functionRegistry.getFunctionsObject()).build());
@@ -79,22 +82,22 @@ public final class CobolContext {
   }
 
   private void installBuiltins() {
-        /*
-        installBuiltin(SLReadlnBuiltinFactory.getInstance());
-        installBuiltin(SLPrintlnBuiltinFactory.getInstance());
-        installBuiltin(SLNanoTimeBuiltinFactory.getInstance());
-        installBuiltin(SLDefineFunctionBuiltinFactory.getInstance());
-        installBuiltin(SLStackTraceBuiltinFactory.getInstance());
-        installBuiltin(SLHelloEqualsWorldBuiltinFactory.getInstance());
-        installBuiltin(SLNewObjectBuiltinFactory.getInstance());
-        installBuiltin(SLEvalBuiltinFactory.getInstance());
-        installBuiltin(SLImportBuiltinFactory.getInstance());
-        installBuiltin(SLGetSizeBuiltinFactory.getInstance());
-        installBuiltin(SLHasSizeBuiltinFactory.getInstance());
-        installBuiltin(SLIsExecutableBuiltinFactory.getInstance());
-        installBuiltin(SLIsNullBuiltinFactory.getInstance());
-        installBuiltin(SLWrapPrimitiveBuiltinFactory.getInstance());
-        */
+    installBuiltin(CobolDisplayBuiltinFactory.getInstance());
+    /*
+    installBuiltin(SLReadlnBuiltinFactory.getInstance());
+    installBuiltin(SLNanoTimeBuiltinFactory.getInstance());
+    installBuiltin(SLDefineFunctionBuiltinFactory.getInstance());
+    installBuiltin(SLStackTraceBuiltinFactory.getInstance());
+    installBuiltin(SLHelloEqualsWorldBuiltinFactory.getInstance());
+    installBuiltin(SLNewObjectBuiltinFactory.getInstance());
+    installBuiltin(SLEvalBuiltinFactory.getInstance());
+    installBuiltin(SLImportBuiltinFactory.getInstance());
+    installBuiltin(SLGetSizeBuiltinFactory.getInstance());
+    installBuiltin(SLHasSizeBuiltinFactory.getInstance());
+    installBuiltin(SLIsExecutableBuiltinFactory.getInstance());
+    installBuiltin(SLIsNullBuiltinFactory.getInstance());
+    installBuiltin(SLWrapPrimitiveBuiltinFactory.getInstance());
+    */
   }
 
   /**
@@ -115,12 +118,9 @@ public final class CobolContext {
      * Object[] array encapsulated in SLArguments. A SLReadArgumentNode extracts a parameter
      * from this array.
      */
-    /*
-      TODO
     for (int i = 0; i < argumentCount; i++) {
-        argumentNodes[i] = new SLReadArgumentNode(i);
+      argumentNodes[i] = new CobolReadArgumentNode(i);
     }
-    */
     /* Instantiate the builtin node. This node performs the actual functionality. */
     CobolBuiltinNode builtinBodyNode = factory.createNode((Object) argumentNodes);
     builtinBodyNode.addRootTag();
@@ -136,8 +136,7 @@ public final class CobolContext {
                                                name);
 
     /* Register the builtin function in our function registry. */
-    //getFunctionRegistry().register(name, Truffle.getRuntime().createCallTarget(rootNode));
-    throw new NotImplementedException();
+    getFunctionRegistry().register(name, Truffle.getRuntime().createCallTarget(rootNode));
   }
 
   /**
