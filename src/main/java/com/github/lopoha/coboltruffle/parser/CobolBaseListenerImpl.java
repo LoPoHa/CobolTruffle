@@ -282,15 +282,15 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
     }
 
     CobolFunctionLiteralNode displayNode
-        = new CobolFunctionLiteralNode(programName, "display");
-    cobolNodeFactory.addCall(displayNode, displayArgs);
+        = new CobolFunctionLiteralNode(this.programName, "display");
+    this.cobolNodeFactory.addCall(displayNode, displayArgs);
   }
 
   @Override
   public void enterInitializeStatement(CobolParser.InitializeStatementContext ctx) {
     String variable = ctx.ID().getText();
     HeapPointer heapPointer = this.cobolLanguage.heapGetVariable(variable);
-    cobolNodeFactory.addInitialize(heapPointer);
+    this.cobolNodeFactory.addInitialize(heapPointer);
   }
 
   private String removeStringQuotes(String input) {
@@ -301,6 +301,14 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
 
   public Map<String, RootCallTarget> getAllSections() {
     return this.cobolNodeFactory.getAllSections();
+  }
+
+  @Override
+  public void enterFunctionCallStatement(CobolParser.FunctionCallStatementContext ctx) {
+    CobolFunctionLiteralNode displayNode
+        = new CobolFunctionLiteralNode(this.programName, ctx.ID().getText());
+    // todo: should arguments be allowed here?
+    this.cobolNodeFactory.addCall(displayNode, new ArrayList<>());
   }
 
   @Override
