@@ -26,8 +26,13 @@ public class Main {
   public static void main(final String[] args) throws Exception {
     String file = "./teststuff/program/test.cbl";
     Source source = Source.newBuilder(CobolLanguage.ID, new File(file)).build();
-
+    installExternalBuiltins();
     System.exit(executeSource(source, System.in, System.out, new HashMap<>()));
+  }
+
+  private static void installExternalBuiltins() {
+    //doesnt work currently because of java 9 module system
+    //CobolLanguage.installBuiltin(CobolDisplayBuiltinFactory.getInstance());
   }
 
   private static int executeSource(Source source,

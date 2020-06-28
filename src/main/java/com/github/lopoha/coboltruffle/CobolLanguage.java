@@ -1,17 +1,15 @@
 package com.github.lopoha.coboltruffle;
 
 import com.github.lopoha.coboltruffle.builtins.CobolBuiltinNode;
+import com.github.lopoha.coboltruffle.builtins.CobolDisplayBuiltin;
+import com.github.lopoha.coboltruffle.builtins.CobolDisplayBuiltinFactory;
 import com.github.lopoha.coboltruffle.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.heap.HeapBuilder;
 import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.nodes.CobolEvalRootNode;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
-import com.github.lopoha.coboltruffle.nodes.CobolMoveNode;
-import com.github.lopoha.coboltruffle.nodes.expression.CobolFunctionLiteralNode;
-import com.github.lopoha.coboltruffle.nodes.expression.CobolStringLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.local.CobolLexicalScope;
 import com.github.lopoha.coboltruffle.parser.CobolBaseListenerImpl;
-import com.github.lopoha.coboltruffle.parser.CobolNodeFactory;
 import com.github.lopoha.coboltruffle.parser.NotImplementedException;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolLexer;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
@@ -63,7 +61,45 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   public static final String ID = "Cobol";
   public static final String MIME_TYPE = "application/x-cbl";
   private final CobolHeap heap = new CobolHeap();
-  private String entryPointName;
+  private static final List<NodeFactory<? extends CobolBuiltinNode>> INTERNAL_BUILTINS
+      = new ArrayList<>();
+  private static final List<NodeFactory<? extends CobolBuiltinNode>> EXTERNAL_BUILTINS
+      = Collections.synchronizedList(new ArrayList<>());
+
+  /**
+   * TODO.
+   */
+  public CobolLanguage() {
+    if (INTERNAL_BUILTINS.isEmpty()) {
+      INTERNAL_BUILTINS.add(CobolDisplayBuiltinFactory.getInstance());
+    }
+  }
+
+  /**
+   * Returns a list with all the builtin function names.
+   * @return the list with all the builtin function names.
+   */
+  public static List<String> getBuiltinFunctionNames() {
+    List<String> functionNames = new ArrayList<>();
+
+    // todo: replace this temporary solution with something more performant!
+
+    for (NodeFactory<? extends CobolBuiltinNode> node : INTERNAL_BUILTINS) {
+      CobolExpressionNode[] argumentNodes = new CobolExpressionNode[0];
+      CobolBuiltinNode builtinBodyNode = node.createNode((Object) argumentNodes);
+      String name = CobolContext.lookupNodeInfo(builtinBodyNode.getClass()).shortName();
+      functionNames.add(name);
+    }
+
+    for (NodeFactory<? extends CobolBuiltinNode> node : EXTERNAL_BUILTINS) {
+      CobolExpressionNode[] argumentNodes = new CobolExpressionNode[0];
+      CobolBuiltinNode builtinBodyNode = node.createNode((Object) argumentNodes);
+      String name = CobolContext.lookupNodeInfo(builtinBodyNode.getClass()).shortName();
+      functionNames.add(name);
+    }
+
+    return functionNames;
+  }
 
   /**
    * Add a HeapBuilder to the heap.
@@ -80,11 +116,11 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
 
   @Override
   public CobolContext createContext(Env env) {
-    return new CobolContext(this, env);
+    return new CobolContext(this, env, INTERNAL_BUILTINS, EXTERNAL_BUILTINS);
   }
 
   @Override
-  protected CallTarget parse(ParsingRequest request) throws Exception {
+  protected CallTarget parse(ParsingRequest request) {
     //Source source = request.getSource();
     List<String> programSearchPath = new ArrayList<>();
     programSearchPath.add("./teststuff/program");
@@ -122,35 +158,6 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
       CobolBaseListenerImpl listener = new CobolBaseListenerImpl(this);
       walker.walk(listener, fileContext);
 
-      /*
-      CobolHeap workingStorageHeap = new CobolHeap();
-      workingStorageHeap.addToHeap(listener.workingStorageHeap);
-
-
-
-      CobolNodeFactory cobolNodeFactory = new CobolNodeFactory(cobolLanguage);
-      cobolNodeFactory.startSection("main");
-
-      CobolStringLiteralNode stringConstant = new CobolStringLiteralNode("hello World");
-      CobolFunctionLiteralNode println = new CobolFunctionLiteralNode("display");
-      List<CobolExpressionNode> printlnArgs = new ArrayList<>();
-      printlnArgs.add(stringConstant);
-      cobolNodeFactory.addCall(println, printlnArgs);
-
-      HeapPointer programName = workingStorageHeap.getHeapPointer("PROGRAMNAME");
-      List<CobolExpressionNode> println2Args = new ArrayList<>();
-      println2Args.add(programName);
-      cobolNodeFactory.addCall(println, println2Args);
-
-      cobolNodeFactory.addMove("ABC", programName);
-      cobolNodeFactory.addCall(println, println2Args);
-
-      HeapPointer copyString = workingStorageHeap.getHeapPointer("COPY-STRING");
-      cobolNodeFactory.addMove(copyString, programName);
-      cobolNodeFactory.addCall(println, println2Args);
-
-      cobolNodeFactory.finishSection();
-      */
       return listener.getAllSections();
 
     } catch (Exception e) {
@@ -293,9 +300,6 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   public static CobolContext getCurrentContext() {
     return getCurrentContext(CobolLanguage.class);
   }
-
-  private static final List<NodeFactory<? extends CobolBuiltinNode>> EXTERNAL_BUILTINS
-      = Collections.synchronizedList(new ArrayList<>());
 
   public static void installBuiltin(NodeFactory<? extends CobolBuiltinNode> builtin) {
     EXTERNAL_BUILTINS.add(builtin);

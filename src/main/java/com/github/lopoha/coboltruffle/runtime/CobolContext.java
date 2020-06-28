@@ -2,7 +2,6 @@ package com.github.lopoha.coboltruffle.runtime;
 
 import com.github.lopoha.coboltruffle.CobolLanguage;
 import com.github.lopoha.coboltruffle.builtins.CobolBuiltinNode;
-import com.github.lopoha.coboltruffle.builtins.CobolDisplayBuiltinFactory;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.CobolRootNode;
 import com.github.lopoha.coboltruffle.nodes.local.CobolReadArgumentNode;
@@ -20,7 +19,9 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.object.Layout;
 import com.oracle.truffle.api.source.Source;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public final class CobolContext {
 
@@ -31,6 +32,7 @@ public final class CobolContext {
   private final Env env;
   //private final BufferedReader input;
   private final PrintWriter output;
+  private final List<String> builtinFunctionNames = new ArrayList<>();
   private final CobolSectionRegistry functionRegistry;
   //private final Shape emptyShape;
   private final CobolLanguage language;
@@ -43,22 +45,24 @@ public final class CobolContext {
    * @param language Reference to the [CobolLanguage]
    * @param env The env the engine runs in.
    */
-  public CobolContext(CobolLanguage language, Env env) {
+  public CobolContext(CobolLanguage language,
+                      Env env,
+                      List<NodeFactory<? extends CobolBuiltinNode>> internalBuiltins,
+                      List<NodeFactory<? extends CobolBuiltinNode>> externalBuiltins) {
     this.env = env;
     this.output = new PrintWriter(env.out(), true);
     this.functionRegistry = new CobolSectionRegistry(language);
     this.topScopes = Collections.singleton(
         Scope.newBuilder("global", functionRegistry.getFunctionsObject()).build());
     this.language = language;
-    installBuiltins();
 
+    for (NodeFactory<? extends CobolBuiltinNode> builtin : internalBuiltins) {
+      installBuiltin(builtin);
+    }
 
-    /*
-      TODO
-      for (NodeFactory<? extends SLBuiltinNode> builtin : externalBuiltins) {
-        installBuiltin(builtin);
-       }
-      */
+    for (NodeFactory<? extends CobolBuiltinNode> builtin : externalBuiltins) {
+      installBuiltin(builtin);
+    }
     //this.emptyShape = LAYOUT.createShape(SLObjectType.SINGLETON);
   }
 
@@ -82,25 +86,6 @@ public final class CobolContext {
 
   public Iterable<Scope> getTopScopes() {
     return topScopes;
-  }
-
-  private void installBuiltins() {
-    installBuiltin(CobolDisplayBuiltinFactory.getInstance());
-    /*
-    installBuiltin(SLReadlnBuiltinFactory.getInstance());
-    installBuiltin(SLNanoTimeBuiltinFactory.getInstance());
-    installBuiltin(SLDefineFunctionBuiltinFactory.getInstance());
-    installBuiltin(SLStackTraceBuiltinFactory.getInstance());
-    installBuiltin(SLHelloEqualsWorldBuiltinFactory.getInstance());
-    installBuiltin(SLNewObjectBuiltinFactory.getInstance());
-    installBuiltin(SLEvalBuiltinFactory.getInstance());
-    installBuiltin(SLImportBuiltinFactory.getInstance());
-    installBuiltin(SLGetSizeBuiltinFactory.getInstance());
-    installBuiltin(SLHasSizeBuiltinFactory.getInstance());
-    installBuiltin(SLIsExecutableBuiltinFactory.getInstance());
-    installBuiltin(SLIsNullBuiltinFactory.getInstance());
-    installBuiltin(SLWrapPrimitiveBuiltinFactory.getInstance());
-    */
   }
 
   /**
@@ -140,6 +125,7 @@ public final class CobolContext {
 
     /* Register the builtin function in our function registry. */
     getFunctionRegistry().register(name, Truffle.getRuntime().createCallTarget(rootNode));
+    this.builtinFunctionNames.add(name);
   }
 
   /**

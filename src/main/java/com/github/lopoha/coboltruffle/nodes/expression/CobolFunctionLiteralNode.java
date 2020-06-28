@@ -32,7 +32,7 @@ public final class CobolFunctionLiteralNode extends CobolExpressionNode {
     functionName = functionName.toLowerCase();
 
     // todo: replace with a list of buildin functions instead of hard code it here!
-    if (functionName.equals("display")) {
+    if (CobolLanguage.getBuiltinFunctionNames().contains(functionName)) {
       this.functionName = functionName;
     } else {
       this.functionName = CobolNodeFactory.getLocalFunctionName(programName, functionName);
