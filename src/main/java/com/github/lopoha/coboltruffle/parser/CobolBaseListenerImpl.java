@@ -238,7 +238,6 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void enterMoveStatement(CobolParser.MoveStatementContext ctx) {
-    System.out.println("MOVE FOUND");
     CobolParser.MoveToContext moveToContext = ctx.moveTo();
     // todo allow multiple targets
     String targetString = moveToContext.ID(0).toString();
