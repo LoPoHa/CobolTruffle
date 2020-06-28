@@ -63,11 +63,18 @@ functionSectionEnd : EXIT DOT;
 programExit : EXIT PROGRAM DOT;
 
 
-statement : (moveStatement | initializeStatement | ifStatement | functionCallStatement);
+statement : ( moveStatement
+            | initializeStatement
+            | ifStatement
+            | functionCallStatement
+            | displayStatement
+            );
 
 
 // todo allow substrings with brackets + indices
-moveStatement : MOVE (ID | NUMBER | STRING | SPACE) TO ID+ DOT?;
+moveStatement : MOVE moveFrom TO moveTo DOT?;
+moveFrom : (ID | NUMBER | STRING | SPACE);
+moveTo : ID+;
 
 initializeStatement : INITIALIZE ID DOT?;
 
@@ -83,5 +90,8 @@ value : (ID | SPACE | STRING | NUMBER);
 
 
 functionCallStatement : PERFORM ID DOT?;
+
+displayStatement : DISPLAY (displayParameter)+ DOT?;
+displayParameter : (ID | STRING);
 
 programEnd : END PROGRAM ID DOT;

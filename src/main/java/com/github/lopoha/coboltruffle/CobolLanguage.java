@@ -2,6 +2,7 @@ package com.github.lopoha.coboltruffle;
 
 import com.github.lopoha.coboltruffle.builtins.CobolBuiltinNode;
 import com.github.lopoha.coboltruffle.heap.CobolHeap;
+import com.github.lopoha.coboltruffle.heap.HeapBuilder;
 import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.nodes.CobolEvalRootNode;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
@@ -61,6 +62,20 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   public static final String ID = "Cobol";
   public static final String MIME_TYPE = "application/x-cbl";
+  private CobolHeap heap = new CobolHeap();
+
+  /**
+   * Add a HeapBuilder to the heap.
+   * TODO: Should only one heapbuilder be allowed to be added?
+   * @param heapBuilder The heapbuilder to add.
+   */
+  public void addToHeap(HeapBuilder heapBuilder) {
+    heap.addToHeap(heapBuilder);
+  }
+
+  public HeapPointer heapGetVariable(String name) {
+    return this.heap.getHeapPointer(name);
+  }
 
   @Override
   public CobolContext createContext(Env env) {
@@ -77,7 +92,7 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     ParserSettings parserSettings = new ParserSettings(copySearchPath, programSearchPath);
     String preprocessed = ParserPreprocessor.getPreprocessedString("test", parserSettings);
 
-    Map<String, RootCallTarget> functions = processPreprocessed(preprocessed, this);
+    Map<String, RootCallTarget> functions = processPreprocessed(preprocessed);
     RootCallTarget main = functions.get("main");
 
     if (main == null) {
@@ -92,11 +107,9 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   /**
    * TODO: replace method.
    * @param source the preprocessed source code.
-   * @param cobolLanguage a reference to the cobollanguage.
    * @return a map with all functions.
    */
-  public Map<String, RootCallTarget> processPreprocessed(String source,
-                                                              CobolLanguage cobolLanguage) {
+  public Map<String, RootCallTarget> processPreprocessed(String source) {
     try {
       CharStream input = CharStreams.fromString(source);
       CobolLexer lexer = new CobolLexer(input);
@@ -104,9 +117,10 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
       CobolParser parser = new CobolParser(tokens);
       CobolParser.FileContext fileContext = parser.file();
       ParseTreeWalker walker = new ParseTreeWalker();
-      CobolBaseListenerImpl listener = new CobolBaseListenerImpl();
+      CobolBaseListenerImpl listener = new CobolBaseListenerImpl(this);
       walker.walk(listener, fileContext);
 
+      /*
       CobolHeap workingStorageHeap = new CobolHeap();
       workingStorageHeap.addToHeap(listener.workingStorageHeap);
 
@@ -126,22 +140,23 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
       println2Args.add(programName);
       cobolNodeFactory.addCall(println, println2Args);
 
-      CobolMoveNode moveNode = new CobolMoveNode("ABC", programName);
-      cobolNodeFactory.addMove(moveNode);
+      cobolNodeFactory.addMove("ABC", programName);
       cobolNodeFactory.addCall(println, println2Args);
 
       HeapPointer copyString = workingStorageHeap.getHeapPointer("COPY-STRING");
-      CobolMoveNode moveNode2 = new CobolMoveNode(copyString, programName);
-      cobolNodeFactory.addMove(moveNode2);
+      cobolNodeFactory.addMove(copyString, programName);
       cobolNodeFactory.addCall(println, println2Args);
 
       cobolNodeFactory.finishSection();
-      return cobolNodeFactory.getAllSections();
+      */
+      return listener.getAllSections();
 
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
+
+
 
   /*
    * Still necessary for the old SL TCK to pass. We should remove with the old TCK. New language

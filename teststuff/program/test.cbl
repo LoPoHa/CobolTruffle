@@ -29,8 +29,11 @@
        MAIN SECTION.
       *
            MOVE     "ABCD"       TO PROGRAMNAME.
+           DISPLAY "ABC".
+           DISPLAY PROGRAMNAME.
            PERFORM FIRST-SECTION.
            INITIALIZE PROGRAMNAME.
+           DISPLAY PROGRAMNAME.
       *
        PROG-EX.
            EXIT PROGRAM.
