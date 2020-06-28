@@ -62,7 +62,8 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   public static final String ID = "Cobol";
   public static final String MIME_TYPE = "application/x-cbl";
-  private CobolHeap heap = new CobolHeap();
+  private final CobolHeap heap = new CobolHeap();
+  private String entryPointName;
 
   /**
    * Add a HeapBuilder to the heap.
@@ -90,14 +91,15 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     List<String> copySearchPath = new ArrayList<>();
     copySearchPath.add("./teststuff/copy");
     ParserSettings parserSettings = new ParserSettings(copySearchPath, programSearchPath);
-    String preprocessed = ParserPreprocessor.getPreprocessedString("test", parserSettings);
+    // programName and filename must be the same!
+    String fileName = "test";
+    String preprocessed = ParserPreprocessor.getPreprocessedString(fileName, parserSettings);
 
     Map<String, RootCallTarget> functions = processPreprocessed(preprocessed);
-    RootCallTarget main = functions.get("main");
+    RootCallTarget main = functions.get(fileName);
 
     if (main == null) {
-      // todo
-      main.getRootNode();
+      throw new NotImplementedException();
     }
 
     RootNode evalMain = new CobolEvalRootNode(this, main, functions);

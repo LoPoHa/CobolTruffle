@@ -47,7 +47,8 @@ public class Main {
     try {
       Value result = context.eval(source);
 
-      if (context.getBindings(CobolLanguage.ID).getMember("main") == null) {
+      // name must be the file name
+      if (context.getBindings(CobolLanguage.ID).getMember("test") == null) {
         err.println("No function main defined in Cobol source file. ->  internal error");
         return 1;
       }
