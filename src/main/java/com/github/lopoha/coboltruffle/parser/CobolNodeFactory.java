@@ -3,6 +3,7 @@ package com.github.lopoha.coboltruffle.parser;
 import com.github.lopoha.coboltruffle.CobolLanguage;
 import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
+import com.github.lopoha.coboltruffle.nodes.CobolInitializeNode;
 import com.github.lopoha.coboltruffle.nodes.CobolMoveNode;
 import com.github.lopoha.coboltruffle.nodes.CobolRootNode;
 import com.github.lopoha.coboltruffle.nodes.CobolStatementNode;
@@ -76,6 +77,11 @@ public class CobolNodeFactory {
     result.addExpressionTag();
 
     this.sectionNodes.add(result);
+  }
+
+  public void addInitialize(HeapPointer heapPointer) {
+    CobolInitializeNode initializeNode = new CobolInitializeNode(heapPointer);
+    this.sectionNodes.add(initializeNode);
   }
 
   public Map<String, RootCallTarget> getAllSections() {

@@ -279,6 +279,13 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
     cobolNodeFactory.addCall(displayNode, displayArgs);
   }
 
+  @Override
+  public void enterInitializeStatement(CobolParser.InitializeStatementContext ctx) {
+    String variable = ctx.ID().getText();
+    HeapPointer heapPointer = this.cobolLanguage.heapGetVariable(variable);
+    cobolNodeFactory.addInitialize(heapPointer);
+  }
+
   private String removeStringQuotes(String input) {
     final int start = input.startsWith("\"") ? 1 : 0;
     assert start <= 0 || input.endsWith("\"");
