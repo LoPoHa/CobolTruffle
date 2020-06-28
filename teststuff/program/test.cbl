@@ -47,6 +47,7 @@
       *            EQUAL, LESS, BIGGER
       *            88 LEVEL
       *            NUMERIC
+           DISPLAY "HELLO FROM FIRST-SECTION".
            EXIT.
       *
        END PROGRAM TEST.

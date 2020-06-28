@@ -37,10 +37,11 @@ import java.util.Map;
 //       that gets passed in whe calling. (like a constructor)
 
 public class CobolBaseListenerImpl extends CobolBaseListener {
-  private  final HeapBuilder workingStorageHeap = new HeapBuilder();
-  private  final HeapBuilder linkageHeap = new HeapBuilder();
+  private final HeapBuilder workingStorageHeap = new HeapBuilder();
+  private final HeapBuilder linkageHeap = new HeapBuilder();
   private final CobolLanguage cobolLanguage;
   private final CobolNodeFactory cobolNodeFactory;
+  private String programName;
 
   /**
    * Creates the Listener, that walks the Tokens and creates the coboltruffle classes.
@@ -60,6 +61,11 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
   @Override
   public void exitFile(CobolParser.FileContext ctx) {
     System.out.println("Are you cold...? Oh, good hunter,");
+  }
+
+  @Override
+  public void enterProgramID(CobolParser.ProgramIDContext ctx) {
+    this.programName = ctx.ID().getText();
   }
 
   private int variableGetStringLength(VariableDataTypeStringContext ctx) {
@@ -275,15 +281,16 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
       }
     }
 
-    CobolFunctionLiteralNode displayNode = new CobolFunctionLiteralNode("display");
-    cobolNodeFactory.addCall(displayNode, displayArgs);
+    CobolFunctionLiteralNode displayNode
+        = new CobolFunctionLiteralNode(this.programName, "display");
+    this.cobolNodeFactory.addCall(displayNode, displayArgs);
   }
 
   @Override
   public void enterInitializeStatement(CobolParser.InitializeStatementContext ctx) {
     String variable = ctx.ID().getText();
     HeapPointer heapPointer = this.cobolLanguage.heapGetVariable(variable);
-    cobolNodeFactory.addInitialize(heapPointer);
+    this.cobolNodeFactory.addInitialize(heapPointer);
   }
 
   private String removeStringQuotes(String input) {
@@ -296,14 +303,26 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
     return this.cobolNodeFactory.getAllSections();
   }
 
-  // TEMPORARY
   @Override
-  public void enterProcedureDivision(CobolParser.ProcedureDivisionContext ctx) {
-    this.cobolNodeFactory.startSection("main");
+  public void enterFunctionCallStatement(CobolParser.FunctionCallStatementContext ctx) {
+    CobolFunctionLiteralNode displayNode
+        = new CobolFunctionLiteralNode(this.programName, ctx.ID().getText());
+    // todo: should arguments be allowed here?
+    this.cobolNodeFactory.addCall(displayNode, new ArrayList<>());
+  }
+
+  @Override
+  public void enterFunctionSection(CobolParser.FunctionSectionContext ctx) {
+    this.cobolNodeFactory.startSection(this.programName, ctx.functionSectionStart().ID().getText());
+  }
+
+  @Override
+  public void exitFunctionSection(CobolParser.FunctionSectionContext ctx) {
+    this.cobolNodeFactory.finishSection();
   }
 
   @Override
   public void exitProcedureDivision(CobolParser.ProcedureDivisionContext ctx) {
-    this.cobolNodeFactory.finishSection();
+    this.cobolNodeFactory.createConstructor(this.programName);
   }
 }

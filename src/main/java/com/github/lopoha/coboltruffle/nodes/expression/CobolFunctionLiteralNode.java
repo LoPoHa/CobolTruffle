@@ -2,6 +2,7 @@ package com.github.lopoha.coboltruffle.nodes.expression;
 
 import com.github.lopoha.coboltruffle.CobolLanguage;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
+import com.github.lopoha.coboltruffle.parser.CobolNodeFactory;
 import com.github.lopoha.coboltruffle.runtime.CobolSection;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
@@ -19,8 +20,23 @@ public final class CobolFunctionLiteralNode extends CobolExpressionNode {
 
   @CompilationFinal private CobolSection cachedFunction;
 
-  public CobolFunctionLiteralNode(String functionName) {
-    this.functionName = functionName;
+  /**
+   * Create a function literal node, to call other functions.
+   * @param programName the name of the program, used for prefix.
+   * @param functionName the name of the function to be called.
+   */
+  public CobolFunctionLiteralNode(String programName, String functionName) {
+    assert programName != null;
+    assert functionName != null;
+
+    functionName = functionName.toLowerCase();
+
+    // todo: replace with a list of buildin functions instead of hard code it here!
+    if (CobolLanguage.getBuiltinFunctionNames().contains(functionName)) {
+      this.functionName = functionName;
+    } else {
+      this.functionName = CobolNodeFactory.getLocalFunctionName(programName, functionName);
+    }
   }
 
   @Override
