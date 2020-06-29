@@ -15,6 +15,8 @@
        WORKING-STORAGE SECTION.
        01  PROGRAMNATIVE.
         05       PROGRAMNAME             PIC X(4) VALUE "TEST".
+        05       LETTER-A                PIC X VALUE "A".
+        05       LETTER-B                PIC X VALUE "B".
       *
       *
       * SHOULD - and _ be allowed? better for filename
@@ -28,6 +30,14 @@
       *
        MAIN SECTION.
       *
+           DISPLAY LETTER-A.
+           DISPLAY LETTER-B
+
+           IF LETTER-A LESS LETTER-B THEN
+             DISPLAY "IT WAS TRUE"
+           ELSE
+             DISPLAY "IT WAS FALSE"
+           END-IF
            MOVE     "ABCD"       TO PROGRAMNAME.
            DISPLAY "ABC".
            DISPLAY PROGRAMNAME.

@@ -229,7 +229,7 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void enterIfStatement(CobolParser.IfStatementContext ctx) {
-    System.out.println("IF WAS FOUND");
+    System.out.println("IF");
     IfConditionContext conditionContext = ctx.ifCondition();
     if (conditionContext.ifNumeric() != null) {
       System.out.println("Numeric");
@@ -240,6 +240,16 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
     } else {
       throw new RuntimeException("Unhandled if condition");
     }
+  }
+
+  @Override
+  public void enterElseBranch(CobolParser.ElseBranchContext ctx) {
+    System.out.println("ELSE");
+  }
+
+  @Override
+  public void enterEndIf(CobolParser.EndIfContext ctx) {
+    System.out.println("END IF");
   }
 
   @Override
@@ -266,6 +276,8 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void enterDisplayStatement(CobolParser.DisplayStatementContext ctx) {
+    System.out.println("DISPLAY");
+
     List<CobolExpressionNode> displayArgs = new ArrayList<>();
     for (CobolParser.DisplayParameterContext displayParameter : ctx.displayParameter()) {
       if (displayParameter.ID() != null) {

@@ -1,10 +1,12 @@
 package com.github.lopoha.coboltruffle.heap;
 
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.List;
 
 // todo: make class abstract and have multiple implementations: Number, String, ...
+// todo: should this class be under nodes/expressions insted of heap?
 public class HeapPointer extends CobolExpressionNode {
   final String name;
   public final int position;
@@ -78,6 +80,19 @@ public class HeapPointer extends CobolExpressionNode {
       }
     }
   }
+
+  /**
+   * Compares the HeapPointer value to another HeapPointer valuie.
+   * @param o the other HeapPointer.
+   * @return the result of compareTo.
+   */
+  @TruffleBoundary
+  public int compareTo(HeapPointer o) {
+    // todo: handle numeric values. how should a number compare to a string.
+    //       + handle floats, ...
+    return this.getValue().compareTo(o.getValue());
+  }
+
 
   @Override
   public String executeGeneric(VirtualFrame frame) {
