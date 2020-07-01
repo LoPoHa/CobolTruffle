@@ -9,32 +9,32 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
 /**
- * This class is similar to the {@link CobolLessOrEqualNode}.
+ * This class is similar to the {@link CobolEqualNode}.
  */
-@NodeInfo(shortName = "<=")
-public abstract class CobolLessOrEqualNode extends CobolBinaryNode {
+@NodeInfo(shortName = "=")
+public abstract class CobolEqualNode extends CobolBinaryNode {
 
   @Specialization
   @TruffleBoundary
-  protected boolean lessEqual(HeapPointer left, HeapPointer right) {
+  protected boolean equal(HeapPointer left, HeapPointer right) {
     return left.compareTo(right) <= 0;
   }
 
   @Specialization
   @TruffleBoundary
-  protected boolean lessEqual(String left, HeapPointer right) {
+  protected boolean equal(String left, HeapPointer right) {
     return left.compareTo(right.getValue()) <= 0;
   }
 
   @Specialization
   @TruffleBoundary
-  protected boolean lessEqual(HeapPointer left, String right) {
+  protected boolean equal(HeapPointer left, String right) {
     return left.getValue().compareTo(right) <= 0;
   }
 
   @Specialization
   @TruffleBoundary
-  protected boolean lessEqual(String left, String right) {
+  protected boolean equal(String left, String right) {
     return left.compareTo(right) <= 0;
   }
 

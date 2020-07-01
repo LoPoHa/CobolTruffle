@@ -82,7 +82,7 @@ initializeStatement : INITIALIZE ID DOT?;
 ifStatement : IF ifCondition THEN? statement* elseBranch? endIf;
 ifCondition : (ifNumeric | ifCompare | ifSingleValue);
 ifNumeric : ID NUMERIC;
-ifCompare : value (EQUAL | LESS THAN?) value;
+ifCompare : value (EQUAL | (LESS | BIGGER) (EQUAL | THAN)?) value;
 // should we support something else than id? by rule it may be allowed, but it doesn't make sense...
 ifSingleValue : ID;
 elseBranch : ELSE statement*;

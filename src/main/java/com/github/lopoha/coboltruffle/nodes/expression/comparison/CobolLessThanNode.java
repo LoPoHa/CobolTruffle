@@ -11,13 +11,8 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 /**
  * This class is similar to the {@link CobolLessThanNode}.
  */
-@NodeInfo(shortName = "<=")
+@NodeInfo(shortName = "<")
 public abstract class CobolLessThanNode extends CobolBinaryNode {
-
-  @Specialization
-  protected boolean lessThan(long left, long right) {
-    return left <= right;
-  }
 
   @Specialization
   @TruffleBoundary

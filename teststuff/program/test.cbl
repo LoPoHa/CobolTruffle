@@ -33,8 +33,12 @@
            DISPLAY LETTER-A.
            DISPLAY LETTER-B
 
-           IF LETTER-A LESS LETTER-B THEN
-             DISPLAY "IT WAS TRUE"
+           IF LETTER-B LESS EQUAL LETTER-B THEN
+             IF LETTER-A BIGGER THAN LETTER-B THEN
+               DISPLAY "IT WAS VERY TRUE"
+             ELSE
+               DISPLAY "IT WAS ALMOST COMPLETELY TRUE"
+             END-IF
            ELSE
              DISPLAY "IT WAS FALSE"
            END-IF

@@ -27,6 +27,7 @@ FALSE : F A L S E;
 INITIALIZE : I N I T I A L I Z E;
 EQUAL: E Q U A L | '=';
 LESS : (L E S S | '<');
+BIGGER : (B I G G E R | '>');
 NUMERIC : N U M E R I C;
 END : E N D;
 EXIT : E X I T;

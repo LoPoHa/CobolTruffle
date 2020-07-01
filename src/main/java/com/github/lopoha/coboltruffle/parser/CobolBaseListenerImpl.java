@@ -6,10 +6,12 @@ import com.github.lopoha.coboltruffle.heap.HeapBuilderVariable;
 import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.heap.HeapVariableType;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
-import com.github.lopoha.coboltruffle.nodes.controlflow.CobolIfNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolStringLiteralNode;
-import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolLessThanNode;
+import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolBiggerOrEqualNodeGen;
+import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolBiggerThanNodeGen;
+import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolEqualNodeGen;
+import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolLessOrEqualNodeGen;
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolLessThanNodeGen;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
@@ -236,10 +238,10 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
     if (conditionContext.ifNumeric() != null) {
       throw new NotImplementedException();
     } else if (conditionContext.ifCompare() != null) {
-      // todo: create dynamically
-      CobolExpressionNode left = new CobolStringLiteralNode("C");
-      CobolExpressionNode right = new CobolStringLiteralNode("B");
-      CobolExpressionNode condition = CobolLessThanNodeGen.create(left, right);
+      CobolParser.IfCompareContext ifCompareContext = conditionContext.ifCompare();
+      CobolExpressionNode left = valueToExpression(ifCompareContext.value(0));
+      CobolExpressionNode right = valueToExpression(ifCompareContext.value(1));
+      CobolExpressionNode condition = ifComparisonToExpression(ifCompareContext, left, right);
       this.cobolNodeFactory.startIf(condition);
     } else if (conditionContext.ifSingleValue() != null) {
       throw new NotImplementedException();
@@ -247,6 +249,7 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
       throw new NotImplementedException();
     }
   }
+
 
   @Override
   public void enterElseBranch(CobolParser.ElseBranchContext ctx) {
@@ -317,6 +320,44 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
 
   public Map<String, RootCallTarget> getAllSections() {
     return this.cobolNodeFactory.getAllSections();
+  }
+
+  private CobolExpressionNode valueToExpression(CobolParser.ValueContext ctx) {
+    if (ctx.ID() != null) {
+      return this.cobolLanguage.heapGetVariable(ctx.ID().toString());
+    } else if (ctx.SPACE() != null) {
+      throw new NotImplementedException();
+    } else if (ctx.STRING() != null) {
+      throw new NotImplementedException();
+    } else if (ctx.NUMBER() != null) {
+      throw new NotImplementedException();
+    } else {
+      throw new NotImplementedException();
+    }
+  }
+
+  private CobolExpressionNode ifComparisonToExpression(CobolParser.IfCompareContext ctx,
+                                                       CobolExpressionNode left,
+                                                       CobolExpressionNode right) {
+    if (ctx.LESS() != null) {
+      if (ctx.EQUAL() != null) {
+        return CobolLessOrEqualNodeGen.create(left, right);
+      } else {
+        return CobolLessThanNodeGen.create(left, right);
+      }
+    } else if (ctx.BIGGER() != null) {
+      if (ctx.EQUAL() != null) {
+        return CobolBiggerOrEqualNodeGen.create(left, right);
+      } else {
+        return CobolBiggerThanNodeGen.create(left, right);
+      }
+    } else if (ctx.EQUAL() != null) {
+      // must be last, because others could also include equal...
+      System.out.println("equal");
+      return CobolEqualNodeGen.create(left, right);
+    } else {
+      throw new NotImplementedException();
+    }
   }
 
   @Override
