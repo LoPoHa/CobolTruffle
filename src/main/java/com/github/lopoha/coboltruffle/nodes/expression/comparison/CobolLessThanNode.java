@@ -15,13 +15,31 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 public abstract class CobolLessThanNode extends CobolBinaryNode {
 
   @Specialization
-  protected boolean lessOrEqual(long left, long right) {
+  protected boolean lessThan(long left, long right) {
     return left <= right;
   }
 
   @Specialization
   @TruffleBoundary
   protected boolean lessThan(HeapPointer left, HeapPointer right) {
+    return left.compareTo(right) < 0;
+  }
+
+  @Specialization
+  @TruffleBoundary
+  protected boolean lessThan(String left, HeapPointer right) {
+    return left.compareTo(right.getValue()) < 0;
+  }
+
+  @Specialization
+  @TruffleBoundary
+  protected boolean lessThan(HeapPointer left, String right) {
+    return left.getValue().compareTo(right) < 0;
+  }
+
+  @Specialization
+  @TruffleBoundary
+  protected boolean lessThan(String left, String right) {
     return left.compareTo(right) < 0;
   }
 

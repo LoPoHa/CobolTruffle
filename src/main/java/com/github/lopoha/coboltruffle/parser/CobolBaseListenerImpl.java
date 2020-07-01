@@ -6,8 +6,11 @@ import com.github.lopoha.coboltruffle.heap.HeapBuilderVariable;
 import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.heap.HeapVariableType;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
+import com.github.lopoha.coboltruffle.nodes.controlflow.CobolIfNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolStringLiteralNode;
+import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolLessThanNode;
+import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolLessThanNodeGen;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.IfConditionContext;
@@ -229,27 +232,30 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void enterIfStatement(CobolParser.IfStatementContext ctx) {
-    System.out.println("IF");
     IfConditionContext conditionContext = ctx.ifCondition();
     if (conditionContext.ifNumeric() != null) {
-      System.out.println("Numeric");
+      throw new NotImplementedException();
     } else if (conditionContext.ifCompare() != null) {
-      System.out.println("Comparison");
+      // todo: create dynamically
+      CobolExpressionNode left = new CobolStringLiteralNode("C");
+      CobolExpressionNode right = new CobolStringLiteralNode("B");
+      CobolExpressionNode condition = CobolLessThanNodeGen.create(left, right);
+      this.cobolNodeFactory.startIf(condition);
     } else if (conditionContext.ifSingleValue() != null) {
-      System.out.println("Single Value");
+      throw new NotImplementedException();
     } else {
-      throw new RuntimeException("Unhandled if condition");
+      throw new NotImplementedException();
     }
   }
 
   @Override
   public void enterElseBranch(CobolParser.ElseBranchContext ctx) {
-    System.out.println("ELSE");
+    this.cobolNodeFactory.elseIf();
   }
 
   @Override
   public void enterEndIf(CobolParser.EndIfContext ctx) {
-    System.out.println("END IF");
+    this.cobolNodeFactory.endIf();
   }
 
   @Override
@@ -276,8 +282,6 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void enterDisplayStatement(CobolParser.DisplayStatementContext ctx) {
-    System.out.println("DISPLAY");
-
     List<CobolExpressionNode> displayArgs = new ArrayList<>();
     for (CobolParser.DisplayParameterContext displayParameter : ctx.displayParameter()) {
       if (displayParameter.ID() != null) {
