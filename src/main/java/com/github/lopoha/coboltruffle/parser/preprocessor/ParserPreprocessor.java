@@ -4,6 +4,7 @@ import com.github.lopoha.coboltruffle.parser.antlr.CobolPreprocessorLexer;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolPreprocessorParser;
 import com.github.lopoha.coboltruffle.parser.common.ParserCommonHelper;
 import com.github.lopoha.coboltruffle.parser.common.ParserSettings;
+import com.oracle.truffle.api.source.Source;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -21,10 +22,10 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 // todo: how do programs behave when they are included multiple times? do the share the memory or
 //       do they get separate one? -> investigate
 public class ParserPreprocessor {
-  public static String getPreprocessedString(String programName,
-                                                  ParserSettings settings) {
+  public static String getPreprocessedString(Source source,
+                                             ParserSettings settings) {
     ParserPreprocessor parserPreprocessor = new ParserPreprocessor(settings);
-    return parserPreprocessor.getPreprocessedProgramSource(programName);
+    return parserPreprocessor.getPreprocessedProgramSource(source);
   }
 
   private final ParserSettings parserSettings;
@@ -36,6 +37,10 @@ public class ParserPreprocessor {
   String getPreprocessedCopySource(String name) {
     String source = ParserCommonHelper.loadCopyFromFile(name, this.parserSettings);
     return getPreprocessedSource(source);
+  }
+
+  String getPreprocessedProgramSource(Source source) {
+    return getPreprocessedSource(source.getCharacters().toString());
   }
 
   String getPreprocessedProgramSource(String name) {
