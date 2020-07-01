@@ -29,6 +29,9 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.source.Source;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,6 +69,10 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   private static final Map<String, CobolBuiltinNode> builtins
       = Collections.synchronizedMap(new HashMap<>());
   private static boolean addedInternalBuiltins = false;
+  private static final List<String> copySearchPath
+      = Collections.synchronizedList(new ArrayList<>());
+  private static final List<String> programSearchPath
+      = Collections.synchronizedList(new ArrayList<>());
 
   /**
    * TODO.
@@ -103,19 +110,38 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     return new CobolContext(this, env, builtins);
   }
 
+  private void addRelativeToPath(Source source,
+                                 List<String> programSearchPath,
+                                 List<String> copySearchPath) {
+    if (source.getPath() != null) {
+      Path path = Paths.get(source.getPath());
+      Path parent = path.getParent();
+      if (parent != null) {
+        programSearchPath.add(parent.toString());
+        // if the source file was at the root, there is no grandparent...
+        // e.g. /test.cbl or C:/test.cbl -> no way there is a copy folder "above" that.
+        Path grandParent = parent.getParent();
+        if (grandParent != null) {
+          copySearchPath.add(grandParent.toString() + "/copy");
+        }
+      }
+    }
+  }
+
   @Override
   protected CallTarget parse(ParsingRequest request) {
-    //Source source = request.getSource();
-    List<String> programSearchPath = new ArrayList<>();
-    programSearchPath.add("./teststuff/program");
-    List<String> copySearchPath = new ArrayList<>();
-    copySearchPath.add("./teststuff/copy");
+    Source source = request.getSource();
+    // todo: should a repl be allowed? would be a fun experiment...
+    List<String> programSearchPath = new ArrayList<>(CobolLanguage.programSearchPath);
+    List<String> copySearchPath = new ArrayList<>(CobolLanguage.copySearchPath);
+    addRelativeToPath(source, programSearchPath, copySearchPath);
     ParserSettings parserSettings = new ParserSettings(copySearchPath, programSearchPath);
     // programName and filename must be the same!
-    String fileName = "test";
-    String preprocessed = ParserPreprocessor.getPreprocessedString(fileName, parserSettings);
+    String preprocessed = ParserPreprocessor.getPreprocessedString(source, parserSettings);
 
     Map<String, RootCallTarget> functions = processPreprocessed(preprocessed);
+    // todo: if repl is allowed, this doesn't work anymore
+    String fileName = getFilenameWithoutExtension(source.getName());
     RootCallTarget main = functions.get(fileName);
 
     if (main == null) {
@@ -124,6 +150,14 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
 
     RootNode evalMain = new CobolEvalRootNode(this, main, functions);
     return Truffle.getRuntime().createCallTarget(evalMain);
+  }
+
+  private String getFilenameWithoutExtension(String name) {
+    int pos = name.lastIndexOf(".");
+    if (pos > 0) {
+      name = name.substring(0, pos);
+    }
+    return name;
   }
 
   /**
@@ -294,6 +328,30 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
         = createBuiltinNode(CobolDisplayBuiltinFactory.getInstance());
     String name = CobolContext.lookupNodeInfo(cobolBuiltinNode.getClass()).shortName();
     CobolLanguage.builtins.put(name, cobolBuiltinNode);
+  }
+
+  /**
+   * Add a path to be searched if a copy is included.
+   * FIFO, the first path added is searched first.
+   * All paths added are evaluated before the interal search.
+   * This way it is possible to `overwrite` copy members.
+   *
+   * @param path the path to add.
+   */
+  public static void addCopySearchPath(String path) {
+    CobolLanguage.copySearchPath.add(path);
+  }
+
+  /**
+   * Add a path to be searched if a program is called.
+   * FIFO, the first path added is searched first.
+   * All paths added are evaluated before the interal search.
+   * This way it is possible to `overwrite` programs.
+   *
+   * @param path the path to add.
+   */
+  public static void addProgramSearchPath(String path) {
+    CobolLanguage.programSearchPath.add(path);
   }
 
   private static CobolBuiltinNode createBuiltinNode(

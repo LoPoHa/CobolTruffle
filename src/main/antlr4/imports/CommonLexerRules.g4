@@ -1,7 +1,7 @@
 lexer grammar CommonLexerRules;
 
 
-ID : CHAR (CHAR | INT | MINUS)+;
+ID : CHAR (CHAR | INT | MINUS)*;
 NUMBER : INT+;
 CHAR: [a-zA-Z];
 INT : [0-9];

@@ -66,6 +66,7 @@ public class Main {
         // for internal errors we print the full stack trace
         ex.printStackTrace();
       } else {
+        ex.printStackTrace();
         err.println(ex.getMessage());
       }
       return 1;
