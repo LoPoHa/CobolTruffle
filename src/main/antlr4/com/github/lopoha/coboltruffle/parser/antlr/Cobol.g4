@@ -47,9 +47,9 @@ variableDefinition : NUMBER (FILLER | ID) (variableRedefines | variableDataType)
 // todo: make unrepresentable state impossible (only allow string in picx, number in pic9)
 variableRedefines : REDEFINES ID;
 variableDataType : PIC (variableDataTypeString | variableDataTypeNumber);
-variableDataTypeString : (PICXS variableValueString? | PICX (variableSize variableValueString?)?);
+variableDataTypeString : (PICXS variableValueString? | PICX (variableSize? variableValueString?));
 variableValueString : VALUE (STRING | SPACE);
-variableDataTypeNumber : (PIC9S variableValueNumber? | PIC9 (variableSize variableValueNumber?)?);
+variableDataTypeNumber : (PIC9S variableValueNumber? | PIC9 (variableSize? variableValueNumber?));
 variableValueNumber : VALUE (NUMBER);
 variableSize : OPENBRACKET NUMBER CLOSEBRACKET;
 
@@ -79,12 +79,14 @@ moveTo : ID+;
 initializeStatement : INITIALIZE ID DOT?;
 
 // todo: support and, or, ...
-ifStatement : IF ifCondition THEN? statement* (ELSE statement*)? (ENDIF | ENDIF DOT | DOT);
-ifCondition : ifNumeric | ifCompare | ifSingleValue;
+ifStatement : IF ifCondition THEN? statement* elseBranch? endIf;
+ifCondition : (ifNumeric | ifCompare | ifSingleValue);
 ifNumeric : ID NUMERIC;
-ifCompare : value (EQUAL | LESS) value;
+ifCompare : value (EQUAL | (LESS | BIGGER) (EQUAL | THAN)?) value;
 // should we support something else than id? by rule it may be allowed, but it doesn't make sense...
 ifSingleValue : ID;
+elseBranch : ELSE statement*;
+endIf : (ENDIF DOT?);
 // better name!!!
 value : (ID | SPACE | STRING | NUMBER);
 
