@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. HELLO_WORLD.
+       PROGRAM-ID. HELLOWORLD.
       *
       *
        ENVIRONMENT DIVISION.
@@ -12,7 +12,7 @@
       *
        MAIN SECTION.
       *
-           DISPLAY "HELLO WORLD"
+           DISPLAY "HELLO WORLD".
       *
        PROG-EX.
            EXIT PROGRAM.
