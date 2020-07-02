@@ -7,12 +7,12 @@ import java.util.List;
 
 // todo: make class abstract and have multiple implementations: Number, String, ...
 // todo: should this class be under nodes/expressions insted of heap?
-public class HeapPointer extends CobolExpressionNode {
-  final String name;
+public abstract class HeapPointer extends CobolExpressionNode {
+  protected final String name;
   public final int position;
   final int length;
   final String defaultValue;
-  private final List<Character> heap;
+  protected final List<Character> heap;
 
   /**
    * Create a Pointer to the heap.
@@ -22,11 +22,11 @@ public class HeapPointer extends CobolExpressionNode {
    * @param heap the heap.
    * @param defaultValue the default value.
    */
-  public HeapPointer(String name,
-                     int position,
-                     int length,
-                     List<Character> heap,
-                     String defaultValue) {
+  protected HeapPointer(String name,
+                        int position,
+                        int length,
+                        List<Character> heap,
+                        String defaultValue) {
     this.name = name;
     this.position = position;
     this.length = length;
@@ -37,12 +37,7 @@ public class HeapPointer extends CobolExpressionNode {
   /**
    * Initialize the variable with the default value.
    */
-  public void initialize() {
-    // is this even possible?
-    if (defaultValue != null) {
-      this.setValue(this.defaultValue);
-    }
-  }
+  public abstract void initialize();
 
   /**
    * Get the Value the pointer points to.
@@ -61,25 +56,7 @@ public class HeapPointer extends CobolExpressionNode {
    * The value is automatically aligned/cut/...
    * @param value the new value
    */
-  public void setValue(String value) {
-    assert value != null : "Value required but was null";
-    // todo: check if the alignment etc. is correct
-    // todo: is the default for number here space or zero?
-    if (value.length() < this.length) {
-      value = new String(new char[this.length - value.length()]).replace('\0', ' ') + value;
-      for (int i = 0; i < value.length(); i++) {
-        heap.set(position + i, value.charAt(i));
-      }
-    } else if (value.length() == this.length) {
-      for (int i = 0; i < value.length(); i++) {
-        heap.set(position + i, value.charAt(i));
-      }
-    } else {
-      for (int i = 0; i < this.length; i++) {
-        heap.set(position + i, value.charAt(i));
-      }
-    }
-  }
+  public abstract void setValue(String value);
 
   /**
    * Compares the HeapPointer value to another HeapPointer valuie.
@@ -87,11 +64,7 @@ public class HeapPointer extends CobolExpressionNode {
    * @return the result of compareTo.
    */
   @TruffleBoundary
-  public int compareTo(HeapPointer o) {
-    // todo: handle numeric values. how should a number compare to a string.
-    //       + handle floats, ...
-    return this.getValue().compareTo(o.getValue());
-  }
+  public abstract int compareTo(HeapPointer o);
 
 
   @Override

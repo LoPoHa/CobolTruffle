@@ -29,6 +29,14 @@ public class HeapBuilder {
     }
   }
 
+  /**
+   * Get the last heap builder variable.
+   * Used for level 88 to get the parent.
+   */
+  public HeapBuilderVariable getLastVariable() {
+    return this.variables.get(this.variables.size() - 1);
+  }
+
 
   /**
    * Pretty print the Heap.

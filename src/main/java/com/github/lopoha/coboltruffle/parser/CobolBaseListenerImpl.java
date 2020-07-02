@@ -139,74 +139,95 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
     }
   }
 
+  // todo: cleanup + combine with addNamedVariable
+  private void addFillerVariable(HeapBuilder heapBuilder,
+                                 String redefines,
+                                 int level,
+                                 VariableDataTypeContext dataType) {
+    if (dataType == null) {
+      final HeapBuilderVariable variable
+          = new HeapBuilderVariable(level, null, HeapVariableType.Filler, redefines);
+      heapBuilder.add(variable);
+
+    } else if (dataType.variableDataTypeString() != null) {
+      VariableDataTypeStringContext dataTypeString = dataType.variableDataTypeString();
+      final int size = variableGetStringLength(dataTypeString);
+      final String value
+          = variableGetStringValue(dataTypeString.variableValueString(), null, size);
+      final HeapBuilderVariable variable
+          = new HeapBuilderVariable(level, null, HeapVariableType.Filler, size, value);
+      heapBuilder.add(variable);
+
+    } else if (dataType.variableDataTypeNumber() != null) {
+      VariableDataTypeNumberContext dataTypeNumber = dataType.variableDataTypeNumber();
+      // todo: allow comma values e.g. 999.99
+      final int size = variableGetNumberSize(dataTypeNumber);
+      final String value
+          = variableGetNumberValue(dataTypeNumber.variableValueNumber(), null, size);
+      final HeapBuilderVariable variable
+          = new HeapBuilderVariable(level, null, HeapVariableType.Filler, size, value);
+      heapBuilder.add(variable);
+    } else {
+      throw new NotImplementedException();
+    }
+  }
+
+  // todo: cleanup + combine with addFillerVariable
+  private void addNamedVariable(HeapBuilder heapBuilder,
+                                String variableName,
+                                int level,
+                                VariableDataTypeContext dataType) {
+    // todo: allow array (table)
+    if (level == 88) {
+      // level 88 => const
+
+
+    } else if (dataType.variableDataTypeString() != null) {
+      VariableDataTypeStringContext dataTypeString = dataType.variableDataTypeString();
+      final int size = variableGetStringLength(dataTypeString);
+      final String value
+          = variableGetStringValue(dataTypeString.variableValueString(), variableName, size);
+      final HeapBuilderVariable variable
+          = new HeapBuilderVariable(level, variableName, HeapVariableType.String, size, value);
+      heapBuilder.add(variable);
+
+    } else if (dataType.variableDataTypeNumber() != null) {
+      VariableDataTypeNumberContext dataTypeNumber = dataType.variableDataTypeNumber();
+      // todo: allow comma values e.g. 999.99
+      final int size = variableGetNumberSize(dataTypeNumber);
+      final String value
+          = variableGetNumberValue(dataTypeNumber.variableValueNumber(), variableName, size);
+      final HeapBuilderVariable variable
+          = new HeapBuilderVariable(level, variableName, HeapVariableType.Number, size, value);
+      heapBuilder.add(variable);
+    } else {
+      throw new NotImplementedException();
+    }
+
+  }
+
+
 
   // todo: cleanup!!! + names + split
-  private void addVariableDefinition(VariableDefinitionContext variableDefinitionContext,
+  private void addVariableDefinition(CobolParser.VariableVariableContext variableContext,
                                      HeapBuilder heapBuilder) {
-    final int level = Integer.parseInt(variableDefinitionContext.NUMBER().getText());
-    final VariableRedefinesContext redefinesContext = variableDefinitionContext.variableRedefines();
+    final int level = Integer.parseInt(variableContext.NUMBER().getText());
+    final VariableRedefinesContext redefinesContext = variableContext.variableRedefines();
     final String redefines = redefinesContext == null ? null : redefinesContext.ID().getText();
 
-    if (variableDefinitionContext.FILLER() != null) {
-      final VariableDataTypeContext dataType = variableDefinitionContext.variableDataType();
-      if (dataType == null) {
-        final HeapBuilderVariable variable = new HeapBuilderVariable(level,
-                                                          null,
-                                                                     HeapVariableType.Filler,
-                                                                     redefines);
-        heapBuilder.add(variable);
-      } else {
-        VariableDataTypeStringContext dataTypeString = dataType.variableDataTypeString();
-        VariableDataTypeNumberContext dataTypeNumber = dataType.variableDataTypeNumber();
-        if (dataTypeString != null) {
-          final int size = variableGetStringLength(dataTypeString);
-          final String value
-              = variableGetStringValue(dataTypeString.variableValueString(), null, size);
-          final HeapBuilderVariable variable
-              = new HeapBuilderVariable(level, null, HeapVariableType.Filler, size, value);
-          heapBuilder.add(variable);
-        } else if (dataTypeNumber != null) {
-          // todo: allow comma values e.g. 999.99
-          final int size = variableGetNumberSize(dataTypeNumber);
-          final String value
-              = variableGetNumberValue(dataTypeNumber.variableValueNumber(), null, size);
-          final HeapBuilderVariable variable
-              = new HeapBuilderVariable(level, null, HeapVariableType.Filler, size, value);
-          heapBuilder.add(variable);
-        } else {
-          throw new NotImplementedException();
-        }
-      }
+    if (variableContext.FILLER() != null) {
+      final VariableDataTypeContext dataType = variableContext.variableDataType();
+      addFillerVariable(heapBuilder, redefines, level, dataType);
     } else {
-      final String variableName = variableDefinitionContext.ID().getText();
-      final VariableDataTypeContext dataType = variableDefinitionContext.variableDataType();
+      final String variableName = variableContext.ID().getText();
+      final VariableDataTypeContext dataType = variableContext.variableDataType();
       if (dataType == null) {
         // todo: handle redefines
         final HeapBuilderVariable variable
             = new HeapBuilderVariable(level, variableName, HeapVariableType.None, redefines);
         heapBuilder.add(variable);
       } else {
-        // todo: allow array (table)
-        VariableDataTypeStringContext dataTypeString = dataType.variableDataTypeString();
-        VariableDataTypeNumberContext dataTypeNumber = dataType.variableDataTypeNumber();
-        if (dataTypeString != null) {
-          final int size = variableGetStringLength(dataTypeString);
-          final String value
-              = variableGetStringValue(dataTypeString.variableValueString(), variableName, size);
-          final HeapBuilderVariable variable
-              = new HeapBuilderVariable(level, variableName, HeapVariableType.String, size, value);
-          heapBuilder.add(variable);
-        } else if (dataTypeNumber != null) {
-          // todo: allow comma values e.g. 999.99
-          final int size = variableGetNumberSize(dataTypeNumber);
-          final String value
-              = variableGetNumberValue(dataTypeNumber.variableValueNumber(), variableName, size);
-          final HeapBuilderVariable variable
-              = new HeapBuilderVariable(level, variableName, HeapVariableType.Number, size, value);
-          heapBuilder.add(variable);
-        } else {
-          throw new NotImplementedException();
-        }
+        addNamedVariable(heapBuilder, variableName, level, dataType);
       }
     }
   }
@@ -215,16 +236,37 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
   public void enterWorkingStorageSection(CobolParser.WorkingStorageSectionContext ctx) {
     List<VariableDefinitionContext> variableDefinitions = ctx.variableDefinition();
     for (VariableDefinitionContext variableDefinitionContext : variableDefinitions) {
-      addVariableDefinition(variableDefinitionContext, this.workingStorageHeap);
+      if (variableDefinitionContext.variableVariable() != null) {
+        addVariableDefinition(variableDefinitionContext.variableVariable(),
+                              this.workingStorageHeap);
+      } else if (variableDefinitionContext.variableConst() != null) {
+        CobolParser.VariableConstContext constContext = variableDefinitionContext.variableConst();
+        HeapBuilderVariable parent = this.workingStorageHeap.getLastVariable();
+        // todo: allow other values
+        // todo: match size with parent
+        String value = constContext.variableValueString().STRING().getText();
+        final HeapBuilderVariable variable = new HeapBuilderVariable(88,
+            constContext.ID().getText(),
+            HeapVariableType.Const,
+            parent.getSize(),
+            value);
+        this.workingStorageHeap.add(variable);
+      } else {
+        throw new NotImplementedException();
+      }
     }
   }
 
   @Override
   public void enterLinkageSection(CobolParser.LinkageSectionContext ctx) {
     List<VariableDefinitionContext> variableDefinitions = ctx.variableDefinition();
+    throw new NotImplementedException();
+    // how should the linkage section work?
+    /*
     for (VariableDefinitionContext variableDefinitionContext : variableDefinitions) {
       addVariableDefinition(variableDefinitionContext, this.linkageHeap);
     }
+     */
   }
 
   @Override

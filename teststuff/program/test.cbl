@@ -17,13 +17,15 @@
         05       PROGRAMNAME             PIC X(4) VALUE "TEST".
         05       LETTER-A                PIC X VALUE "A".
         05       LETTER-B                PIC X VALUE "B".
+        05       LETTER                  PIC X.
+         88      LETTER-C                      VALUE "C".
       *
       *
       * SHOULD - and _ be allowed? better for filename
            COPY TESTCOPY.
       *
       *
-       LINKAGE SECTION.
+      *LINKAGE SECTION.
       * todo only allow copy in linkage section.
       *
        PROCEDURE DIVISION.

@@ -2,6 +2,7 @@ package com.github.lopoha.coboltruffle.heap;
 
 import com.github.lopoha.coboltruffle.parser.CobolUnknownVariableRedefineException;
 import com.github.lopoha.coboltruffle.parser.CobolVariableNotFoundException;
+import com.github.lopoha.coboltruffle.parser.NotImplementedException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,9 +28,10 @@ public class CobolHeap {
    */
   public void addToHeap(HeapBuilder heapBuilder) {
     for (HeapBuilderVariable variable : heapBuilder.getVariables()) {
-      if (this.pointerMap.containsKey(variable.variableName.toLowerCase())) {
+      if (this.pointerMap.containsKey(variable.variableName)) {
         // what should happen if it is already defined?
         // nothing? because of the global heap?
+        throw new VariableAlreadyDefinedException(variable.variableName);
       } else {
         final int variableBaseHeapPosition = this.heap.size();
         variable.finalizeHeapBuilder();
@@ -48,28 +50,41 @@ public class CobolHeap {
                                        boolean initialize) {
     // todo should a check if the variable is already defined be here?
     //      this time it should be an error? or not?
+    HeapPointer pointer;
+    switch (variable.heapVariableType) {
+      case Filler: // fallthrough
+      case None:   // fallthrough
+      case Number: // fallthrough
+      case String:
+        pointer = new HeapPointerString(variable.variableName,
+                                        variableBasePosition,
+                                        variable.getSize(),
+                                        this.heap,
+                                        variable.getValue());
+        break;
+      case Const:
+        pointer = new HeapPointerConst(variable.variableName,
+            variableBasePosition,
+            variable.getSize(),
+            this.heap,
+            variable.getValue());
+        break;
+      default:
+        throw new NotImplementedException();
+    }
     if (initialize) {
-      HeapPointer basePointer = new HeapPointer(variable.variableName,
-                                                variableBasePosition,
-                                                variable.getSize(),
-                                                this.heap,
-                                                variable.getValue());
-      basePointer.initialize();
+      pointer.initialize();
     }
 
-    if (variable.variableName != null) {
-      this.pointerMap.put(variable.variableName.toLowerCase(),
-                          new HeapPointer(variable.variableName,
-                                          variableBasePosition,
-                                          variable.getSize(),
-                                          this.heap,
-                                          variable.getValue()));
+    if (this.pointerMap.containsKey(variable.variableName)) {
+      throw new VariableAlreadyDefinedException(variable.variableName);
     }
+    this.pointerMap.put(variable.variableName, pointer);
 
     int variableHeapPosition = variableBasePosition;
     for (HeapBuilderVariable child : variable.getChildren()) {
       if (child.redefines != null) {
-        HeapPointer redefinePointer = this.pointerMap.get(child.redefines.toLowerCase());
+        HeapPointer redefinePointer = this.pointerMap.get(child.redefines);
         if (redefinePointer == null) {
           throw new CobolUnknownVariableRedefineException(child.redefines, child.variableName);
         }
