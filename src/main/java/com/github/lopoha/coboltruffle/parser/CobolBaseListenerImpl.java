@@ -6,7 +6,7 @@ import com.github.lopoha.coboltruffle.heap.HeapBuilderVariable;
 import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.heap.HeapVariableType;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
-import com.github.lopoha.coboltruffle.nodes.expression.CobolFunctionLiteralNode;
+import com.github.lopoha.coboltruffle.nodes.expression.CobolGlobalFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolStringLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolBiggerOrEqualNodeGen;
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolBiggerThanNodeGen;
@@ -342,8 +342,8 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
       }
     }
 
-    CobolFunctionLiteralNode displayNode
-        = new CobolFunctionLiteralNode(this.programName, "display");
+    CobolGlobalFunctionLiteralNode displayNode
+        = new CobolGlobalFunctionLiteralNode("display");
     this.cobolNodeFactory.addCall(displayNode, displayArgs);
   }
 
@@ -404,15 +404,12 @@ public class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void enterFunctionCallStatement(CobolParser.FunctionCallStatementContext ctx) {
-    CobolFunctionLiteralNode displayNode
-        = new CobolFunctionLiteralNode(this.programName, ctx.ID().getText());
-    // todo: should arguments be allowed here?
-    this.cobolNodeFactory.addCall(displayNode, new ArrayList<>());
+    this.cobolNodeFactory.addLocalCall(ctx.ID().getText());
   }
 
   @Override
   public void enterFunctionSection(CobolParser.FunctionSectionContext ctx) {
-    this.cobolNodeFactory.startSection(this.programName, ctx.functionSectionStart().ID().getText());
+    this.cobolNodeFactory.startSection(ctx.functionSectionStart().ID().getText());
   }
 
   @Override

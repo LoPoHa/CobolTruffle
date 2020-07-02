@@ -12,6 +12,8 @@ import com.github.lopoha.coboltruffle.nodes.controlflow.CobolIfNode;
 import com.github.lopoha.coboltruffle.nodes.controlflow.CobolSectionBodyNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolInvokeNode;
+import com.github.lopoha.coboltruffle.nodes.expression.CobolLocalFunctionLiteralNode;
+import com.github.lopoha.coboltruffle.runtime.CobolSectionRegistry;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -21,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class CobolNodeFactory {
+class CobolNodeFactory {
   // todo: would it be better to have the first function be added twice to the hashmap, with
   //       different names?
   //       contra: having a normal function call it would cause problems with the initialization...
@@ -29,6 +31,7 @@ public class CobolNodeFactory {
   private final Map<String, RootCallTarget> allSections = new HashMap<>();
   private String functionName;
   private CobolBlock currentBlock;
+  private final CobolSectionRegistry fileLocalFunctions;
 
   private class CobolBlock {
     private CobolExpressionNode condition;
@@ -70,8 +73,9 @@ public class CobolNodeFactory {
 
   private final CobolLanguage language;
 
-  public CobolNodeFactory(CobolLanguage language) {
+  CobolNodeFactory(CobolLanguage language) {
     this.language = language;
+    this.fileLocalFunctions = new CobolSectionRegistry(this.language);
   }
 
   /**
@@ -79,18 +83,33 @@ public class CobolNodeFactory {
    * It is added as a function with the name of program to the list.
    * @param programName the name of the program.
    */
-  public void createConstructor(String programName) {
+  void createConstructor(String programName) {
     assert this.functionName == null;
     assert this.currentBlock == null;
     this.functionName = programName.toLowerCase();
     this.currentBlock = new CobolBlock();
     // todo add initializations.
+    //      a new heap should be created and all the nodes should inside be pointed to it.
+    //
 
     CobolFunctionLiteralNode firstFunction
-        = new CobolFunctionLiteralNode(programName, this.firstFunctionName);
+        = new CobolLocalFunctionLiteralNode(this.firstFunctionName, this.fileLocalFunctions);
 
     this.addCall(firstFunction, new ArrayList<>());
-    this.finishSection();
+
+    this.allSections.put(this.functionName, getCallTarget());
+
+    this.functionName = null;
+    this.currentBlock = null;
+  }
+
+  private RootCallTarget getCallTarget() {
+    FrameDescriptor frameDescriptor = new FrameDescriptor();
+    final CobolStatementNode sectionBlock = this.currentBlock.combineBlock();
+    final CobolSectionBodyNode sectionBody = new CobolSectionBodyNode(sectionBlock);
+    final CobolRootNode rootNode
+        = new CobolRootNode(language, frameDescriptor, sectionBody, null, this.functionName);
+    return Truffle.getRuntime().createCallTarget(rootNode);
   }
 
   /**
@@ -99,11 +118,11 @@ public class CobolNodeFactory {
    *       maybe only for the constructor above.
    * @param functionName the name of the function.
    */
-  public void startSection(String programName, String functionName) {
+  void startSection(String functionName) {
     assert this.functionName == null;
     assert this.currentBlock == null;
 
-    this.functionName = CobolNodeFactory.getLocalFunctionName(programName, functionName);
+    this.functionName = functionName;
     if (this.firstFunctionName == null) {
       this.firstFunctionName = functionName;
     }
@@ -113,27 +132,26 @@ public class CobolNodeFactory {
   /**
    * TODO.
    */
-  public void finishSection() {
-    FrameDescriptor frameDescriptor = new FrameDescriptor();
-    final CobolStatementNode sectionBlock = this.currentBlock.combineBlock();
-    final CobolSectionBodyNode sectionBody = new CobolSectionBodyNode(sectionBlock);
-    final CobolRootNode rootNode
-        = new CobolRootNode(language, frameDescriptor, sectionBody, null, this.functionName);
-    allSections.put(this.functionName, Truffle.getRuntime().createCallTarget(rootNode));
-
-
+  void finishSection() {
+    this.fileLocalFunctions.register(this.functionName, getCallTarget());
     this.functionName = null;
     this.currentBlock = null;
   }
 
-  public void addMove(String from, HeapPointer to) {
+  void addMove(String from, HeapPointer to) {
     CobolMoveNode moveNode = new CobolMoveNode(from, to);
     this.currentBlock.addStatement(moveNode);
   }
 
-  public void addMove(HeapPointer from, HeapPointer to) {
+  void addMove(HeapPointer from, HeapPointer to) {
     CobolMoveNode moveNode = new CobolMoveNode(from, to);
     this.currentBlock.addStatement(moveNode);
+  }
+
+  void addLocalCall(String functionName) {
+    CobolFunctionLiteralNode node
+        = new CobolLocalFunctionLiteralNode(functionName, this.fileLocalFunctions);
+    this.addCall(node, new ArrayList<>());
   }
 
   /**
@@ -141,8 +159,8 @@ public class CobolNodeFactory {
    * @param functionNode the function that should be called.
    * @param parameterNodes the parameters for the function.
    */
-  public void addCall(CobolFunctionLiteralNode functionNode,
-                      List<CobolExpressionNode> parameterNodes) {
+  void addCall(CobolFunctionLiteralNode functionNode,
+               List<CobolExpressionNode> parameterNodes) {
     if (functionNode == null || parameterNodes.contains(null)) {
       // todo: should this fail?
       return;
@@ -156,7 +174,7 @@ public class CobolNodeFactory {
     this.currentBlock.addStatement(result);
   }
 
-  public void addInitialize(HeapPointer heapPointer) {
+  void addInitialize(HeapPointer heapPointer) {
     CobolInitializeNode initializeNode = new CobolInitializeNode(heapPointer);
     this.currentBlock.addStatement(initializeNode);
   }
@@ -165,7 +183,7 @@ public class CobolNodeFactory {
    * Start the if block and sets the current block to the `true` block.
    * @param condition the condition for the if.
    */
-  public void startIf(CobolExpressionNode condition) {
+  void startIf(CobolExpressionNode condition) {
     CobolBlock ifNode = new CobolBlock(condition, this.currentBlock);
     CobolBlock trueBranch = new CobolBlock(ifNode);
     this.currentBlock = trueBranch;
@@ -174,7 +192,7 @@ public class CobolNodeFactory {
   /**
    * Switch the current block to the else branch (the second child of the current parent block).
    */
-  public void elseIf() {
+  void elseIf() {
     CobolBlock elseBranch = new CobolBlock(this.currentBlock.parent);
     this.currentBlock = elseBranch;
   }
@@ -183,13 +201,13 @@ public class CobolNodeFactory {
    * end the if, that is currently open.
    * add the if as a statement to the statements of the parent.
    */
-  public void endIf() {
+  void endIf() {
     CobolBlock ifNode = this.currentBlock.parent;
     assert ifNode != null;
     CobolStatementNode trueBlock = ifNode.childs.get(0).combineBlock();
     CobolStatementNode elseBlock = ifNode.childs.size() > 1
-                                   ? ifNode.childs.get(1).combineBlock()
-                                   : null;
+        ? ifNode.childs.get(1).combineBlock()
+        : null;
     this.currentBlock = ifNode.parent;
     assert this.currentBlock != null;
     this.currentBlock.addStatement(new CobolIfNode(ifNode.condition, trueBlock, elseBlock));
@@ -199,18 +217,7 @@ public class CobolNodeFactory {
     this.currentBlock.childs.remove(this.currentBlock.childs.size() - 1);
   }
 
-  /**
-   * Create the function name with the programName as a prefix.
-   * DO NOT USE TO CREATE BUILTIN FUNCTION CALLS!
-   * @param programName the name of the program.
-   * @param functionName the name of the function.
-   * @return the function name.
-   */
-  public static String getLocalFunctionName(String programName, String functionName) {
-    return (programName + "." + functionName).toLowerCase();
-  }
-
-  public Map<String, RootCallTarget> getAllSections() {
+  Map<String, RootCallTarget> getAllSections() {
     return this.allSections;
   }
 }

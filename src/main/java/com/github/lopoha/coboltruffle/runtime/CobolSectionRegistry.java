@@ -24,6 +24,7 @@ public final class CobolSectionRegistry {
    * it is created.
    */
   public CobolSection lookup(String name, boolean createIfNotPresent) {
+    name = name.toLowerCase();
     CobolSection result = functionsObject.functions.get(name);
     if (result == null && createIfNotPresent) {
       result = new CobolSection(language, name);
