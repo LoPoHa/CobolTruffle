@@ -7,4 +7,5 @@ public enum HeapVariableType {
   // if nothing is specified.
   None,
   Filler,
+  Const,
 }
