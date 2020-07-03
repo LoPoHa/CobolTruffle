@@ -37,7 +37,10 @@ class PlaceholderIT {
     Context context;
     PrintStream err = System.err;
     try {
-      context = Context.newBuilder(CobolLanguage.ID).out(out).options(options).build();
+      context = Context.newBuilder(CobolLanguage.ID).out(out)
+                                                    .options(options)
+                                                    .allowAllAccess(true)
+                                                    .build();
     } catch (IllegalArgumentException e) {
       err.println(e.getMessage());
       return 1;
