@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.parser.common;
+package com.github.lopoha.coboltruffle.parser;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 // todo: implement cache for loading (or should the caching better happen after?)
-public class ParserCommonHelper {
+class ParserCommonHelper {
   // todo: should the file name be case sensitive? or force it to be e.g. all lower case?
   private static String loadFromFile(String name, List<String> paths) {
     try {

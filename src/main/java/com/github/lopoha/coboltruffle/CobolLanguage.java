@@ -9,12 +9,8 @@ import com.github.lopoha.coboltruffle.nodes.CobolEvalRootNode;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.local.CobolLexicalScope;
 import com.github.lopoha.coboltruffle.nodes.local.CobolReadArgumentNode;
-import com.github.lopoha.coboltruffle.parser.CobolBaseListenerImpl;
-import com.github.lopoha.coboltruffle.parser.NotImplementedException;
-import com.github.lopoha.coboltruffle.parser.antlr.CobolLexer;
-import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
-import com.github.lopoha.coboltruffle.parser.common.ParserSettings;
-import com.github.lopoha.coboltruffle.parser.preprocessor.ParserPreprocessor;
+import com.github.lopoha.coboltruffle.parser.CobolMainParser;
+import com.github.lopoha.coboltruffle.parser.ParserSettings;
 import com.github.lopoha.coboltruffle.runtime.CobolContext;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -39,10 +35,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 
 @TruffleLanguage.Registration(id = CobolLanguage.ID,
@@ -137,9 +129,7 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     addRelativeToPath(source, programSearchPath, copySearchPath);
     ParserSettings parserSettings = new ParserSettings(copySearchPath, programSearchPath);
     // programName and filename must be the same!
-    String preprocessed = ParserPreprocessor.getPreprocessedString(source, parserSettings);
-
-    Map<String, RootCallTarget> functions = processPreprocessed(preprocessed);
+    Map<String, RootCallTarget> functions = CobolMainParser.processSource(source, this);
     // todo: if repl is allowed, this doesn't work anymore
     String fileName = getFilenameWithoutExtension(source.getName());
     RootCallTarget main = functions.get(fileName);
@@ -158,29 +148,6 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
       name = name.substring(0, pos);
     }
     return name;
-  }
-
-  /**
-   * TODO: replace method.
-   * @param source the preprocessed source code.
-   * @return a map with all functions.
-   */
-  public Map<String, RootCallTarget> processPreprocessed(String source) {
-    try {
-      CharStream input = CharStreams.fromString(source);
-      CobolLexer lexer = new CobolLexer(input);
-      CommonTokenStream tokens = new CommonTokenStream(lexer);
-      CobolParser parser = new CobolParser(tokens);
-      CobolParser.FileContext fileContext = parser.file();
-      ParseTreeWalker walker = new ParseTreeWalker();
-      CobolBaseListenerImpl listener = new CobolBaseListenerImpl(this);
-      walker.walk(listener, fileContext);
-
-      return listener.getAllSections();
-
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
 

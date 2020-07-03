@@ -54,3 +54,11 @@ FILLER : F I L L E R;
 DISPLAY : D I S P L A Y;
 THAN : T H A N;
 LEVEL88 : '88';
+CALL : C A L L;
+INTO : I N T O;
+COPY      : C O P Y;
+SUPPRESS  : S U P P R E S S;
+
+STARTNUMBER : (INT {getCharPositionInLine() == 1}? INT INT INT INT INT) -> skip;
+COMMENT : ('*' | '/') {getCharPositionInLine() == 7}? ~[\r\n]* -> skip;
+ENDNUMBER   : INT INT INT INT INT INT INT INT (EOL | EOF) -> skip;

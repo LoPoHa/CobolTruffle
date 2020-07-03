@@ -1,6 +1,6 @@
 package com.github.lopoha.coboltruffle.heap;
 
-import com.github.lopoha.coboltruffle.parser.NotImplementedException;
+import com.github.lopoha.coboltruffle.NotImplementedException;
 import java.lang.RuntimeException;
 import java.util.ArrayList;
 import java.util.List;

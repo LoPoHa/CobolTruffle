@@ -32,6 +32,8 @@
       *
        MAIN SECTION.
       *
+           PERFORM FIRST-SECTION.
+           
            DISPLAY LETTER-A.
            DISPLAY LETTER-B
 
