@@ -1,16 +1,10 @@
 package com.github.lopoha.coboltruffle.parser;
 
-import static com.github.lopoha.coboltruffle.parser.CobolVariableDefinitionParser.variableGetNumberSize;
-import static com.github.lopoha.coboltruffle.parser.CobolVariableDefinitionParser.variableGetNumberValue;
-import static com.github.lopoha.coboltruffle.parser.CobolVariableDefinitionParser.variableGetStringLength;
-import static com.github.lopoha.coboltruffle.parser.CobolVariableDefinitionParser.variableGetStringValue;
+import static com.github.lopoha.coboltruffle.parser.CobolVariableDefinitionParser.addVariable;
 
-import com.github.lopoha.coboltruffle.CobolLanguage;
 import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.github.lopoha.coboltruffle.heap.HeapBuilder;
-import com.github.lopoha.coboltruffle.heap.HeapBuilderVariable;
 import com.github.lopoha.coboltruffle.heap.HeapPointer;
-import com.github.lopoha.coboltruffle.heap.HeapVariableType;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolGlobalFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolStringLiteralNode;
@@ -22,17 +16,13 @@ import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolLessThanN
 import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.IfConditionContext;
-import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.VariableDataTypeContext;
-import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.VariableDataTypeNumberContext;
-import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.VariableDataTypeStringContext;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.VariableDefinitionContext;
-import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.VariableRedefinesContext;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.api.source.SourceSection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 
 
@@ -50,20 +40,20 @@ import java.util.Map;
 class CobolBaseListenerImpl extends CobolBaseListener {
   private final HeapBuilder workingStorageHeap = new HeapBuilder();
   private final HeapBuilder linkageHeap = new HeapBuilder();
-  private final CobolLanguage cobolLanguage;
+  private final CobolMainParser cobolMainParser;
   private final CobolNodeFactory cobolNodeFactory;
   private final Source source;
   private String programName;
 
   /**
    * Creates the Listener, that walks the Tokens and creates the coboltruffle classes.
-   * @param cobolLanguage a reference to the cobollanguage
+   * @param cobolMainParser a reference to the cobol main parser.
    */
-  CobolBaseListenerImpl(CobolLanguage cobolLanguage, Source source) {
-    assert cobolLanguage != null;
+  CobolBaseListenerImpl(CobolMainParser cobolMainParser, Source source) {
+    assert cobolMainParser != null;
     assert source != null;
-    this.cobolLanguage = cobolLanguage;
-    this.cobolNodeFactory = new CobolNodeFactory(cobolLanguage, source);
+    this.cobolMainParser = cobolMainParser;
+    this.cobolNodeFactory = new CobolNodeFactory(cobolMainParser.getCobolLanguage(), source);
     this.source = source;
   }
 
@@ -84,118 +74,18 @@ class CobolBaseListenerImpl extends CobolBaseListener {
   }
 
 
-  // todo: cleanup + combine with addNamedVariable
-  private void addFillerVariable(HeapBuilder heapBuilder,
-                                 String redefines,
-                                 int level,
-                                 VariableDataTypeContext dataType) {
-    if (dataType == null) {
-      final HeapBuilderVariable variable
-          = new HeapBuilderVariable(level, null, HeapVariableType.Filler, redefines);
-      heapBuilder.add(variable);
-
-    } else if (dataType.variableDataTypeString() != null) {
-      VariableDataTypeStringContext dataTypeString = dataType.variableDataTypeString();
-      final int size = variableGetStringLength(dataTypeString);
-      final String value
-          = variableGetStringValue(dataTypeString.variableValueString(), null, size);
-      final HeapBuilderVariable variable
-          = new HeapBuilderVariable(level, null, HeapVariableType.Filler, size, value);
-      heapBuilder.add(variable);
-
-    } else if (dataType.variableDataTypeNumber() != null) {
-      VariableDataTypeNumberContext dataTypeNumber = dataType.variableDataTypeNumber();
-      // todo: allow comma values e.g. 999.99
-      final int size = variableGetNumberSize(dataTypeNumber);
-      final String value
-          = variableGetNumberValue(dataTypeNumber.variableValueNumber(), null, size);
-      final HeapBuilderVariable variable
-          = new HeapBuilderVariable(level, null, HeapVariableType.Filler, size, value);
-      heapBuilder.add(variable);
-    } else {
-      throw new NotImplementedException();
-    }
-  }
-
-  // todo: cleanup + combine with addFillerVariable
-  private void addNamedVariable(HeapBuilder heapBuilder,
-                                String variableName,
-                                int level,
-                                VariableDataTypeContext dataType) {
-    // todo: allow array (table)
-    if (dataType.variableDataTypeString() != null) {
-      VariableDataTypeStringContext dataTypeString = dataType.variableDataTypeString();
-      final int size = variableGetStringLength(dataTypeString);
-      final String value
-          = variableGetStringValue(dataTypeString.variableValueString(), variableName, size);
-      final HeapBuilderVariable variable
-          = new HeapBuilderVariable(level, variableName, HeapVariableType.String, size, value);
-      heapBuilder.add(variable);
-
-    } else if (dataType.variableDataTypeNumber() != null) {
-      VariableDataTypeNumberContext dataTypeNumber = dataType.variableDataTypeNumber();
-      // todo: allow comma values e.g. 999.99
-      final int size = variableGetNumberSize(dataTypeNumber);
-      final String value
-          = variableGetNumberValue(dataTypeNumber.variableValueNumber(), variableName, size);
-      final HeapBuilderVariable variable
-          = new HeapBuilderVariable(level, variableName, HeapVariableType.Number, size, value);
-      heapBuilder.add(variable);
-
-    } else {
-      throw new NotImplementedException();
-    }
-
-  }
-
-
-
-  // todo: cleanup!!! + names + split
-  private void addVariableDefinition(CobolParser.VariableVariableContext variableContext,
-                                     HeapBuilder heapBuilder) {
-    final int level = Integer.parseInt(variableContext.NUMBER().getText());
-    final VariableRedefinesContext redefinesContext = variableContext.variableRedefines();
-    final String redefines = redefinesContext == null ? null : redefinesContext.ID().getText();
-
-    if (variableContext.FILLER() != null) {
-      final VariableDataTypeContext dataType = variableContext.variableDataType();
-      addFillerVariable(heapBuilder, redefines, level, dataType);
-    } else {
-      final String variableName = variableContext.ID().getText();
-      final VariableDataTypeContext dataType = variableContext.variableDataType();
-      if (dataType == null) {
-        // todo: handle redefines
-        final HeapBuilderVariable variable
-            = new HeapBuilderVariable(level, variableName, HeapVariableType.None, redefines);
-        heapBuilder.add(variable);
-      } else {
-        addNamedVariable(heapBuilder, variableName, level, dataType);
-      }
-    }
-  }
-
   @Override
   public void enterWorkingStorageSection(CobolParser.WorkingStorageSectionContext ctx) {
-    ctx.copy();
-    List<VariableDefinitionContext> variableDefinitions = ctx.variableDefinition();
-    for (VariableDefinitionContext variableDefinitionContext : variableDefinitions) {
-      if (variableDefinitionContext.variableVariable() != null) {
-        addVariableDefinition(variableDefinitionContext.variableVariable(),
-                              this.workingStorageHeap);
-      } else if (variableDefinitionContext.variableConst() != null) {
-        CobolParser.VariableConstContext constContext = variableDefinitionContext.variableConst();
-        HeapBuilderVariable parent = this.workingStorageHeap.getLastVariable();
-        // todo: allow other values
-        // todo: match size with parent
-        String value = constContext.variableValueString().STRING().getText();
-        final HeapBuilderVariable variable = new HeapBuilderVariable(88,
-            constContext.ID().getText(),
-            HeapVariableType.Const,
-            parent.getSize(),
-            value);
-        this.workingStorageHeap.add(variable);
-      } else {
-        throw new NotImplementedException();
+    for (ParseTree child : ctx.children) {
+      if (child instanceof VariableDefinitionContext) {
+        addVariable((VariableDefinitionContext) child, this.workingStorageHeap);
+      } else if (child instanceof CobolParser.CopyContext) {
+        System.out.println("copy");
+        CobolParser.CopyContext copyContext = (CobolParser.CopyContext) child;
+        Source copySource
+            = this.cobolMainParser.getCopySource(copyContext.ID().getText());
+        HeapBuilder heapBuilder = this.cobolMainParser.processStorageCopy(copySource);
+        this.workingStorageHeap.add(heapBuilder);
       }
     }
   }
@@ -213,7 +103,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void exitDataDivision(CobolParser.DataDivisionContext ctx) {
-    this.cobolLanguage.addToHeap(this.workingStorageHeap);
+    this.cobolMainParser.getCobolLanguage().addToHeap(this.workingStorageHeap);
   }
 
   @Override
@@ -251,11 +141,14 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     CobolParser.MoveToContext moveToContext = ctx.moveTo();
     // todo allow multiple targets
     String targetString = moveToContext.ID(0).toString();
-    HeapPointer targetPointer = this.cobolLanguage.heapGetVariable(targetString);
+    HeapPointer targetPointer
+        = this.cobolMainParser.getCobolLanguage().heapGetVariable(targetString);
 
     CobolParser.MoveFromContext moveFromContext = ctx.moveFrom();
     if (moveFromContext.ID() != null) {
-      HeapPointer fromPointer = this.cobolLanguage.heapGetVariable(moveFromContext.ID().toString());
+      HeapPointer fromPointer
+          = this.cobolMainParser.getCobolLanguage()
+                                .heapGetVariable(moveFromContext.ID().toString());
       this.cobolNodeFactory.addMove(fromPointer, targetPointer);
     } else if (moveFromContext.STRING() != null) {
       String inputString = removeStringQuotes(moveFromContext.STRING().getText());
@@ -274,7 +167,8 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     for (CobolParser.DisplayParameterContext displayParameter : ctx.displayParameter()) {
       if (displayParameter.ID() != null) {
         HeapPointer fromPointer
-            = this.cobolLanguage.heapGetVariable(displayParameter.ID().toString());
+            = this.cobolMainParser.getCobolLanguage()
+                                  .heapGetVariable(displayParameter.ID().toString());
         displayArgs.add(fromPointer);
       } else if (displayParameter.STRING() != null) {
         String inputString = removeStringQuotes(displayParameter.STRING().getText());
@@ -293,7 +187,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
   @Override
   public void enterInitializeStatement(CobolParser.InitializeStatementContext ctx) {
     String variable = ctx.ID().getText();
-    HeapPointer heapPointer = this.cobolLanguage.heapGetVariable(variable);
+    HeapPointer heapPointer = this.cobolMainParser.getCobolLanguage().heapGetVariable(variable);
     this.cobolNodeFactory.addInitialize(heapPointer);
   }
 
@@ -309,7 +203,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
   private CobolExpressionNode valueToExpression(CobolParser.ValueContext ctx) {
     if (ctx.ID() != null) {
-      return this.cobolLanguage.heapGetVariable(ctx.ID().toString());
+      return this.cobolMainParser.getCobolLanguage().heapGetVariable(ctx.ID().toString());
     } else if (ctx.SPACE() != null) {
       throw new NotImplementedException();
     } else if (ctx.STRING() != null) {

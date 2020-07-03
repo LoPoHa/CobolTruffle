@@ -1,0 +1,58 @@
+package com.github.lopoha.coboltruffle.parser;
+
+import static com.github.lopoha.coboltruffle.parser.CobolVariableDefinitionParser.addVariable;
+
+import com.github.lopoha.coboltruffle.heap.HeapBuilder;
+import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
+import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
+import com.oracle.truffle.api.source.Source;
+import org.antlr.v4.runtime.tree.ParseTree;
+
+
+// TODO: Move create separate exceptions instead of reusing runtimeexception!
+// todo: cleanup, merge methods, ...
+// todo: is there a difference between e.g. no value and value space? or 0?
+// todo: should all numbers be handled as floats? and integers are floats with no decimal place?
+// todo: multiple classes
+// todo: can a copy member don't start at level 01? and the following not declaration start at 01?
+//       if not, the preprocessor should put info in, when a copy starts/ends,
+//       so this can be checked...
+// todo: how should the linkage heap be handled? this could also be implemented as parameters
+//       that gets passed in whe calling. (like a constructor)
+
+class CobolStorageCopyListenerImpl extends CobolBaseListener {
+  private final HeapBuilder heap = new HeapBuilder();
+  private final CobolMainParser cobolMainParser;
+  // todo: use source for error message
+  private final Source source;
+
+  /**
+   * Creates the Listener, that walks the Tokens and creates the coboltruffle classes.
+   * @param cobolMainParser a reference to the cobol main parser.
+   */
+  CobolStorageCopyListenerImpl(CobolMainParser cobolMainParser, Source source) {
+    assert cobolMainParser != null;
+    assert source != null;
+    this.cobolMainParser = cobolMainParser;
+    this.source = source;
+  }
+
+  @Override
+  public void enterVariableDefinitionCopy(CobolParser.VariableDefinitionCopyContext ctx) {
+    for (ParseTree child : ctx.children) {
+      if (child instanceof CobolParser.VariableDefinitionContext) {
+        addVariable((CobolParser.VariableDefinitionContext) child, this.heap);
+      } else if (child instanceof CobolParser.CopyContext) {
+        System.out.println("copy");
+        CobolParser.CopyContext copyContext = (CobolParser.CopyContext) child;
+        Source copySource
+            = this.cobolMainParser.getCopySource(copyContext.ID().getText());
+        this.cobolMainParser.processStorageCopy(copySource);
+      }
+    }
+  }
+
+  HeapBuilder getHeap() {
+    return heap;
+  }
+}

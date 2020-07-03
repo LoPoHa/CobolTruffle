@@ -10,6 +10,7 @@ import CobolLexerRules;
 //       Con: Allows to break e.g. the 80 char limit, ...
 
 program : identificationDivision environmentDivision dataDivision procedureDivision programEnd;
+variableDefinitionCopy : (variableDefinition | copy)+;
 
 identificationDivision : IDENTIFICATION DIVISION DOT
                         programID;
