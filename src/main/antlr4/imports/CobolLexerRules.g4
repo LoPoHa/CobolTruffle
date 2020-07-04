@@ -59,6 +59,9 @@ INTO : I N T O;
 COPY      : C O P Y;
 SUPPRESS  : S U P P R E S S;
 
-STARTNUMBER : (INT {getCharPositionInLine() == 1}? INT INT INT INT INT) -> skip;
 COMMENT : ('*' | '/') {getCharPositionInLine() == 7}? ~[\r\n]* -> skip;
-ENDNUMBER   : INT INT INT INT INT INT INT INT (EOL | EOF) -> skip;
+
+
+// would it be better to require the removement of the line numbers?
+STARTNUMBER : (INT {getCharPositionInLine() == 1}? INT INT INT INT INT) -> skip;
+ENDNUMBER   : INT {getCharPositionInLine() == 73}? INT INT INT INT INT INT INT (EOL | EOF) -> skip;
