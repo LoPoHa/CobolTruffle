@@ -30,6 +30,16 @@ public class HeapBuilder {
   }
 
   /**
+   * Add all the variables of a heap builder to this.
+   * @param heapBuilder the heap builder to add.
+   */
+  public void add(HeapBuilder heapBuilder) {
+    for (HeapBuilderVariable variable : heapBuilder.variables) {
+      this.add(variable);
+    }
+  }
+
+  /**
    * Get the last heap builder variable.
    * Used for level 88 to get the parent.
    */

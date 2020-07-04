@@ -32,6 +32,11 @@
       *
        MAIN SECTION.
       *
+            DISPLAY COPY-STRING.
+            DISPLAY COPY-NUMBER-PART1.
+
+           PERFORM FIRST-SECTION.
+
            DISPLAY LETTER-A.
            DISPLAY LETTER-B
 

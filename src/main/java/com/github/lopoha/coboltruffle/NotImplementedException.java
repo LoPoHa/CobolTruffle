@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.parser;
+package com.github.lopoha.coboltruffle;
 
 public class NotImplementedException extends RuntimeException {
 }

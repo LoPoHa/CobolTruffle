@@ -2,7 +2,7 @@ package com.github.lopoha.coboltruffle.nodes;
 
 // modeled / copied from SimpleLanguage
 
-import com.github.lopoha.coboltruffle.parser.NotImplementedException;
+import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.instrumentation.GenerateWrapper;

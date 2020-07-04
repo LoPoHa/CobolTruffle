@@ -1,5 +1,6 @@
 package com.github.lopoha.coboltruffle.builtins;
 
+import com.github.lopoha.coboltruffle.CobolException;
 import com.github.lopoha.coboltruffle.CobolLanguage;
 import com.github.lopoha.coboltruffle.runtime.CobolContext;
 import com.github.lopoha.coboltruffle.runtime.CobolLanguageView;
