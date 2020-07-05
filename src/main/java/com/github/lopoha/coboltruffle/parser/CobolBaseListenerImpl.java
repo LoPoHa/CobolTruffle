@@ -80,7 +80,6 @@ class CobolBaseListenerImpl extends CobolBaseListener {
       if (child instanceof VariableDefinitionContext) {
         addVariable((VariableDefinitionContext) child, this.workingStorageHeap);
       } else if (child instanceof CobolParser.CopyContext) {
-        System.out.println("copy");
         CobolParser.CopyContext copyContext = (CobolParser.CopyContext) child;
         Source copySource
             = this.cobolMainParser.getCopySource(copyContext.ID().getText());
@@ -103,7 +102,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void exitDataDivision(CobolParser.DataDivisionContext ctx) {
-    this.cobolMainParser.getCobolLanguage().addToHeap(this.workingStorageHeap);
+    this.cobolMainParser.getCobolLanguage().addHeap(this.workingStorageHeap);
   }
 
   @Override

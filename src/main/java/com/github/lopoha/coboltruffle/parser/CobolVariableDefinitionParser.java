@@ -152,7 +152,7 @@ class CobolVariableDefinitionParser {
   }
 
   static void addVariable(CobolParser.VariableDefinitionContext ctx,
-                                         HeapBuilder heapBuilder) {
+                          HeapBuilder heapBuilder) {
     if (ctx.variableVariable() != null) {
       heapBuilder.add(createVariableDefinition(ctx.variableVariable()));
     } else if (ctx.variableConst() != null) {

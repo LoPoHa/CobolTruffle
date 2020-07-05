@@ -9,15 +9,13 @@ public class HeapPointerConst extends HeapPointer {
    * @param name name of the variable.
    * @param position start position on the heap.
    * @param length length of the variable
-   * @param heap the heap.
    * @param defaultValue the default value.
    */
   protected HeapPointerConst(String name,
                              int position,
                              int length,
-                             List<Character> heap,
                              String defaultValue) {
-    super(name, position, length, heap, defaultValue);
+    super(name, position, length, defaultValue);
   }
 
   /**

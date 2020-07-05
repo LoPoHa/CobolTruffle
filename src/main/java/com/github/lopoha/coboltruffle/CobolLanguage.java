@@ -56,7 +56,7 @@ import java.util.NoSuchElementException;
 public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   public static final String ID = "Cobol";
   public static final String MIME_TYPE = "application/x-cbl";
-  private final CobolHeap heap = new CobolHeap();
+  private final List<CobolHeap> heaps = new ArrayList<>();
   // todo what should happen if a name is there multiple times?
   private static final Map<String, CobolBuiltinNode> builtins
       = Collections.synchronizedMap(new HashMap<>());
@@ -89,12 +89,23 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
    * TODO: Should only one heapbuilder be allowed to be added?
    * @param heapBuilder The heapbuilder to add.
    */
-  public void addToHeap(HeapBuilder heapBuilder) {
-    heap.addToHeap(heapBuilder);
+  public void addHeap(HeapBuilder heapBuilder) {
+    CobolHeap newHeap = new CobolHeap();
+    newHeap.addToHeap(heapBuilder);
+    newHeap.allocate();
+    heaps.add(newHeap);
   }
 
   public HeapPointer heapGetVariable(String name) {
-    return this.heap.getHeapPointer(name);
+    return this.heaps.get(this.heaps.size() - 1).getHeapPointer(name);
+  }
+
+  public List<CobolHeap> getHeaps() {
+    return this.heaps;
+  }
+
+  public CobolHeap getLastHeap() {
+    return this.heaps.get(this.heaps.size() - 1);
   }
 
   @Override

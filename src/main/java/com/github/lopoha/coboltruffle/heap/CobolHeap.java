@@ -3,15 +3,19 @@ package com.github.lopoha.coboltruffle.heap;
 import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.github.lopoha.coboltruffle.parser.CobolUnknownVariableRedefineException;
 import com.github.lopoha.coboltruffle.parser.CobolVariableNotFoundException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 public class CobolHeap {
-  private final HashMap<String, HeapPointer> pointerMap = new HashMap<>();
+  public static final String FRAME_NAME = "cobolheap";
 
-  private final List<Character> heap = new ArrayList<>();
+  private final HashMap<String, HeapPointer> pointerMap = new HashMap<>();
+  private int heapSize = 0;
+
+  public List<Character> allocate() {
+    return Collections.nCopies(heapSize, ' ');
+  }
 
   // todo cleanup + better distinguish between heap and heapbuilder...
 
@@ -33,12 +37,11 @@ public class CobolHeap {
         // nothing? because of the global heap?
         throw new VariableAlreadyDefinedException(variable.variableName);
       } else {
-        final int variableBaseHeapPosition = this.heap.size();
+        final int variableBaseHeapPosition = this.heapSize;
         variable.finalizeHeapBuilder();
         // todo: respect the default value instead of blank...
         //       this should be done in the addVariableToPointerMap function
-        final List<Character> variableHeap = Collections.nCopies(variable.getSize(), ' ');
-        this.heap.addAll(variableHeap);
+        this.heapSize += variable.getSize();
         addVariableToPointerMap(variable, variableBaseHeapPosition, true);
       }
     }
@@ -59,21 +62,16 @@ public class CobolHeap {
         pointer = new HeapPointerString(variable.variableName,
                                         variableBasePosition,
                                         variable.getSize(),
-                                        this.heap,
                                         variable.getValue());
         break;
       case Const:
         pointer = new HeapPointerConst(variable.variableName,
             variableBasePosition,
             variable.getSize(),
-            this.heap,
             variable.getValue());
         break;
       default:
         throw new NotImplementedException();
-    }
-    if (initialize) {
-      pointer.initialize();
     }
 
     if (this.pointerMap.containsKey(variable.variableName)) {

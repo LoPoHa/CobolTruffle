@@ -1,7 +1,9 @@
 package com.github.lopoha.coboltruffle.parser;
 
 import com.github.lopoha.coboltruffle.CobolLanguage;
+import com.github.lopoha.coboltruffle.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.heap.HeapPointer;
+import com.github.lopoha.coboltruffle.nodes.CobolConstructorNode;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.CobolInitializeNode;
 import com.github.lopoha.coboltruffle.nodes.CobolMoveNode;
@@ -12,10 +14,16 @@ import com.github.lopoha.coboltruffle.nodes.controlflow.CobolSectionBodyNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolInvokeNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolLocalFunctionLiteralNode;
+import com.github.lopoha.coboltruffle.nodes.expression.CobolStringLiteralNode;
+import com.github.lopoha.coboltruffle.nodes.local.CobolReadArgumentNode;
+import com.github.lopoha.coboltruffle.nodes.local.CobolReadLocalVariableNodeGen;
+import com.github.lopoha.coboltruffle.nodes.local.CobolWriteLocalVariableNodeGen;
 import com.github.lopoha.coboltruffle.runtime.CobolSectionRegistry;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlot;
+import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import java.util.ArrayList;
@@ -36,6 +44,8 @@ class CobolNodeFactory {
   private CobolNodeFactoryBlock currentBlock;
   private final CobolSectionRegistry fileLocalFunctions;
   private final Source source;
+  private FrameDescriptor frameDescriptor;
+  private int parameterCount;
 
 
   private final CobolLanguage language;
@@ -59,6 +69,11 @@ class CobolNodeFactory {
     assert this.functionStartPos == 0;
     assert this.functionName == null;
     assert this.currentBlock == null;
+    assert this.frameDescriptor == null;
+    assert this.parameterCount == 0;
+
+    this.frameDescriptor = new FrameDescriptor();
+
     this.functionName = programName.toLowerCase();
     // todo: should the start token be given here?
     this.currentBlock = new CobolNodeFactoryBlock(null);
@@ -68,24 +83,33 @@ class CobolNodeFactory {
 
     CobolFunctionLiteralNode firstFunction
         = new CobolLocalFunctionLiteralNode(this.firstFunctionName, this.fileLocalFunctions);
+    final CobolInvokeNode result
+        = new CobolInvokeNode(firstFunction, new CobolExpressionNode[0]);
+    CobolConstructorNode constructorNode = new CobolConstructorNode(this.firstFunctionName,
+                                                                    this.language.getLastHeap(),
+                                                                    result);
 
-    this.addCall(programExitToken, firstFunction, new ArrayList<>());
+    this.addCall(programExitToken, constructorNode, new ArrayList<>());
 
     this.allSections.put(this.functionName, getCallTarget(programExitToken.getStopIndex()));
 
     this.functionStartPos = 0;
     this.functionName = null;
     this.currentBlock = null;
+    this.frameDescriptor = null;
+    this.parameterCount = 0;
   }
 
   private RootCallTarget getCallTarget(int bodyEndPos) {
-    FrameDescriptor frameDescriptor = new FrameDescriptor();
     final CobolStatementNode sectionBlock = this.currentBlock.combineBlock();
     final CobolSectionBodyNode sectionBody = new CobolSectionBodyNode(sectionBlock);
     final SourceSection functionSrc
         = source.createSection(this.functionStartPos, bodyEndPos - functionStartPos);
-    final CobolRootNode rootNode
-        = new CobolRootNode(language, frameDescriptor, sectionBody, functionSrc, this.functionName);
+    final CobolRootNode rootNode = new CobolRootNode(language,
+                                                     this.frameDescriptor,
+                                                     sectionBody,
+                                                     functionSrc,
+                                                     this.functionName);
     return Truffle.getRuntime().createCallTarget(rootNode);
   }
 
@@ -99,6 +123,10 @@ class CobolNodeFactory {
     assert this.functionStartPos == 0;
     assert this.functionName == null;
     assert this.currentBlock == null;
+    assert this.frameDescriptor == null;
+    assert this.parameterCount == 0;
+
+    this.frameDescriptor = new FrameDescriptor();
 
     this.functionStartPos = token.getStartIndex();
     this.functionName = token.getText();
@@ -106,6 +134,8 @@ class CobolNodeFactory {
       this.firstFunctionName = functionName;
     }
     this.currentBlock = new CobolNodeFactoryBlock(token);
+
+    this.addLocalHeapParameter();
   }
 
   /**
@@ -118,6 +148,8 @@ class CobolNodeFactory {
     this.functionStartPos = 0;
     this.functionName = null;
     this.currentBlock = null;
+    this.frameDescriptor = null;
+    this.parameterCount = 0;
   }
 
   void addMove(String from, HeapPointer to) {
@@ -130,10 +162,60 @@ class CobolNodeFactory {
     this.currentBlock.addStatement(moveNode);
   }
 
+  private void addLocalHeapParameter() {
+    assert this.parameterCount == 0;
+
+    final CobolReadArgumentNode readArg = new CobolReadArgumentNode(this.parameterCount);
+    final CobolStringLiteralNode stringLiteralNode
+        = new CobolStringLiteralNode(CobolHeap.FRAME_NAME);
+    CobolExpressionNode assignment
+        = createAssignment(stringLiteralNode, readArg, this.parameterCount);
+
+    this.currentBlock.addStatement(assignment);
+
+    this.parameterCount += 1;
+
+  }
+
+  void addFormalParameter(Token nameToken) {
+    final CobolReadArgumentNode readArg = new CobolReadArgumentNode(this.parameterCount);
+    CobolExpressionNode assignment
+        = createAssignment(createStringLiteral(nameToken, false), readArg, this.parameterCount);
+
+    this.currentBlock.addStatement(assignment);
+
+    this.parameterCount += 1;
+  }
+
+  private CobolExpressionNode createAssignment(CobolStringLiteralNode nameNode,
+                                               CobolExpressionNode valueNode,
+                                               Integer argumentIndex) {
+    if (nameNode == null | valueNode == null) {
+      return null;
+    }
+
+    String name = nameNode.executeGeneric(null);
+    FrameSlot frameSlot
+        = frameDescriptor.findOrAddFrameSlot(name, argumentIndex, FrameSlotKind.Illegal);
+    final CobolExpressionNode result
+        = CobolWriteLocalVariableNodeGen.create(valueNode, frameSlot, nameNode);
+
+    if (valueNode.hasSource()) {
+      final int start = nameNode.getSourceCharIndex();
+      final int length = valueNode.getSourceEndIndex() - start;
+      result.setSourceSection(start, length);
+    }
+    result.addExpressionTag();
+
+    return result;
+  }
+
   void addLocalCall(Token callToken, String functionName) {
     CobolFunctionLiteralNode node
         = new CobolLocalFunctionLiteralNode(functionName, this.fileLocalFunctions);
-    this.addCall(callToken, node, new ArrayList<>());
+    List<CobolExpressionNode> localParams = new ArrayList<>();
+    CobolExpressionNode heapParam = CobolReadLocalVariableNodeGen.
+    this.addCall(callToken, node, localParams);
   }
 
   /**
@@ -153,11 +235,9 @@ class CobolNodeFactory {
     final CobolExpressionNode result
         = new CobolInvokeNode(functionNode, parameterNodes.toArray(new CobolExpressionNode[0]));
 
-    /*
     final int startPos = callToken.getStartIndex();
     final int endPos = callToken.getStopIndex();
     result.setSourceSection(startPos, endPos - startPos);
-    */
     result.addExpressionTag();
 
     this.currentBlock.addStatement(result);
@@ -205,6 +285,44 @@ class CobolNodeFactory {
     // todo: is this correct?
     assert this.currentBlock != null;
     this.currentBlock.getChilds().remove(this.currentBlock.getChilds().size() - 1);
+  }
+
+ private CobolExpressionNode createRead(CobolStringLiteralNode nameNode) {
+    if (nameNode == null) {
+      return null;
+    }
+
+    String name = nameNode.executeGeneric(null);
+    final CobolExpressionNode result;
+    final FrameSlot frameSlot = lexicalScope.locals.get(name);
+    if (frameSlot != null) {
+      /* Read of a local variable. */
+      result = SLReadLocalVariableNodeGen.create(frameSlot);
+    } else {
+      /* Read of a global name. In our language, the only global names are functions. */
+      result = new SLFunctionLiteralNode(name);
+    }
+    result.setSourceSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
+    result.addExpressionTag();
+    return result;
+  }
+
+  private CobolStringLiteralNode createStringLiteral(Token literalToken, boolean removeQuotes) {
+    /* Remove the trailing and ending " */
+    String literal = literalToken.getText();
+    if (removeQuotes) {
+      assert literal.length() >= 2 && literal.startsWith("\"") && literal.endsWith("\"");
+      literal = literal.substring(1, literal.length() - 1);
+    }
+
+    final CobolStringLiteralNode result = new CobolStringLiteralNode(literal.intern());
+    srcFromToken(result, literalToken);
+    result.addExpressionTag();
+    return result;
+  }
+
+  private static void srcFromToken(CobolStatementNode node, Token token) {
+    node.setSourceSection(token.getStartIndex(), token.getText().length());
   }
 
   Map<String, RootCallTarget> getAllSections() {

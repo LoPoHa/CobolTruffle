@@ -1,22 +1,20 @@
 package com.github.lopoha.coboltruffle.heap;
 
-import java.util.List;
 
 public final class HeapPointerString extends HeapPointer {
   /**
    * Create a Pointer to the heap.
+   * The heap must be on the frame.
    * @param name name of the variable.
    * @param position start position on the heap.
    * @param length length of the variable
-   * @param heap the heap.
    * @param defaultValue the default value.
    */
   protected HeapPointerString(String name,
                               int position,
                               int length,
-                              List<Character> heap,
                               String defaultValue) {
-    super(name, position, length, heap, defaultValue);
+    super(name, position, length, defaultValue);
   }
 
   @Override
