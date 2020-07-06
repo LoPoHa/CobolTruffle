@@ -32,43 +32,7 @@
       *
        MAIN SECTION.
       *
-            DISPLAY COPY-STRING.
-            DISPLAY COPY-NUMBER-PART1.
-
-           PERFORM FIRST-SECTION.
-
-           DISPLAY LETTER-A.
-           DISPLAY LETTER-B
-
-           IF LETTER-B LESS EQUAL LETTER-B THEN
-             IF LETTER-A BIGGER THAN LETTER-B THEN
-               DISPLAY "IT WAS VERY TRUE"
-             ELSE
-               DISPLAY "IT WAS ALMOST COMPLETELY TRUE"
-             END-IF
-           ELSE
-             DISPLAY "IT WAS FALSE"
-           END-IF
-           MOVE     "ABCD"       TO PROGRAMNAME.
-           DISPLAY "ABC".
-           DISPLAY PROGRAMNAME.
-           PERFORM FIRST-SECTION.
-           INITIALIZE PROGRAMNAME.
-           DISPLAY PROGRAMNAME.
-      *
        PROG-EX.
            EXIT PROGRAM.
-      *
-      *
-      *
-      *
-       FIRST-SECTION SECTION.
-      *
-      * TODO: IF
-      *            EQUAL, LESS, BIGGER
-      *            88 LEVEL
-      *            NUMERIC
-           DISPLAY "HELLO FROM FIRST-SECTION".
-           EXIT.
       *
        END PROGRAM TEST.

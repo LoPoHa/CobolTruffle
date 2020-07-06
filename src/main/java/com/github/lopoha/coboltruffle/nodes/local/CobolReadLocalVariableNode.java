@@ -16,19 +16,7 @@ public abstract class CobolReadLocalVariableNode extends CobolExpressionNode {
 
   protected abstract FrameSlot getSlot();
 
-  // readLong and read boolean are kept, maybe in the future they are required for interop with
-  // other jvm / truffle languages
-  @Specialization(guards = "frame.isLong(getSlot())")
-  protected long readLong(VirtualFrame frame) {
-    return FrameUtil.getLongSafe(frame, getSlot());
-  }
-
-  @Specialization(guards = "frame.isBoolean(getSlot())")
-  protected boolean readBoolean(VirtualFrame frame) {
-    return FrameUtil.getBooleanSafe(frame, getSlot());
-  }
-
-  @Specialization(replaces = {"readLong", "readBoolean"})
+  @Specialization
   protected Object readObject(VirtualFrame frame) {
     if (!frame.isObject(getSlot())) {
       CompilerDirectives.transferToInterpreter();

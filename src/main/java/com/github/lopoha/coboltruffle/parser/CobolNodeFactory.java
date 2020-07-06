@@ -46,6 +46,8 @@ class CobolNodeFactory {
   private final Source source;
   private FrameDescriptor frameDescriptor;
   private int parameterCount;
+  // should this live inseide the CobolNodeFactoryBlock, because of goto?
+  private HashMap<String, FrameSlot> frameSlots;
 
 
   private final CobolLanguage language;
@@ -71,27 +73,30 @@ class CobolNodeFactory {
     assert this.currentBlock == null;
     assert this.frameDescriptor == null;
     assert this.parameterCount == 0;
+    assert this.frameSlots == null;
+    this.functionName = programName;
 
     this.frameDescriptor = new FrameDescriptor();
+    this.frameSlots = new HashMap<>();
 
-    this.functionName = programName.toLowerCase();
-    // todo: should the start token be given here?
-    this.currentBlock = new CobolNodeFactoryBlock(null);
+    this.currentBlock = new CobolNodeFactoryBlock(programExitToken);
     // todo add initializations.
     //      a new heap should be created and all the nodes should inside be pointed to it.
     //
 
-    CobolFunctionLiteralNode firstFunction
-        = new CobolLocalFunctionLiteralNode(this.firstFunctionName, this.fileLocalFunctions);
-    final CobolInvokeNode result
-        = new CobolInvokeNode(firstFunction, new CobolExpressionNode[0]);
+    FrameSlot frameSlot = frameDescriptor.findOrAddFrameSlot(CobolHeap.FRAME_NAME,
+                                                             this.parameterCount,
+                                                             FrameSlotKind.Illegal);
+    this.frameSlots.put(CobolHeap.FRAME_NAME, frameSlot);
+
     CobolConstructorNode constructorNode = new CobolConstructorNode(this.firstFunctionName,
-                                                                    this.language.getLastHeap(),
-                                                                    result);
+        this.language.getLastHeap(),
+        this.firstFunctionName,
+        this.fileLocalFunctions);
 
     this.addCall(programExitToken, constructorNode, new ArrayList<>());
 
-    this.allSections.put(this.functionName, getCallTarget(programExitToken.getStopIndex()));
+    this.allSections.put(programName.toLowerCase(), getCallTarget(programExitToken.getStopIndex()));
 
     this.functionStartPos = 0;
     this.functionName = null;
@@ -125,8 +130,10 @@ class CobolNodeFactory {
     assert this.currentBlock == null;
     assert this.frameDescriptor == null;
     assert this.parameterCount == 0;
+    assert this.frameSlots == null;
 
     this.frameDescriptor = new FrameDescriptor();
+    this.frameSlots = new HashMap<>();
 
     this.functionStartPos = token.getStartIndex();
     this.functionName = token.getText();
@@ -138,18 +145,38 @@ class CobolNodeFactory {
     this.addLocalHeapParameter();
   }
 
+  void startSection(Token token, String programName) {
+    assert this.functionStartPos == 0;
+    assert this.functionName == null;
+    assert this.currentBlock == null;
+    assert this.frameDescriptor == null;
+    assert this.parameterCount == 0;
+    assert this.frameSlots == null;
+
+    this.frameDescriptor = new FrameDescriptor();
+    this.frameSlots = new HashMap<>();
+
+    this.functionStartPos = token.getStartIndex();
+    this.functionName = programName;
+    this.currentBlock = new CobolNodeFactoryBlock(token);
+
+    this.addLocalHeapParameter();
+  }
+
   /**
    * TODO.
    * @param endNode The node of EXIT.
    */
   void finishSection(Token endNode) {
-    this.fileLocalFunctions.register(this.functionName, getCallTarget(endNode.getStopIndex()));
+    this.fileLocalFunctions.register(this.functionName.toLowerCase(),
+                                     getCallTarget(endNode.getStopIndex()));
 
     this.functionStartPos = 0;
     this.functionName = null;
     this.currentBlock = null;
     this.frameDescriptor = null;
     this.parameterCount = 0;
+    this.frameSlots = null;
   }
 
   void addMove(String from, HeapPointer to) {
@@ -197,6 +224,7 @@ class CobolNodeFactory {
     String name = nameNode.executeGeneric(null);
     FrameSlot frameSlot
         = frameDescriptor.findOrAddFrameSlot(name, argumentIndex, FrameSlotKind.Illegal);
+    this.frameSlots.put(name, frameSlot);
     final CobolExpressionNode result
         = CobolWriteLocalVariableNodeGen.create(valueNode, frameSlot, nameNode);
 
@@ -212,9 +240,11 @@ class CobolNodeFactory {
 
   void addLocalCall(Token callToken, String functionName) {
     CobolFunctionLiteralNode node
-        = new CobolLocalFunctionLiteralNode(functionName, this.fileLocalFunctions);
+        = new CobolLocalFunctionLiteralNode(functionName.toLowerCase(), this.fileLocalFunctions);
     List<CobolExpressionNode> localParams = new ArrayList<>();
-    CobolExpressionNode heapParam = CobolReadLocalVariableNodeGen.
+    CobolExpressionNode heapParam
+        = createRead(callToken, new CobolStringLiteralNode(CobolHeap.FRAME_NAME));
+    localParams.add(heapParam);
     this.addCall(callToken, node, localParams);
   }
 
@@ -287,22 +317,17 @@ class CobolNodeFactory {
     this.currentBlock.getChilds().remove(this.currentBlock.getChilds().size() - 1);
   }
 
- private CobolExpressionNode createRead(CobolStringLiteralNode nameNode) {
+  private CobolExpressionNode createRead(Token token, CobolStringLiteralNode nameNode) {
     if (nameNode == null) {
       return null;
     }
 
     String name = nameNode.executeGeneric(null);
-    final CobolExpressionNode result;
-    final FrameSlot frameSlot = lexicalScope.locals.get(name);
-    if (frameSlot != null) {
-      /* Read of a local variable. */
-      result = SLReadLocalVariableNodeGen.create(frameSlot);
-    } else {
-      /* Read of a global name. In our language, the only global names are functions. */
-      result = new SLFunctionLiteralNode(name);
-    }
-    result.setSourceSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
+    final FrameSlot frameSlot = this.frameSlots.get(name);
+    assert frameSlot != null;
+    final CobolExpressionNode result = CobolReadLocalVariableNodeGen.create(frameSlot);
+    result.setSourceSection(token.getStartIndex(),
+                      token.getStopIndex() - token.getStartIndex());
     result.addExpressionTag();
     return result;
   }
