@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CobolHeap {
   private final HashMap<String, CobolHeapPointer> pointerMap = new HashMap<>();
@@ -61,15 +62,17 @@ public class CobolHeap {
       case Number: // fallthrough
       case String:
         pointer = new CobolHeapPointerString(variable.variableName,
-                                        variableBasePosition,
-                                        variable.getSize(),
-                                        variable.getValue());
+                                             variableBasePosition,
+                                             variable.getSize(),
+                                             variable.getValue(),
+                                             variable.level);
         break;
       case Const:
         pointer = new CobolHeapPointerConst(variable.variableName,
             variableBasePosition,
             variable.getSize(),
-            variable.getValue());
+            variable.getValue(),
+            variable.level);
         break;
       default:
         throw new NotImplementedException();
@@ -109,5 +112,16 @@ public class CobolHeap {
     } else {
       throw new CobolVariableNotFoundException(variableName);
     }
+  }
+
+  /**
+   * Collect all the root (level 1) pointer and return it as a list.
+   * @return the list with all the root heap pointers.
+   */
+  public List<CobolHeapPointer> getRootPointers() {
+    return this.pointerMap.values()
+                          .stream()
+                          .filter(x -> x.level == 1)
+                          .collect(Collectors.toList());
   }
 }

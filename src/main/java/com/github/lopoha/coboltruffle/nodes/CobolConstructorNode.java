@@ -5,6 +5,7 @@ import com.github.lopoha.coboltruffle.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolInvokeNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
+import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.github.lopoha.coboltruffle.nodes.local.CobolWriteLocalVariableNodeGen;
 import com.github.lopoha.coboltruffle.runtime.CobolNull;
 import com.github.lopoha.coboltruffle.runtime.CobolSection;
@@ -54,6 +55,11 @@ public final class CobolConstructorNode extends CobolFunctionLiteralNode {
                           .findOrAddFrameSlot(CobolProgramStateNode.FRAME_NAME,
                                               FrameSlotKind.Object);
     frame.setObject(slot, programStateNode);
+
+
+    this.cobolHeap.getRootPointers()
+                  .forEach(pointer -> new CobolInitializeNode(pointer).executeVoid(frame));
+
 
     if (cachedFunction == null) {
       /* We are about to change a @CompilationFinal field. */

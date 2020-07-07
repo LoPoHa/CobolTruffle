@@ -32,9 +32,9 @@
       *
        MAIN SECTION.
       *
-          MOVE "X" TO LETTER.
-          DISPLAY LETTER.
+          DISPLAY LETTER-A.
           PERFORM FIRST-SECTION.
+          PERFORM SECOND-SECTION.
       *
        PROG-EX.
            EXIT PROGRAM.
@@ -45,6 +45,10 @@
            DISPLAY "FIRST-SECTION".
            DISPLAY LETTER.
       *
+       EXIT.
+
+       SECOND-SECTION SECTION.
+           DISPLAY "SECOND SECTION"
        EXIT.
       *
        END PROGRAM TEST.

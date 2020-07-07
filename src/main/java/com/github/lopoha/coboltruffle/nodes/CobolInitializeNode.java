@@ -1,5 +1,6 @@
 package com.github.lopoha.coboltruffle.nodes;
 
+import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -20,6 +21,7 @@ public class CobolInitializeNode extends CobolStatementNode {
   @Override
   public void executeVoid(VirtualFrame frame) {
     // todo: get state from the frame
-    this.pointer.initialize(null);
+    CobolProgramStateNode programState = Helper.getProgramStateFromFrame(frame);
+    this.pointer.initialize(programState);
   }
 }

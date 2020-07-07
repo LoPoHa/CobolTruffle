@@ -10,12 +10,14 @@ public class CobolHeapPointerConst extends CobolHeapPointer {
    * @param position start position on the heap.
    * @param length length of the variable
    * @param defaultValue the default value.
+   * @param level the level of the variable declaration.
    */
   public CobolHeapPointerConst(String name,
-                                  int position,
-                                  int length,
-                                  String defaultValue) {
-    super(name, position, length, defaultValue);
+                               int position,
+                               int length,
+                               String defaultValue,
+                               int level) {
+    super(name, position, length, defaultValue, level);
   }
 
   /**

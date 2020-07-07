@@ -18,6 +18,7 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
   public final int position;
   final int length;
   final String defaultValue;
+  public final int level;
 
   /**
    * Create a Pointer to the heap.
@@ -25,19 +26,23 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
    * @param position start position on the heap.
    * @param length length of the variable
    * @param defaultValue the default value.
+   * @param level the level of the variable declaration.
    */
   protected CobolHeapPointer(String name,
                              int position,
                              int length,
-                             String defaultValue) {
+                             String defaultValue,
+                             int level) {
     assert name != null;
     assert position >= 0;
     assert length > 0;
+    assert level > 0;
 
     this.name = name;
     this.position = position;
     this.length = length;
     this.defaultValue = defaultValue;
+    this.level = level;
   }
 
   /**
