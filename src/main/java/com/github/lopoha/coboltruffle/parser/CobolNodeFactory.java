@@ -1,8 +1,6 @@
 package com.github.lopoha.coboltruffle.parser;
 
 import com.github.lopoha.coboltruffle.CobolLanguage;
-import com.github.lopoha.coboltruffle.heap.CobolHeap;
-import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.nodes.CobolConstructorNode;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.CobolInitializeNode;
@@ -14,8 +12,11 @@ import com.github.lopoha.coboltruffle.nodes.controlflow.CobolSectionBodyNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolInvokeNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolLocalFunctionLiteralNode;
+import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolStringLiteralNode;
+import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.github.lopoha.coboltruffle.nodes.local.CobolReadArgumentNode;
+import com.github.lopoha.coboltruffle.nodes.local.CobolReadLocalVariableNode;
 import com.github.lopoha.coboltruffle.nodes.local.CobolReadLocalVariableNodeGen;
 import com.github.lopoha.coboltruffle.nodes.local.CobolWriteLocalVariableNodeGen;
 import com.github.lopoha.coboltruffle.runtime.CobolSectionRegistry;
@@ -84,17 +85,21 @@ class CobolNodeFactory {
     //      a new heap should be created and all the nodes should inside be pointed to it.
     //
 
-    FrameSlot frameSlot = frameDescriptor.findOrAddFrameSlot(CobolHeap.FRAME_NAME,
+    FrameSlot frameSlot = frameDescriptor.findOrAddFrameSlot(CobolProgramStateNode.FRAME_NAME,
                                                              this.parameterCount,
-                                                             FrameSlotKind.Illegal);
-    this.frameSlots.put(CobolHeap.FRAME_NAME, frameSlot);
+                                                             FrameSlotKind.Object);
+    this.frameSlots.put(CobolProgramStateNode.FRAME_NAME, frameSlot);
 
-    CobolConstructorNode constructorNode = new CobolConstructorNode(this.firstFunctionName,
+    CobolConstructorNode constructorNode = new CobolConstructorNode(programName,
         this.language.getLastHeap(),
         this.firstFunctionName,
         this.fileLocalFunctions);
+    CobolReadLocalVariableNode localVariableNode
+        = CobolReadLocalVariableNodeGen.create(frameSlot);
+    List<CobolExpressionNode> params = new ArrayList<>();
+    params.add(localVariableNode);
 
-    this.addCall(programExitToken, constructorNode, new ArrayList<>());
+    this.addCall(programExitToken, constructorNode, params);
 
     this.allSections.put(programName.toLowerCase(), getCallTarget(programExitToken.getStopIndex()));
 
@@ -179,12 +184,12 @@ class CobolNodeFactory {
     this.frameSlots = null;
   }
 
-  void addMove(String from, HeapPointer to) {
+  void addMove(String from, CobolHeapPointer to) {
     CobolMoveNode moveNode = new CobolMoveNode(from, to);
     this.currentBlock.addStatement(moveNode);
   }
 
-  void addMove(HeapPointer from, HeapPointer to) {
+  void addMove(CobolHeapPointer from, CobolHeapPointer to) {
     CobolMoveNode moveNode = new CobolMoveNode(from, to);
     this.currentBlock.addStatement(moveNode);
   }
@@ -194,7 +199,7 @@ class CobolNodeFactory {
 
     final CobolReadArgumentNode readArg = new CobolReadArgumentNode(this.parameterCount);
     final CobolStringLiteralNode stringLiteralNode
-        = new CobolStringLiteralNode(CobolHeap.FRAME_NAME);
+        = new CobolStringLiteralNode(CobolProgramStateNode.FRAME_NAME);
     CobolExpressionNode assignment
         = createAssignment(stringLiteralNode, readArg, this.parameterCount);
 
@@ -243,7 +248,7 @@ class CobolNodeFactory {
         = new CobolLocalFunctionLiteralNode(functionName.toLowerCase(), this.fileLocalFunctions);
     List<CobolExpressionNode> localParams = new ArrayList<>();
     CobolExpressionNode heapParam
-        = createRead(callToken, new CobolStringLiteralNode(CobolHeap.FRAME_NAME));
+        = createRead(callToken, new CobolStringLiteralNode(CobolProgramStateNode.FRAME_NAME));
     localParams.add(heapParam);
     this.addCall(callToken, node, localParams);
   }
@@ -273,7 +278,7 @@ class CobolNodeFactory {
     this.currentBlock.addStatement(result);
   }
 
-  void addInitialize(HeapPointer heapPointer) {
+  void addInitialize(CobolHeapPointer heapPointer) {
     CobolInitializeNode initializeNode = new CobolInitializeNode(heapPointer);
     this.currentBlock.addStatement(initializeNode);
   }

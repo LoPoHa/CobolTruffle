@@ -1,20 +1,22 @@
 package com.github.lopoha.coboltruffle.heap;
 
 import com.github.lopoha.coboltruffle.NotImplementedException;
+import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
+import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointerConst;
+import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointerString;
 import com.github.lopoha.coboltruffle.parser.CobolUnknownVariableRedefineException;
 import com.github.lopoha.coboltruffle.parser.CobolVariableNotFoundException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 public class CobolHeap {
-  public static final String FRAME_NAME = "cobolheap";
-
-  private final HashMap<String, HeapPointer> pointerMap = new HashMap<>();
+  private final HashMap<String, CobolHeapPointer> pointerMap = new HashMap<>();
   private int heapSize = 0;
 
   public List<Character> allocate() {
-    return Collections.nCopies(heapSize, ' ');
+    return new ArrayList<>(Collections.nCopies(heapSize, ' '));
   }
 
   // todo cleanup + better distinguish between heap and heapbuilder...
@@ -42,30 +44,29 @@ public class CobolHeap {
         // todo: respect the default value instead of blank...
         //       this should be done in the addVariableToPointerMap function
         this.heapSize += variable.getSize();
-        addVariableToPointerMap(variable, variableBaseHeapPosition, true);
+        addVariableToPointerMap(variable, variableBaseHeapPosition);
       }
     }
   }
 
   // todo cleanup!!!
   private void addVariableToPointerMap(final HeapBuilderVariable variable,
-                                       final int variableBasePosition,
-                                       boolean initialize) {
+                                       final int variableBasePosition) {
     // todo should a check if the variable is already defined be here?
     //      this time it should be an error? or not?
-    HeapPointer pointer;
+    CobolHeapPointer pointer;
     switch (variable.heapVariableType) {
       case Filler: // fallthrough
       case None:   // fallthrough
       case Number: // fallthrough
       case String:
-        pointer = new HeapPointerString(variable.variableName,
+        pointer = new CobolHeapPointerString(variable.variableName,
                                         variableBasePosition,
                                         variable.getSize(),
                                         variable.getValue());
         break;
       case Const:
-        pointer = new HeapPointerConst(variable.variableName,
+        pointer = new CobolHeapPointerConst(variable.variableName,
             variableBasePosition,
             variable.getSize(),
             variable.getValue());
@@ -82,13 +83,13 @@ public class CobolHeap {
     int variableHeapPosition = variableBasePosition;
     for (HeapBuilderVariable child : variable.getChildren()) {
       if (child.redefines != null) {
-        HeapPointer redefinePointer = this.pointerMap.get(child.redefines);
+        CobolHeapPointer redefinePointer = this.pointerMap.get(child.redefines);
         if (redefinePointer == null) {
           throw new CobolUnknownVariableRedefineException(child.redefines, child.variableName);
         }
-        addVariableToPointerMap(child, redefinePointer.position, false);
+        addVariableToPointerMap(child, redefinePointer.position);
       } else {
-        addVariableToPointerMap(child, variableHeapPosition, false);
+        addVariableToPointerMap(child, variableHeapPosition);
         variableHeapPosition += child.getSize();
       }
     }
@@ -101,7 +102,7 @@ public class CobolHeap {
    * @param variableName the name of the pointer/variable.
    * @return The pointer.
    */
-  public HeapPointer getHeapPointer(String variableName) {
+  public CobolHeapPointer getHeapPointer(String variableName) {
     variableName = variableName.toLowerCase();
     if (this.pointerMap.containsKey(variableName)) {
       return this.pointerMap.get(variableName);

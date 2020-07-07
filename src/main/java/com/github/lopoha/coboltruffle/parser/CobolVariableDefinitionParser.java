@@ -3,7 +3,6 @@ package com.github.lopoha.coboltruffle.parser;
 import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.github.lopoha.coboltruffle.heap.HeapBuilder;
 import com.github.lopoha.coboltruffle.heap.HeapBuilderVariable;
-import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.heap.HeapVariableType;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
 

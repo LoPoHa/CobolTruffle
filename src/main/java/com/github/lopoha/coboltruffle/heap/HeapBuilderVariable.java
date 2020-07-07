@@ -105,7 +105,8 @@ public class HeapBuilderVariable {
         throw new CobolVariableSizeMismatch(this.variableName, this.size, childrenSize);
       }
        */
-      this.size = childrenSize;
+      // todo: this is a dirty quickfix for constants...
+      this.size = childrenSize == 0 ? this.size : childrenSize;
       // todo: check if value length is equal to size...
       String defaultValue = value.toString();
       if (defaultValue.equals("")) {

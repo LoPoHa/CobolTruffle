@@ -4,7 +4,6 @@ import static com.github.lopoha.coboltruffle.parser.CobolVariableDefinitionParse
 
 import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.github.lopoha.coboltruffle.heap.HeapBuilder;
-import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolGlobalFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolStringLiteralNode;
@@ -13,6 +12,7 @@ import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolBiggerTha
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolEqualNodeGen;
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolLessOrEqualNodeGen;
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolLessThanNodeGen;
+import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.IfConditionContext;
@@ -140,12 +140,12 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     CobolParser.MoveToContext moveToContext = ctx.moveTo();
     // todo allow multiple targets
     String targetString = moveToContext.ID(0).toString();
-    HeapPointer targetPointer
+    CobolHeapPointer targetPointer
         = this.cobolMainParser.getCobolLanguage().heapGetVariable(targetString);
 
     CobolParser.MoveFromContext moveFromContext = ctx.moveFrom();
     if (moveFromContext.ID() != null) {
-      HeapPointer fromPointer
+      CobolHeapPointer fromPointer
           = this.cobolMainParser.getCobolLanguage()
                                 .heapGetVariable(moveFromContext.ID().toString());
       this.cobolNodeFactory.addMove(fromPointer, targetPointer);
@@ -165,7 +165,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     List<CobolExpressionNode> displayArgs = new ArrayList<>();
     for (CobolParser.DisplayParameterContext displayParameter : ctx.displayParameter()) {
       if (displayParameter.ID() != null) {
-        HeapPointer fromPointer
+        CobolHeapPointer fromPointer
             = this.cobolMainParser.getCobolLanguage()
                                   .heapGetVariable(displayParameter.ID().toString());
         displayArgs.add(fromPointer);
@@ -186,7 +186,8 @@ class CobolBaseListenerImpl extends CobolBaseListener {
   @Override
   public void enterInitializeStatement(CobolParser.InitializeStatementContext ctx) {
     String variable = ctx.ID().getText();
-    HeapPointer heapPointer = this.cobolMainParser.getCobolLanguage().heapGetVariable(variable);
+    CobolHeapPointer heapPointer = this.cobolMainParser.getCobolLanguage()
+                                                       .heapGetVariable(variable);
     this.cobolNodeFactory.addInitialize(heapPointer);
   }
 

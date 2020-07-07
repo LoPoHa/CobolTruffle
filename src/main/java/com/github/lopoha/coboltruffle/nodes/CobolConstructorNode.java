@@ -4,6 +4,7 @@ import com.github.lopoha.coboltruffle.CobolLanguage;
 import com.github.lopoha.coboltruffle.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolInvokeNode;
+import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.github.lopoha.coboltruffle.nodes.local.CobolWriteLocalVariableNodeGen;
 import com.github.lopoha.coboltruffle.runtime.CobolNull;
 import com.github.lopoha.coboltruffle.runtime.CobolSection;
@@ -48,9 +49,11 @@ public final class CobolConstructorNode extends CobolFunctionLiteralNode {
   @Override
   public Object executeGeneric(VirtualFrame frame) {
     List<Character> heap = this.cobolHeap.allocate();
-    FrameSlot slot
-        = frame.getFrameDescriptor().findOrAddFrameSlot(CobolHeap.FRAME_NAME, FrameSlotKind.Object);
-    frame.setObject(slot, heap);
+    CobolProgramStateNode programStateNode = new CobolProgramStateNode(heap);
+    FrameSlot slot = frame.getFrameDescriptor()
+                          .findOrAddFrameSlot(CobolProgramStateNode.FRAME_NAME,
+                                              FrameSlotKind.Object);
+    frame.setObject(slot, programStateNode);
 
     if (cachedFunction == null) {
       /* We are about to change a @CompilationFinal field. */

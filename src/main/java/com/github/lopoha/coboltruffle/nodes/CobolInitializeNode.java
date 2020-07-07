@@ -1,17 +1,17 @@
 package com.github.lopoha.coboltruffle.nodes;
 
-import com.github.lopoha.coboltruffle.heap.HeapPointer;
+import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
 @NodeInfo(shortName = "initialize", description = "initialize a variable")
 public class CobolInitializeNode extends CobolStatementNode {
-  private final HeapPointer pointer;
+  private final CobolHeapPointer pointer;
 
   /**
    * Create a new `initialize` node to reset the value.
    */
-  public CobolInitializeNode(HeapPointer pointer) {
+  public CobolInitializeNode(CobolHeapPointer pointer) {
     assert pointer != null;
     this.pointer = pointer;
   }
@@ -19,6 +19,7 @@ public class CobolInitializeNode extends CobolStatementNode {
 
   @Override
   public void executeVoid(VirtualFrame frame) {
-    this.pointer.initialize();
+    // todo: get state from the frame
+    this.pointer.initialize(null);
   }
 }

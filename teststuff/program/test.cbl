@@ -32,7 +32,19 @@
       *
        MAIN SECTION.
       *
+          MOVE "X" TO LETTER.
+          DISPLAY LETTER.
+          PERFORM FIRST-SECTION.
+      *
        PROG-EX.
            EXIT PROGRAM.
+      *
+      *
+       FIRST-SECTION SECTION.
+      *
+           DISPLAY "FIRST-SECTION".
+           DISPLAY LETTER.
+      *
+       EXIT.
       *
        END PROGRAM TEST.
