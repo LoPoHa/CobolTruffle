@@ -16,24 +16,6 @@ public abstract class CobolLessOrEqualNode extends CobolBinaryNode {
 
   @Specialization
   @TruffleBoundary
-  protected boolean lessEqual(HeapPointer left, HeapPointer right) {
-    return left.compareTo(right) <= 0;
-  }
-
-  @Specialization
-  @TruffleBoundary
-  protected boolean lessEqual(String left, HeapPointer right) {
-    return left.compareTo(right.getValue()) <= 0;
-  }
-
-  @Specialization
-  @TruffleBoundary
-  protected boolean lessEqual(HeapPointer left, String right) {
-    return left.getValue().compareTo(right) <= 0;
-  }
-
-  @Specialization
-  @TruffleBoundary
   protected boolean lessEqual(String left, String right) {
     return left.compareTo(right) <= 0;
   }

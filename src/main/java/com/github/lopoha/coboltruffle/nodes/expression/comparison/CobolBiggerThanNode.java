@@ -16,24 +16,6 @@ public abstract class CobolBiggerThanNode extends CobolBinaryNode {
 
   @Specialization
   @TruffleBoundary
-  protected boolean biggerThan(HeapPointer left, HeapPointer right) {
-    return left.compareTo(right) > 0;
-  }
-
-  @Specialization
-  @TruffleBoundary
-  protected boolean biggerThan(String left, HeapPointer right) {
-    return left.compareTo(right.getValue()) > 0;
-  }
-
-  @Specialization
-  @TruffleBoundary
-  protected boolean biggerThan(HeapPointer left, String right) {
-    return left.getValue().compareTo(right) > 0;
-  }
-
-  @Specialization
-  @TruffleBoundary
   protected boolean biggerThan(String left, String right) {
     return left.compareTo(right) > 0;
   }
