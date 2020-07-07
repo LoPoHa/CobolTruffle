@@ -1,8 +1,8 @@
 package com.github.lopoha.coboltruffle.nodes.expression.comparison;
 
 import com.github.lopoha.coboltruffle.CobolException;
+import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.nodes.CobolBinaryNode;
-import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -13,24 +13,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
  */
 @NodeInfo(shortName = "<")
 public abstract class CobolLessThanNode extends CobolBinaryNode {
-
-  @Specialization
-  @TruffleBoundary
-  protected boolean lessThan(CobolHeapPointer left, CobolHeapPointer right) {
-    return left.compareTo(right) < 0;
-  }
-
-  @Specialization
-  @TruffleBoundary
-  protected boolean lessThan(String left, CobolHeapPointer right) {
-    return left.compareTo(right.getValue(null)) < 0;
-  }
-
-  @Specialization
-  @TruffleBoundary
-  protected boolean lessThan(CobolHeapPointer left, String right) {
-    return left.getValue(null).compareTo(right) < 0;
-  }
 
   @Specialization
   @TruffleBoundary

@@ -101,7 +101,8 @@ functionCallStatement : PERFORM ID DOT?;
 displayStatement : DISPLAY (displayParameter)+ DOT?;
 displayParameter : (ID | STRING);
 
-callStatement : CALL ID callUsing? callInto? DOT?;
+callStatement : CALL callProgramName callUsing? callInto? DOT?;
+callProgramName : (ID | STRING);
 callUsing: USING ID+;
 callInto: INTO ID;
 
