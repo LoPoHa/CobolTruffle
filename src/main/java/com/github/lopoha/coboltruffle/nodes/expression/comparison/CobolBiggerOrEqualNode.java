@@ -1,7 +1,6 @@
 package com.github.lopoha.coboltruffle.nodes.expression.comparison;
 
 import com.github.lopoha.coboltruffle.CobolException;
-import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.nodes.CobolBinaryNode;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Fallback;
