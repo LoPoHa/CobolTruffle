@@ -7,6 +7,7 @@ import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.source.Source;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.antlr.v4.runtime.CharStream;
@@ -18,6 +19,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 public class CobolMainParser {
   private final CobolLanguage cobolLanguage;
   private final ParserSettings parserSettings;
+  private final Map<String, CobolProgramInfo> parsedPrograms = new HashMap<>();
   private final Map<String, HeapBuilder> heapBuilderCache = new HashMap<>();
 
   private CobolMainParser(CobolLanguage cobolLanguage,
@@ -35,9 +37,15 @@ public class CobolMainParser {
    * @param source the preprocessed source code.
    * @return a map with all functions.
    */
-  public static Map<String, RootCallTarget> processSource(Source source,
-                                                          CobolLanguage cobolLanguage,
-                                                          ParserSettings parserSettings) {
+  public static RootCallTarget processSource(Source source,
+                                              CobolLanguage cobolLanguage,
+                                              ParserSettings parserSettings) {
+
+    CobolMainParser cobolMainParser = new CobolMainParser(cobolLanguage, parserSettings);
+    return cobolMainParser.parseProgram(source);
+  }
+
+  private RootCallTarget parseProgram(Source source) {
     try {
       CharStream input = CharStreams.fromString(source.getCharacters().toString());
       CobolLexer lexer = new CobolLexer(input);
@@ -46,17 +54,16 @@ public class CobolMainParser {
       CobolParser.ProgramContext programContext = parser.program();
       ParseTreeWalker walker = new ParseTreeWalker();
 
-      CobolMainParser cobolMainParser = new CobolMainParser(cobolLanguage, parserSettings);
 
-      CobolBaseListenerImpl listener = new CobolBaseListenerImpl(cobolMainParser, source);
+      CobolBaseListenerImpl listener = new CobolBaseListenerImpl(this, source);
       walker.walk(listener, programContext);
 
-      return listener.getAllSections();
-
+      return listener.getConstructor();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
+
 
   Source getCopySource(String name) {
     File file = ParserCommonHelper.getCopyFile(name, this.parserSettings);
@@ -91,8 +98,35 @@ public class CobolMainParser {
     }
   }
 
+  Source getProgramSource(String name) {
+    File file = ParserCommonHelper.getProgramFile(name, this.parserSettings);
+    try {
+      return Source.newBuilder(CobolLanguage.ID, file.toURI().toURL()).build();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   CobolLanguage getCobolLanguage() {
     return cobolLanguage;
   }
 
+  CobolProgramInfo getProgram(String name) {
+    File file = ParserCommonHelper.getProgramFile(name, this.parserSettings);
+    if (this.parsedPrograms.containsKey(file.getPath())) {
+      return this.parsedPrograms.get(file.getPath());
+    } else {
+      // todo
+      Source programSource = this.getProgramSource(name);
+      RootCallTarget constructor = this.parseProgram(programSource);
+      CobolProgramInfo programInfo
+          = new CobolProgramInfo(file.getPath(), programSource, new ArrayList<>(), constructor);
+      this.parsedPrograms.put(file.getPath(), programInfo);
+      return programInfo;
+    }
+  }
+
+  void addProgram(CobolProgramInfo cobolProgramInfo) {
+    this.parsedPrograms.put(cobolProgramInfo.getPath(), cobolProgramInfo);
+  }
 }

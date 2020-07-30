@@ -56,7 +56,6 @@ import java.util.NoSuchElementException;
 public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   public static final String ID = "Cobol";
   public static final String MIME_TYPE = "application/x-cbl";
-  private final List<CobolHeap> heaps = new ArrayList<>();
   // todo what should happen if a name is there multiple times?
   private static final Map<String, CobolBuiltinNode> builtins
       = Collections.synchronizedMap(new HashMap<>());
@@ -82,30 +81,6 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
    */
   public static List<String> getBuiltinFunctionNames() {
     return new ArrayList<>(CobolLanguage.builtins.keySet());
-  }
-
-  /**
-   * Add a HeapBuilder to the heap.
-   * TODO: Should only one heapbuilder be allowed to be added?
-   * @param heapBuilder The heapbuilder to add.
-   */
-  public void addHeap(HeapBuilder heapBuilder) {
-    CobolHeap newHeap = new CobolHeap();
-    newHeap.addToHeap(heapBuilder);
-    newHeap.allocate();
-    heaps.add(newHeap);
-  }
-
-  public CobolHeapPointer heapGetVariable(String name) {
-    return this.heaps.get(this.heaps.size() - 1).getHeapPointer(name);
-  }
-
-  public List<CobolHeap> getHeaps() {
-    return this.heaps;
-  }
-
-  public CobolHeap getLastHeap() {
-    return this.heaps.get(this.heaps.size() - 1);
   }
 
   @Override
@@ -140,17 +115,19 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     addRelativeToPath(source, programSearchPath, copySearchPath);
     ParserSettings parserSettings = new ParserSettings(copySearchPath, programSearchPath);
     // programName and filename must be the same!
-    Map<String, RootCallTarget> functions
+    RootCallTarget function
         = CobolMainParser.processSource(source, this, parserSettings);
     // todo: if repl is allowed, this doesn't work anymore
     String fileName = getFilenameWithoutExtension(source.getName());
-    RootCallTarget main = functions.get(fileName);
+    //RootCallTarget main = functions.get(fileName);
 
-    if (main == null) {
-      throw new NotImplementedException();
-    }
+    //if (main == null) {
+    //throw new NotImplementedException();
+    //}
 
-    RootNode evalMain = new CobolEvalRootNode(this, main, functions);
+    Map<String, RootCallTarget> functions = new HashMap<>();
+    functions.put(fileName, function);
+    RootNode evalMain = new CobolEvalRootNode(this, function, functions);
     return Truffle.getRuntime().createCallTarget(evalMain);
   }
 
@@ -288,8 +265,7 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
    * @param builtin the builtin to add.
    */
   public static void installBuiltin(NodeFactory<? extends CobolBuiltinNode> builtin) {
-    CobolBuiltinNode cobolBuiltinNode
-        = createBuiltinNode(CobolDisplayBuiltinFactory.getInstance());
+    CobolBuiltinNode cobolBuiltinNode = createBuiltinNode(builtin);
     String name = CobolContext.lookupNodeInfo(cobolBuiltinNode.getClass()).shortName();
     CobolLanguage.builtins.put(name, cobolBuiltinNode);
   }

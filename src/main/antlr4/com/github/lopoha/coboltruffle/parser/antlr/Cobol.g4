@@ -71,7 +71,7 @@ statement : ( moveStatement
             | ifStatement
             | functionCallStatement
             | displayStatement
-            | callStatement
+            | externalCallStatement
             );
 
 
@@ -101,10 +101,10 @@ functionCallStatement : PERFORM ID DOT?;
 displayStatement : DISPLAY (displayParameter)+ DOT?;
 displayParameter : (ID | STRING);
 
-callStatement : CALL callProgramName callUsing? callInto? DOT?;
-callProgramName : (ID | STRING);
-callUsing: USING ID+;
-callInto: INTO ID;
+externalCallStatement : CALL externalCallProgramName externalCallInputParameter? externalCallOutput? DOT?;
+externalCallProgramName : (ID | STRING);
+externalCallInputParameter: USING ID (',' ID)*;
+externalCallOutput: INTO ID;
 
 copy : COPY ID SUPPRESS? DOT;
 

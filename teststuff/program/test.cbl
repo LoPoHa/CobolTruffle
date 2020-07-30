@@ -19,6 +19,7 @@
         05       LETTER-B                PIC X VALUE "B".
         05       LETTER                  PIC X.
          88      LETTER-C                      VALUE "C".
+        05       BIG-THING               PIC X(10000000).
       *
       *
       * SHOULD - and _ be allowed? better for filename
@@ -32,9 +33,28 @@
       *
        MAIN SECTION.
       *
+          DISPLAY "START TEST".
+          PERFORM TEST-SECTION.
+          PERFORM TEST-SECTION.
+          PERFORM TEST-SECTION.
+          PERFORM TEST-SECTION.
+          PERFORM TEST-SECTION.
+          PERFORM TEST-SECTION.
+          PERFORM TEST-SECTION.
+          PERFORM TEST-SECTION.
+          PERFORM TEST-SECTION.
+          PERFORM TEST-SECTION.
+          PERFORM TEST-SECTION.
+          PERFORM TEST-SECTION.
           DISPLAY LETTER-A.
           PERFORM FIRST-SECTION.
           PERFORM SECOND-SECTION.
+          DISPLAY LETTER-A.
+          MOVE "X" TO LETTER-A.
+          DISPLAY LETTER-A.
+          CALL OTHER USING TESTCOPY.
+
+          DISPLAY "END TEST".
       *
        PROG-EX.
            EXIT PROGRAM.
@@ -49,6 +69,13 @@
 
        SECOND-SECTION SECTION.
            DISPLAY "SECOND SECTION"
+       EXIT.
+
+       TEST-SECTION SECTION.
+          MOVE " " TO BIG-THING.
+      *    DISPLAY BIG-THING.
+          MOVE "0123456789" TO BIG-THING.
+      *    DISPLAY BIG-THING.
        EXIT.
       *
        END PROGRAM TEST.

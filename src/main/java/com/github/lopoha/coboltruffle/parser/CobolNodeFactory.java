@@ -1,6 +1,7 @@
 package com.github.lopoha.coboltruffle.parser;
 
 import com.github.lopoha.coboltruffle.CobolLanguage;
+import com.github.lopoha.coboltruffle.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.nodes.CobolConstructorNode;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.CobolInitializeNode;
@@ -39,7 +40,7 @@ class CobolNodeFactory {
   //       different names?
   //       contra: having a normal function call it would cause problems with the initialization...
   private String firstFunctionName;
-  private final Map<String, RootCallTarget> allSections = new HashMap<>();
+  private RootCallTarget constructor;
   private String functionName;
   private int functionStartPos;
   private CobolNodeFactoryBlock currentBlock;
@@ -68,7 +69,7 @@ class CobolNodeFactory {
    * @param programName the name of the program.
    * @param programExitToken the exit token of the program.
    */
-  void createConstructor(String programName, Token programExitToken) {
+  void createConstructor(String programName, Token programExitToken, CobolHeap heap) {
     assert this.functionStartPos == 0;
     assert this.functionName == null;
     assert this.currentBlock == null;
@@ -91,7 +92,7 @@ class CobolNodeFactory {
     this.frameSlots.put(CobolProgramStateNode.FRAME_NAME, frameSlot);
 
     CobolConstructorNode constructorNode = new CobolConstructorNode(programName,
-        this.language.getLastHeap(),
+        heap,
         this.firstFunctionName,
         this.fileLocalFunctions);
     CobolReadLocalVariableNode localVariableNode
@@ -101,7 +102,7 @@ class CobolNodeFactory {
 
     this.addCall(programExitToken, constructorNode, params);
 
-    this.allSections.put(programName.toLowerCase(), getCallTarget(programExitToken.getStopIndex()));
+    this.constructor = getCallTarget(programExitToken.getStopIndex());
 
     this.functionStartPos = 0;
     this.functionName = null;
@@ -355,7 +356,7 @@ class CobolNodeFactory {
     node.setSourceSection(token.getStartIndex(), token.getText().length());
   }
 
-  Map<String, RootCallTarget> getAllSections() {
-    return this.allSections;
+  RootCallTarget getConstructor() {
+    return this.constructor;
   }
 }

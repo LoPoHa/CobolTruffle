@@ -2,6 +2,8 @@ package com.github.lopoha.coboltruffle.nodes.expression.heap;
 
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 
+import java.util.stream.IntStream;
+
 public final class CobolHeapPointerString extends CobolHeapPointer {
   /**
    * Create a Pointer to the heap.
@@ -33,19 +35,23 @@ public final class CobolHeapPointerString extends CobolHeapPointer {
     assert value != null : "Value required but was null";
     // todo: check if the alignment etc. is correct
     // todo: is the default for number here space or zero?
+    // todo: is parallel always faster?
     if (value.length() < this.length) {
-      value = new String(new char[this.length - value.length()]).replace('\0', ' ') + value;
-      for (int i = 0; i < value.length(); i++) {
-        programState.getLocalFileHeap().set(position + i, value.charAt(i));
-      }
+      final String val
+          = new String(new char[this.length - value.length()]).replace('\0', ' ') + value;
+      IntStream.range(0, value.length())
+          .parallel()
+          .forEach(i -> programState.getLocalFileHeap().set(position + i, val.charAt(i)));
     } else if (value.length() == this.length) {
-      for (int i = 0; i < value.length(); i++) {
-        programState.getLocalFileHeap().set(position + i, value.charAt(i));
-      }
+      final String val = value;
+      IntStream.range(0, value.length())
+          .parallel()
+          .forEach(i -> programState.getLocalFileHeap().set(position + i, val.charAt(i)));
     } else {
-      for (int i = 0; i < this.length; i++) {
-        programState.getLocalFileHeap().set(position + i, value.charAt(i));
-      }
+      final String val = value;
+      IntStream.range(0, this.length)
+          .parallel()
+          .forEach(i -> programState.getLocalFileHeap().set(position + i, val.charAt(i)));
     }
   }
 
