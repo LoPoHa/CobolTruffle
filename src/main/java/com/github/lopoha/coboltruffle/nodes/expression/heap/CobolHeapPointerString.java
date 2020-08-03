@@ -1,7 +1,6 @@
 package com.github.lopoha.coboltruffle.nodes.expression.heap;
 
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
-
 import java.util.stream.IntStream;
 
 public final class CobolHeapPointerString extends CobolHeapPointer {
