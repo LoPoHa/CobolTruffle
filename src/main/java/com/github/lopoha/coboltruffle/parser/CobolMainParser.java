@@ -21,6 +21,7 @@ public class CobolMainParser {
   private final ParserSettings parserSettings;
   private final Map<String, CobolProgramInfo> parsedPrograms = new HashMap<>();
   private final Map<String, HeapBuilder> heapBuilderCache = new HashMap<>();
+  private final Map<String, RootCallTarget> programs = new HashMap<>();
 
   private CobolMainParser(CobolLanguage cobolLanguage,
                           ParserSettings parserSettings) {
@@ -32,20 +33,45 @@ public class CobolMainParser {
   }
 
   /**
+   * Get the filename from the source.
+   * @param source the source.
+   * @return filename without extension.
+   */
+  public static String getFilenameWithoutExtension(Source source) {
+    String name = source.getName();
+    return getFilenameWithoutExtension(name);
+  }
+
+  /**
+   * Get the filename from the filename.
+   * @param name the name of the file with extenion.
+   * @return filename without extension.
+   */
+  public static String getFilenameWithoutExtension(String name) {
+    int pos = name.lastIndexOf(".");
+    if (pos > 0) {
+      name = name.substring(0, pos);
+    }
+    return name;
+  }
+
+
+  /**
    * TODO: replace method.
    *
    * @param source the preprocessed source code.
    * @return a map with all functions.
    */
-  public static RootCallTarget processSource(Source source,
-                                              CobolLanguage cobolLanguage,
-                                              ParserSettings parserSettings) {
+  public static Map<String, RootCallTarget> processSource(Source source,
+                                                          CobolLanguage cobolLanguage,
+                                                          ParserSettings parserSettings) {
 
     CobolMainParser cobolMainParser = new CobolMainParser(cobolLanguage, parserSettings);
-    return cobolMainParser.parseProgram(source);
+    cobolMainParser.parseProgram(source);
+    return cobolMainParser.programs;
   }
 
-  private RootCallTarget parseProgram(Source source) {
+  private void parseProgram(Source source) {
     try {
       CharStream input = CharStreams.fromString(source.getCharacters().toString());
       CobolLexer lexer = new CobolLexer(input);
@@ -58,7 +84,7 @@ public class CobolMainParser {
       CobolBaseListenerImpl listener = new CobolBaseListenerImpl(this, source);
       walker.walk(listener, programContext);
 
-      return listener.getConstructor();
+      this.programs.put(getFilenameWithoutExtension(source), listener.getConstructor());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -113,20 +139,21 @@ public class CobolMainParser {
 
   CobolProgramInfo getProgram(String name) {
     File file = ParserCommonHelper.getProgramFile(name, this.parserSettings);
-    if (this.parsedPrograms.containsKey(file.getPath())) {
-      return this.parsedPrograms.get(file.getPath());
+    String key = getFilenameWithoutExtension(file.getName());
+
+    if (this.parsedPrograms.containsKey(key)) {
+      return this.parsedPrograms.get(key);
     } else {
       // todo
       Source programSource = this.getProgramSource(name);
-      RootCallTarget constructor = this.parseProgram(programSource);
-      CobolProgramInfo programInfo
-          = new CobolProgramInfo(file.getPath(), programSource, new ArrayList<>(), constructor);
-      this.parsedPrograms.put(file.getPath(), programInfo);
+      this.parseProgram(programSource);
+      CobolProgramInfo programInfo = this.parsedPrograms.get(key);
+      assert programInfo != null;
       return programInfo;
     }
   }
 
   void addProgram(CobolProgramInfo cobolProgramInfo) {
-    this.parsedPrograms.put(cobolProgramInfo.getPath(), cobolProgramInfo);
+    this.parsedPrograms.put(cobolProgramInfo.getName(), cobolProgramInfo);
   }
 }

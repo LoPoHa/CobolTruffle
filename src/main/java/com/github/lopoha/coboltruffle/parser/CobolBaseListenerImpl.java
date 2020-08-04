@@ -22,6 +22,7 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.source.Source;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 
@@ -39,6 +40,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 class CobolBaseListenerImpl extends CobolBaseListener {
   private final HeapBuilder workingStorageHeapBuilder = new HeapBuilder();
+  private final List<String> includedCopyVariableDefinitions = new ArrayList<>();
   private final List<String> inputParameterCopyPaths = new ArrayList<>();
   private final CobolMainParser cobolMainParser;
   private final CobolNodeFactory cobolNodeFactory;
@@ -92,7 +94,10 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void enterLinkageSection(CobolParser.LinkageSectionContext ctx) {
-    throw new NotImplementedException();
+    for (CobolParser.CopyContext copy : ctx.copy()) {
+      Source copySource = this.cobolMainParser.getCopySource(copy.ID().getText());
+      this.inputParameterCopyPaths.add(CobolMainParser.getFilenameWithoutExtension(copySource));
+    }
     // how should the linkage section work?
     /*
     for (VariableDefinitionContext variableDefinitionContext : variableDefinitions) {
@@ -102,17 +107,11 @@ class CobolBaseListenerImpl extends CobolBaseListener {
   }
 
   @Override
-  public void exitLinkageSection(CobolParser.LinkageSectionContext ctx) {
-    // todo: get constructor!
-    CobolProgramInfo cobolProgramInfo = new CobolProgramInfo(this.source.getPath(),
-                                                             this.source,
-                                                             this.inputParameterCopyPaths,
-                                                             null);
-    this.cobolMainParser.addProgram(cobolProgramInfo);
-  }
-
-  @Override
   public void exitDataDivision(CobolParser.DataDivisionContext ctx) {
+    CobolProgramInfo cobolProgramInfo
+        = new CobolProgramInfo(this.source, this.inputParameterCopyPaths);
+    this.cobolMainParser.addProgram(cobolProgramInfo);
+
     this.workingStorageHeap.addToHeap(this.workingStorageHeapBuilder);
   }
 
@@ -250,8 +249,49 @@ class CobolBaseListenerImpl extends CobolBaseListener {
   @Override
   public void enterExternalCallStatement(CobolParser.ExternalCallStatementContext ctx) {
     System.out.println("CALL " + ctx.externalCallProgramName().getText());
+    String callProgramName = ctx.externalCallProgramName().getText();
     CobolProgramInfo calledProgram
-        = this.cobolMainParser.getProgram(ctx.externalCallProgramName().getText());
+        = this.cobolMainParser.getProgram(callProgramName);
+    List<String> params = ctx.externalCallInputParameter()
+                             .ID()
+                             .stream()
+                             .map(ParseTree::getText)
+                             .collect(Collectors.toList());
+
+    // todo: check if using is only using definitions from copy members!
+
+    if (params.size() != calledProgram.getInputParameter().size()) {
+      throw new RuntimeException("TODO: correct error, param sizes dont match");
+    }
+
+    List<CobolExpressionNode> arguments = new ArrayList<>();
+    for (int i = 0; i < params.size(); i++) {
+      //if (params.get(i))
+      // todo: check if input and caller match!
+      CobolHeapPointer fromPointer = this.workingStorageHeap.getHeapPointer(params.get(i));
+      arguments.add(fromPointer);
+    }
+
+    CobolGlobalFunctionLiteralNode callNode = new CobolGlobalFunctionLiteralNode(callProgramName);
+    this.cobolNodeFactory.addCall(ctx.start, callNode, arguments);
+
+    /*
+    for (CobolParser.DisplayParameterContext displayParameter : ctx.displayParameter()) {
+      if (displayParameter.ID() != null) {
+        CobolHeapPointer fromPointer
+            = this.workingStorageHeap.getHeapPointer(displayParameter.ID().toString());
+        displayArgs.add(fromPointer);
+      } else if (displayParameter.STRING() != null) {
+        String inputString = removeStringQuotes(displayParameter.STRING().getText());
+        CobolStringLiteralNode stringConstant = new CobolStringLiteralNode(inputString);
+        displayArgs.add(stringConstant);
+      } else {
+        throw new NotImplementedException();
+      }
+    }
+     */
+
+    //calledProgram.getInputParameter().get()
     //System.out.println(calledProgram.getPath());
   }
 

@@ -39,7 +39,9 @@
           DISPLAY LETTER-A.
           MOVE "X" TO LETTER-A.
           DISPLAY LETTER-A.
-          CALL OTHER USING TESTCOPY.
+          CALL OTHER USING COPY-BASE.
+          CALL OTHER USING COPY-BASE.
+          DISPLAY LETTER-A.
 
           DISPLAY "END TEST".
       *

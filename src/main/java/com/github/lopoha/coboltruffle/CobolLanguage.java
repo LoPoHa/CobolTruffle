@@ -115,28 +115,19 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     addRelativeToPath(source, programSearchPath, copySearchPath);
     ParserSettings parserSettings = new ParserSettings(copySearchPath, programSearchPath);
     // programName and filename must be the same!
-    RootCallTarget function
+    Map<String, RootCallTarget> functions
         = CobolMainParser.processSource(source, this, parserSettings);
     // todo: if repl is allowed, this doesn't work anymore
-    String fileName = getFilenameWithoutExtension(source.getName());
+    String fileName = CobolMainParser.getFilenameWithoutExtension(source);
+    RootCallTarget intro = functions.get(fileName);
     //RootCallTarget main = functions.get(fileName);
 
     //if (main == null) {
     //throw new NotImplementedException();
     //}
 
-    Map<String, RootCallTarget> functions = new HashMap<>();
-    functions.put(fileName, function);
-    RootNode evalMain = new CobolEvalRootNode(this, function, functions);
+    RootNode evalMain = new CobolEvalRootNode(this, intro, functions);
     return Truffle.getRuntime().createCallTarget(evalMain);
-  }
-
-  private String getFilenameWithoutExtension(String name) {
-    int pos = name.lastIndexOf(".");
-    if (pos > 0) {
-      name = name.substring(0, pos);
-    }
-    return name;
   }
 
   @Override

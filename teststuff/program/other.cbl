@@ -21,7 +21,7 @@
          88      LETTER-C                      VALUE "C".
       *
       *
-      *LINKAGE SECTION.
+      LINKAGE SECTION.
       * todo only allow copy in linkage section.
            COPY TESTCOPY.
       *
@@ -29,12 +29,15 @@
       *
        MAIN SECTION.
       *
+          DISPLAY "HELLO FROM OTHER".
           DISPLAY LETTER-A.
           MOVE "M" TO LETTER-A.
           DISPLAY LETTER-A.
-      *    DISPLAY COPY-STRING.
-      *    MOVE "OTHER PROGRAM" TO COPY-STRING.
+      *   DISPLAY COPY-STRING.
+      *   MOVE "OTHER PROGRAM" TO COPY-STRING.
+      *   DISPLAY COPY-STRING.
       *
+          DISPLAY "BYE FROM OTHER".
        PROG-EX.
            EXIT PROGRAM.
       *
