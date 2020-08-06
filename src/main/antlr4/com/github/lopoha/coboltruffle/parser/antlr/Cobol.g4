@@ -35,7 +35,7 @@ dataDivision : DATA DIVISION DOT
 fileSection : FILE SECTION DOT;
 
 workingStorageSection : WORKINGSTORAGE SECTION DOT
-                        (variableDefinition | copy)*;
+                        variableDefinitionCopy;
 linkageSection : LINKAGE SECTION DOT
                  copy*;
 

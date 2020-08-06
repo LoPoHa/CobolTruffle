@@ -16,6 +16,15 @@ import java.util.stream.Collectors;
 public class CobolHeap {
   private final HashMap<String, CobolHeapPointer> pointerMap = new HashMap<>();
   private int heapSize = 0;
+  private final String heapName;
+
+  public CobolHeap() {
+    heapName = null;
+  }
+
+  public CobolHeap(String heapName) {
+    this.heapName = heapName;
+  }
 
   public List<Character> allocate() {
     return new ArrayList<>(Collections.nCopies(heapSize, ' '));
@@ -66,20 +75,22 @@ public class CobolHeap {
                                              variableBasePosition,
                                              variable.getSize(),
                                              variable.getValue(),
-                                             variable.level);
+                                             variable.level,
+                                             this.heapName);
         break;
       case Const:
         pointer = new CobolHeapPointerConst(variable.variableName,
             variableBasePosition,
             variable.getSize(),
             variable.getValue(),
-            variable.level);
+            variable.level,
+            this.heapName);
         break;
       default:
         throw new NotImplementedException();
     }
 
-    if (this.pointerMap.containsKey(variable.variableName)) {
+    if (variable.variableName != null && this.pointerMap.containsKey(variable.variableName)) {
       throw new VariableAlreadyDefinedException(variable.variableName);
     }
     this.pointerMap.put(variable.variableName, pointer);
@@ -113,6 +124,10 @@ public class CobolHeap {
     } else {
       throw new CobolVariableNotFoundException(variableName);
     }
+  }
+
+  public boolean containsHeapPointer(String variableName) {
+    return this.pointerMap.containsKey(variableName.toLowerCase());
   }
 
   /**

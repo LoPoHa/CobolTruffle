@@ -3,10 +3,7 @@ package com.github.lopoha.coboltruffle.nodes.expression.heap;
 import com.github.lopoha.coboltruffle.nodes.Helper;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public final class CobolHeapPointerRaw extends CobolHeapPointer {
   /**

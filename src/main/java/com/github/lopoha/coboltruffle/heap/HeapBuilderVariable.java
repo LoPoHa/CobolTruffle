@@ -58,7 +58,7 @@ public class HeapBuilderVariable {
     assert size > 0;
     this.level = level;
     this.size = size;
-    this.variableName = variableName.toLowerCase();
+    this.variableName = variableName == null ? null : variableName.toLowerCase();
     this.heapVariableType = heapVariableType;
     this.value = value;
     this.redefines = null;

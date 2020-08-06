@@ -21,8 +21,9 @@ public final class CobolHeapPointerString extends CobolHeapPointer {
                                 int position,
                                 int length,
                                 String defaultValue,
-                                int level) {
-    super(name, position, length, defaultValue, level);
+                                int level,
+                                String heapName) {
+    super(name, position, length, defaultValue, level, heapName);
   }
 
   @Override

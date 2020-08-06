@@ -4,7 +4,6 @@ import com.github.lopoha.coboltruffle.nodes.Helper;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
 import java.util.List;
 
 public class CobolHeapPointerConst extends CobolHeapPointer {
@@ -20,8 +19,9 @@ public class CobolHeapPointerConst extends CobolHeapPointer {
                                int position,
                                int length,
                                String defaultValue,
-                               int level) {
-    super(name, position, length, defaultValue, level);
+                               int level,
+                               String heapName) {
+    super(name, position, length, defaultValue, level, heapName);
   }
 
   /**

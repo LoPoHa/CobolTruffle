@@ -33,9 +33,9 @@
           DISPLAY LETTER-A.
           MOVE "M" TO LETTER-A.
           DISPLAY LETTER-A.
-      *   DISPLAY COPY-STRING.
-      *   MOVE "OTHER PROGRAM" TO COPY-STRING.
-      *   DISPLAY COPY-STRING.
+          DISPLAY COPY-STRING.
+          MOVE "OTHER PROGRAM" TO COPY-STRING.
+          DISPLAY COPY-STRING.
       *
           DISPLAY "BYE FROM OTHER".
        PROG-EX.

@@ -2,6 +2,7 @@ package com.github.lopoha.coboltruffle.parser;
 
 import static com.github.lopoha.coboltruffle.parser.CobolVariableDefinitionParser.addVariable;
 
+import com.github.lopoha.coboltruffle.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.heap.HeapBuilder;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
@@ -21,9 +22,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 //       that gets passed in whe calling. (like a constructor)
 
 class CobolStorageCopyListenerImpl extends CobolBaseListener {
-  private final HeapBuilder heap = new HeapBuilder();
   private final CobolMainParser cobolMainParser;
-  // todo: use source for error message
+  private HeapBuilder heap;
   private final Source source;
 
   /**
@@ -33,26 +33,16 @@ class CobolStorageCopyListenerImpl extends CobolBaseListener {
   CobolStorageCopyListenerImpl(CobolMainParser cobolMainParser, Source source) {
     assert cobolMainParser != null;
     assert source != null;
-    this.cobolMainParser = cobolMainParser;
     this.source = source;
+    this.cobolMainParser = cobolMainParser;
   }
 
   @Override
   public void enterVariableDefinitionCopy(CobolParser.VariableDefinitionCopyContext ctx) {
-    for (ParseTree child : ctx.children) {
-      if (child instanceof CobolParser.VariableDefinitionContext) {
-        addVariable((CobolParser.VariableDefinitionContext) child, this.heap);
-      } else if (child instanceof CobolParser.CopyContext) {
-        System.out.println("copy");
-        CobolParser.CopyContext copyContext = (CobolParser.CopyContext) child;
-        Source copySource
-            = this.cobolMainParser.getCopySource(copyContext.ID().getText());
-        this.cobolMainParser.processStorageCopy(copySource);
-      }
-    }
+    this.heap = CobolVariableCopyHelper.getHeap(ctx, this.cobolMainParser);
   }
 
-  HeapBuilder getHeap() {
+  public HeapBuilder getHeap() {
     return heap;
   }
 }

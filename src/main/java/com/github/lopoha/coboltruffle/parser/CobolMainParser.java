@@ -1,6 +1,7 @@
 package com.github.lopoha.coboltruffle.parser;
 
 import com.github.lopoha.coboltruffle.CobolLanguage;
+import com.github.lopoha.coboltruffle.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.heap.HeapBuilder;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolLexer;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;

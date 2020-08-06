@@ -16,6 +16,7 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
   final int length;
   final List<Character> defaultValue;
   public final int level;
+  private final String heapName;
 
   /**
    * Create a Pointer to the heap.
@@ -39,9 +40,10 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
     this.position = position;
     this.length = length;
     this.defaultValue = defaultValue == null
-                        ? new ArrayList<>()
-                        : defaultValue.chars().mapToObj(e -> (char) e).collect(Collectors.toList());
+        ? new ArrayList<>()
+        : defaultValue.chars().mapToObj(e -> (char) e).collect(Collectors.toList());
     this.level = level;
+    this.heapName = null;
   }
 
   /**
@@ -68,6 +70,64 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
     this.length = length;
     this.defaultValue = defaultValue;
     this.level = level;
+    this.heapName = null;
+  }
+
+  /**
+   * Create a Pointer to the heap.
+   * @param name name of the variable.
+   * @param position start position on the heap.
+   * @param length length of the variable
+   * @param defaultValue the default value.
+   * @param level the level of the variable declaration.
+   */
+  protected CobolHeapPointer(String name,
+                             int position,
+                             int length,
+                             String defaultValue,
+                             int level,
+                             String heapName) {
+    assert name != null;
+    assert position >= 0;
+    assert length > 0;
+    assert level > 0;
+
+    this.name = name;
+    this.position = position;
+    this.length = length;
+    this.defaultValue = defaultValue == null
+                        ? new ArrayList<>()
+                        : defaultValue.chars().mapToObj(e -> (char) e).collect(Collectors.toList());
+    this.level = level;
+    this.heapName = heapName;
+  }
+
+  /**
+   * Create a Pointer to the heap.
+   * @param name name of the variable.
+   * @param position start position on the heap.
+   * @param length length of the variable
+   * @param defaultValue the default value.
+   * @param level the level of the variable declaration.
+   */
+  protected CobolHeapPointer(String name,
+                             int position,
+                             int length,
+                             List<Character> defaultValue,
+                             int level,
+                             String heapName) {
+    assert name != null;
+    assert position >= 0;
+    assert length > 0;
+    assert defaultValue != null;
+    assert level > 0;
+
+    this.name = name;
+    this.position = position;
+    this.length = length;
+    this.defaultValue = defaultValue;
+    this.level = level;
+    this.heapName = heapName;
   }
 
   /**
@@ -92,7 +152,9 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
    * @return the value.
    */
   public Object getValue(CobolProgramStateNode programState) {
-    return programState.getLocalFileHeap().subList(position, position + length);
+    return (this.heapName == null)
+            ? programState.getLocalFileHeap().subList(position, position + length)
+            : programState.getLinkageHeap(this.heapName).subList(position, position + length);
   }
 
   /**
@@ -102,25 +164,34 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
    */
   public void setValue(List<Character> value, CobolProgramStateNode programState) {
     assert value != null : "Value required but was null";
+
+    List<Character> heap =
+        (this.heapName == null)
+        ? programState.getLocalFileHeap()
+        : programState.getLinkageHeap(this.heapName);
     // todo: check if the alignment etc. is correct
     // todo: is the default for number here space or zero?
     // todo: is parallel always faster?
     if (value.size() < this.length) {
-      final String val
-          = new String(new char[this.length - value.size()]).replace('\0', ' ') + value;
-      IntStream.range(0, value.size())
+      List<Character> newValue = new ArrayList<>();
+      for (int i = 0; i < this.length - value.size(); i++) {
+        newValue.add(' ');
+      }
+      newValue.addAll(value);
+      IntStream.range(0, this.length)
           .parallel()
-          .forEach(i -> programState.getLocalFileHeap().set(position + i, val.charAt(i)));
+          .forEach(i -> heap.set(position + i, newValue.get(i)));
     } else if (value.size() == this.length) {
       IntStream.range(0, value.size())
           .parallel()
-          .forEach(i -> programState.getLocalFileHeap().set(position + i, value.get(i)));
+          .forEach(i -> heap.set(position + i, value.get(i)));
     } else {
       IntStream.range(0, this.length)
           .parallel()
-          .forEach(i -> programState.getLocalFileHeap().set(position + i, value.get(i)));
+          .forEach(i -> heap.set(position + i, value.get(i)));
     }
   }
+
   /**
    * Compares the HeapPointer value to another HeapPointer valuie.
    * @param o the other HeapPointer.
