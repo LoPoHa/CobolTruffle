@@ -44,7 +44,7 @@ public class CobolMoveNode extends CobolStatementNode {
 
     if (this.value == null) {
       assert from != null;
-      this.target.setValue((List<Character>) from.getValue(programStateNode), programStateNode);
+      this.target.setValue(from.getRawValue(programStateNode), programStateNode);
     } else {
       this.target.setValue(this.value, programStateNode);
     }

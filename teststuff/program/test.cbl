@@ -32,6 +32,15 @@
       *
        MAIN SECTION.
       *
+          MOVE "C" TO LETTER.
+          MOVE LETTER TO LETTER-A.
+          DISPLAY LETTER.
+          IF LETTER EQUAL LETTER-A THEN
+            DISPLAY "IT IS A"
+          ELSE
+            DISPLAY "IT IS SOMETHING ELSE"
+          END-IF.
+
           DISPLAY "START TEST".
           DISPLAY LETTER-A.
           PERFORM FIRST-SECTION.

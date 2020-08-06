@@ -152,9 +152,19 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
    * @return the value.
    */
   public Object getValue(CobolProgramStateNode programState) {
+    return getRawValue(programState);
+  }
+
+  /**
+   * Get the raw heap variable / value.
+   * @param programState current program state
+   * @return the value.
+   */
+  public List<Character> getRawValue(CobolProgramStateNode programState) {
+    // safe, since the parent always returns List<Character>
     return (this.heapName == null)
-            ? programState.getLocalFileHeap().subList(position, position + length)
-            : programState.getLinkageHeap(this.heapName).subList(position, position + length);
+        ? programState.getLocalFileHeap().subList(position, position + length)
+        : programState.getLinkageHeap(this.heapName).subList(position, position + length);
   }
 
   /**
