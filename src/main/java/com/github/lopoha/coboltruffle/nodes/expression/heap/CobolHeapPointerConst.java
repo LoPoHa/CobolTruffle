@@ -36,6 +36,7 @@ public class CobolHeapPointerConst extends CobolHeapPointer {
 
   @Override
   public void setValue(List<Character> value, CobolProgramStateNode programState) {
+    // todo: this should be checked at "compile time" instead at runtime.
     throw new RuntimeException("Internal error");
   }
 
