@@ -67,7 +67,10 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void exitProgram(CobolParser.ProgramContext ctx) {
-    this.cobolNodeFactory.createConstructor(this.programName, ctx.stop, this.workingStorageHeap);
+    this.cobolNodeFactory.createConstructor(this.programName,
+                                            ctx.stop,
+                                            this.workingStorageHeap,
+                                            this.inputParameterCopyPaths);
     System.out.println("Are you cold...? Oh, good hunter,");
   }
 
@@ -268,7 +271,10 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     for (int i = 0; i < params.size(); i++) {
       //if (params.get(i))
       // todo: check if input and caller match!
-      CobolHeapPointer fromPointer = this.workingStorageHeap.getHeapPointer(params.get(i));
+      // todo: use raw pointer only for internal calls. everything else should be
+      //       either always string or the specialized version -> needs a decision
+      CobolHeapPointer fromPointer = this.workingStorageHeap.getHeapPointer(params.get(i))
+                                                            .asRawPointer();
       arguments.add(fromPointer);
     }
 

@@ -3,11 +3,12 @@ package com.github.lopoha.coboltruffle.nodes.expression.heap;
 import com.github.lopoha.coboltruffle.nodes.Helper;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class CobolHeapPointerString extends CobolHeapPointer {
+public final class CobolHeapPointerRaw extends CobolHeapPointer {
   /**
    * Create a Pointer to the heap.
    * The heap must be on the frame.
@@ -17,11 +18,11 @@ public final class CobolHeapPointerString extends CobolHeapPointer {
    * @param defaultValue the default value.
    * @param level the level of the variable declaration.
    */
-  public CobolHeapPointerString(String name,
-                                int position,
-                                int length,
-                                String defaultValue,
-                                int level) {
+  public CobolHeapPointerRaw(String name,
+                             int position,
+                             int length,
+                             List<Character> defaultValue,
+                             int level) {
     super(name, position, length, defaultValue, level);
   }
 
@@ -57,13 +58,6 @@ public final class CobolHeapPointerString extends CobolHeapPointer {
   }
 
   @Override
-  public String getValue(CobolProgramStateNode programState) {
-    // safe, since the parent always returns List<Character>
-    List<Character> chars = (List<Character>) super.getValue(programState);
-    return chars.stream().map(String::valueOf).collect(Collectors.joining());
-  }
-
-  @Override
   public int compareTo(CobolHeapPointer o) {
     // todo
     // return this.getValue(null).compareTo(o.getValue(null));
@@ -71,7 +65,7 @@ public final class CobolHeapPointerString extends CobolHeapPointer {
   }
 
   @Override
-  public String executeGeneric(VirtualFrame frame) {
-    return this.getValue(Helper.getProgramStateFromFrame(frame));
+  public List<Character> executeGeneric(VirtualFrame frame) {
+    return (List<Character>) this.getValue(Helper.getProgramStateFromFrame(frame));
   }
 }

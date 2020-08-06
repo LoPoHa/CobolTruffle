@@ -4,10 +4,12 @@ import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @NodeInfo(shortName = "move", description = "set a the value of a variable")
 public class CobolMoveNode extends CobolStatementNode {
-  private final String value;
+  private final List<Character> value;
   private final CobolHeapPointer from;
   private final CobolHeapPointer target;
 
@@ -18,7 +20,7 @@ public class CobolMoveNode extends CobolStatementNode {
    */
   public CobolMoveNode(String value, CobolHeapPointer target) {
     assert value != null : "value should never be null";
-    this.value = value;
+    this.value = value.chars().mapToObj(e -> (char) e).collect(Collectors.toList());
     this.from = null;
     this.target = target;
   }
@@ -42,7 +44,7 @@ public class CobolMoveNode extends CobolStatementNode {
 
     if (this.value == null) {
       assert from != null;
-      this.target.setValue(from.getValue(programStateNode), programStateNode);
+      this.target.setValue((List<Character>) from.getValue(programStateNode), programStateNode);
     } else {
       this.target.setValue(this.value, programStateNode);
     }

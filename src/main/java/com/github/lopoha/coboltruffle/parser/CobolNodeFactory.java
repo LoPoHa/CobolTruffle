@@ -69,7 +69,10 @@ class CobolNodeFactory {
    * @param programName the name of the program.
    * @param programExitToken the exit token of the program.
    */
-  void createConstructor(String programName, Token programExitToken, CobolHeap heap) {
+  void createConstructor(String programName,
+                         Token programExitToken,
+                         CobolHeap heap,
+                         List<String> inputParameterFileNames) {
     assert this.functionStartPos == 0;
     assert this.functionName == null;
     assert this.currentBlock == null;
@@ -93,6 +96,7 @@ class CobolNodeFactory {
 
     CobolConstructorNode constructorNode = new CobolConstructorNode(programName,
         heap,
+        inputParameterFileNames,
         this.firstFunctionName,
         this.fileLocalFunctions);
     CobolReadLocalVariableNode localVariableNode

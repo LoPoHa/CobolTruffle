@@ -3,6 +3,7 @@ package com.github.lopoha.coboltruffle.heap;
 import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointerConst;
+import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointerRaw;
 import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointerString;
 import com.github.lopoha.coboltruffle.parser.CobolUnknownVariableRedefineException;
 import com.github.lopoha.coboltruffle.parser.CobolVariableNotFoundException;

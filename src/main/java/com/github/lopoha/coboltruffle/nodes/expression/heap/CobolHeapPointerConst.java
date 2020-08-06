@@ -1,7 +1,11 @@
 package com.github.lopoha.coboltruffle.nodes.expression.heap;
 
+import com.github.lopoha.coboltruffle.nodes.Helper;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.frame.VirtualFrame;
+
+import java.util.List;
 
 public class CobolHeapPointerConst extends CobolHeapPointer {
   /**
@@ -26,12 +30,12 @@ public class CobolHeapPointerConst extends CobolHeapPointer {
   @Override
   public void initialize(CobolProgramStateNode programState) {
     for (int i = 0; i < this.length; i++) {
-      programState.getLocalFileHeap().set(this.position + i, this.defaultValue.charAt(i));
+      programState.getLocalFileHeap().set(this.position + i, this.defaultValue.get(i));
     }
   }
 
   @Override
-  public void setValue(String value, CobolProgramStateNode programState) {
+  public void setValue(List<Character> value, CobolProgramStateNode programState) {
     throw new RuntimeException("Internal error");
   }
 
@@ -43,5 +47,10 @@ public class CobolHeapPointerConst extends CobolHeapPointer {
   @TruffleBoundary
   public boolean isSet() {
     return this.defaultValue.equals(this.getValue(null));
+  }
+
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    return this.getValue(Helper.getProgramStateFromFrame(frame));
   }
 }

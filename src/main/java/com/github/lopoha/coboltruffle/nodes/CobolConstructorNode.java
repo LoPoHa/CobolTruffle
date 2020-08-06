@@ -6,6 +6,7 @@ import com.github.lopoha.coboltruffle.nodes.expression.CobolFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolInvokeNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
+import com.github.lopoha.coboltruffle.nodes.local.CobolReadArgumentNode;
 import com.github.lopoha.coboltruffle.nodes.local.CobolWriteLocalVariableNodeGen;
 import com.github.lopoha.coboltruffle.runtime.CobolNull;
 import com.github.lopoha.coboltruffle.runtime.CobolSection;
@@ -15,7 +16,10 @@ import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Used to call sections inside a file.
@@ -24,6 +28,7 @@ import java.util.List;
 public final class CobolConstructorNode extends CobolFunctionLiteralNode {
 
   private final CobolHeap cobolHeap;
+  private final List<String> inputParameterNames;
   private final String firstFunctionName;
   private final CobolSectionRegistry fileLocalFunctions;
 
@@ -35,22 +40,34 @@ public final class CobolConstructorNode extends CobolFunctionLiteralNode {
    */
   public CobolConstructorNode(String programName,
                               CobolHeap cobolHeap,
+                              List<String> inputParameterNames,
                               String firstFunctionName,
                               CobolSectionRegistry fileLocalFunctions) {
     super(programName);
     assert cobolHeap != null;
+    assert inputParameterNames != null;
     assert firstFunctionName != null;
     assert fileLocalFunctions != null;
 
     this.cobolHeap = cobolHeap;
+    this.inputParameterNames = inputParameterNames;
     this.firstFunctionName = firstFunctionName;
     this.fileLocalFunctions = fileLocalFunctions;
   }
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
+    final Map<String, List<Character>> inputParameters = new HashMap<>();
+    final Object[] frameArguments = frame.getArguments();
+    for (int i = 0; i < inputParameterNames.size(); i++) {
+      // todo: make it safe
+      List<Character> value = (List<Character>) frameArguments[i];
+      inputParameters.put(this.inputParameterNames.get(i), value);
+    }
+
+
     List<Character> heap = this.cobolHeap.allocate();
-    CobolProgramStateNode programStateNode = new CobolProgramStateNode(heap);
+    CobolProgramStateNode programStateNode = new CobolProgramStateNode(heap, inputParameters);
     FrameSlot slot = frame.getFrameDescriptor()
                           .findOrAddFrameSlot(CobolProgramStateNode.FRAME_NAME,
                                               FrameSlotKind.Object);
