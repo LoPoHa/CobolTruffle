@@ -14,8 +14,6 @@ public abstract class CobolFunctionLiteralNode extends CobolExpressionNode {
   /** The name of the function. */
   protected final String functionName;
 
-  @CompilationFinal private CobolSection cachedFunction;
-
   /**
    * Create a function literal node, to call other functions.
    * @param functionName the name of the function to be called.

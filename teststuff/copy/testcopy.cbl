@@ -6,6 +6,7 @@
         05       COPY-STRING.
          10      COPY-STRING-PART1     PIC XXXX VALUE "1234".
          10      COPY-STRING-PART2     PIC X(4) VALUE "ABCD".
+         10      FILLER                PIC X(5).
       *
       * todo: should fail, because filler is 9 bytes...
         05       FILLER                REDEFINES COPY-STRING.

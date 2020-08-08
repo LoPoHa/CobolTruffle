@@ -58,7 +58,7 @@ public class HeapBuilderVariable {
     assert size > 0;
     this.level = level;
     this.size = size;
-    this.variableName = variableName.toLowerCase();
+    this.variableName = variableName == null ? null : variableName.toLowerCase();
     this.heapVariableType = heapVariableType;
     this.value = value;
     this.redefines = null;
@@ -105,7 +105,8 @@ public class HeapBuilderVariable {
         throw new CobolVariableSizeMismatch(this.variableName, this.size, childrenSize);
       }
        */
-      this.size = childrenSize;
+      // todo: this is a dirty quickfix for constants...
+      this.size = childrenSize == 0 ? this.size : childrenSize;
       // todo: check if value length is equal to size...
       String defaultValue = value.toString();
       if (defaultValue.equals("")) {

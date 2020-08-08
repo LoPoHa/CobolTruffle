@@ -21,57 +21,24 @@
          88      LETTER-C                      VALUE "C".
       *
       *
-      * SHOULD - and _ be allowed? better for filename
-           COPY TESTCOPY.
-      *
-      *
-      *LINKAGE SECTION.
+      LINKAGE SECTION.
       * todo only allow copy in linkage section.
+           COPY TESTCOPY.
       *
        PROCEDURE DIVISION.
       *
        MAIN SECTION.
       *
-          MOVE "C" TO LETTER.
-          MOVE LETTER TO LETTER-A.
-          DISPLAY LETTER.
-          IF LETTER EQUAL LETTER-A THEN
-            DISPLAY "IT IS A"
-          ELSE
-            DISPLAY "IT IS SOMETHING ELSE"
-          END-IF.
-
-          DISPLAY "START TEST".
+          DISPLAY "HELLO FROM OTHER".
           DISPLAY LETTER-A.
-          PERFORM FIRST-SECTION.
-          PERFORM SECOND-SECTION.
-          DISPLAY LETTER-A.
-          MOVE "X" TO LETTER-A.
+          MOVE "M" TO LETTER-A.
           DISPLAY LETTER-A.
           DISPLAY COPY-STRING.
-          CALL OTHER USING COPY-BASE.
+          MOVE "OTHER PROGRAM" TO COPY-STRING.
           DISPLAY COPY-STRING.
-          INITIALIZE COPY-STRING.
-          DISPLAY COPY-STRING.
-          CALL OTHER USING COPY-BASE.
-          DISPLAY COPY-STRING.
-          DISPLAY LETTER-A.
-
-          DISPLAY "END TEST".
       *
+          DISPLAY "BYE FROM OTHER".
        PROG-EX.
            EXIT PROGRAM.
-      *
-      *
-       FIRST-SECTION SECTION.
-      *
-           DISPLAY "FIRST-SECTION".
-           DISPLAY LETTER.
-      *
-       EXIT.
-
-       SECOND-SECTION SECTION.
-           DISPLAY "SECOND SECTION"
-       EXIT.
       *
        END PROGRAM TEST.

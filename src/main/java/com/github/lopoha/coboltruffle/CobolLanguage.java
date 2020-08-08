@@ -4,9 +4,9 @@ import com.github.lopoha.coboltruffle.builtins.CobolBuiltinNode;
 import com.github.lopoha.coboltruffle.builtins.CobolDisplayBuiltinFactory;
 import com.github.lopoha.coboltruffle.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.heap.HeapBuilder;
-import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.nodes.CobolEvalRootNode;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
+import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.github.lopoha.coboltruffle.nodes.local.CobolLexicalScope;
 import com.github.lopoha.coboltruffle.nodes.local.CobolReadArgumentNode;
 import com.github.lopoha.coboltruffle.parser.CobolMainParser;
@@ -56,7 +56,6 @@ import java.util.NoSuchElementException;
 public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   public static final String ID = "Cobol";
   public static final String MIME_TYPE = "application/x-cbl";
-  private final CobolHeap heap = new CobolHeap();
   // todo what should happen if a name is there multiple times?
   private static final Map<String, CobolBuiltinNode> builtins
       = Collections.synchronizedMap(new HashMap<>());
@@ -82,19 +81,6 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
    */
   public static List<String> getBuiltinFunctionNames() {
     return new ArrayList<>(CobolLanguage.builtins.keySet());
-  }
-
-  /**
-   * Add a HeapBuilder to the heap.
-   * TODO: Should only one heapbuilder be allowed to be added?
-   * @param heapBuilder The heapbuilder to add.
-   */
-  public void addToHeap(HeapBuilder heapBuilder) {
-    heap.addToHeap(heapBuilder);
-  }
-
-  public HeapPointer heapGetVariable(String name) {
-    return this.heap.getHeapPointer(name);
   }
 
   @Override
@@ -132,23 +118,16 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     Map<String, RootCallTarget> functions
         = CobolMainParser.processSource(source, this, parserSettings);
     // todo: if repl is allowed, this doesn't work anymore
-    String fileName = getFilenameWithoutExtension(source.getName());
-    RootCallTarget main = functions.get(fileName);
+    String fileName = CobolMainParser.getFilenameWithoutExtension(source);
+    RootCallTarget intro = functions.get(fileName);
+    //RootCallTarget main = functions.get(fileName);
 
-    if (main == null) {
-      throw new NotImplementedException();
-    }
+    //if (main == null) {
+    //throw new NotImplementedException();
+    //}
 
-    RootNode evalMain = new CobolEvalRootNode(this, main, functions);
+    RootNode evalMain = new CobolEvalRootNode(this, intro, functions);
     return Truffle.getRuntime().createCallTarget(evalMain);
-  }
-
-  private String getFilenameWithoutExtension(String name) {
-    int pos = name.lastIndexOf(".");
-    if (pos > 0) {
-      name = name.substring(0, pos);
-    }
-    return name;
   }
 
   @Override
@@ -277,8 +256,7 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
    * @param builtin the builtin to add.
    */
   public static void installBuiltin(NodeFactory<? extends CobolBuiltinNode> builtin) {
-    CobolBuiltinNode cobolBuiltinNode
-        = createBuiltinNode(CobolDisplayBuiltinFactory.getInstance());
+    CobolBuiltinNode cobolBuiltinNode = createBuiltinNode(builtin);
     String name = CobolContext.lookupNodeInfo(cobolBuiltinNode.getClass()).shortName();
     CobolLanguage.builtins.put(name, cobolBuiltinNode);
   }
