@@ -238,7 +238,6 @@ class CobolBaseListenerImpl extends CobolBaseListener {
       }
     } else if (ctx.EQUAL() != null) {
       // must be last, because others could also include equal...
-      System.out.println("equal");
       return CobolEqualNodeGen.create(left, right);
     } else {
       throw new NotImplementedException();

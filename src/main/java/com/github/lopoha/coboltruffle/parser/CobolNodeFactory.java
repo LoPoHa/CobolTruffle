@@ -48,7 +48,7 @@ class CobolNodeFactory {
   private final Source source;
   private FrameDescriptor frameDescriptor;
   private int parameterCount;
-  // should this live inseide the CobolNodeFactoryBlock, because of goto?
+  // should this live inside the CobolNodeFactoryBlock, because of goto?
   private HashMap<String, FrameSlot> frameSlots;
 
 

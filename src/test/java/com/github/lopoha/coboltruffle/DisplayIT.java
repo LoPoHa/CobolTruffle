@@ -7,7 +7,7 @@ import com.github.lopoha.coboltruffle.helper.RunResult;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
-class DisplayIT {
+public class DisplayIT {
   @Test
   void helloWorld() throws IOException {
     //simple hello world

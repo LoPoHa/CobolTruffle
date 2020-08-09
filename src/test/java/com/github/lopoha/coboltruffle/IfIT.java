@@ -1,21 +1,20 @@
 package com.github.lopoha.coboltruffle;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.github.lopoha.coboltruffle.helper.ProgramRun;
 import com.github.lopoha.coboltruffle.helper.RunResult;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 class IfIT {
   @Test
-  void equalsstring() throws IOException {
+  void equalsSameVariable() throws IOException {
     //simple hello world
-    String file = "if/equalsstring.cbl";
+    String file = "if/equalsSameVariable.cbl";
     ProgramRun programResult = ProgramRun.runProgram(file);
     assertEquals(RunResult.Success, programResult.runResult);
-    assertEquals(String.format("HELLO WORLD%n"), programResult.sysout);
+    assertEquals(String.format("TRUE%n"), programResult.sysout);
     assertEquals("", programResult.errout);
   }
 }
