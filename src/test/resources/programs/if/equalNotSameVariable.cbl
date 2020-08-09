@@ -1,19 +1,26 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. EQUALSSAMEVARIABLE.
+       PROGRAM-ID. EQUALSAMEVARIABLE.
       *
       *
        ENVIRONMENT DIVISION.
       * 
        DATA DIVISION.
        WORKING-STORAGE SECTION.
-       01       VARIABLE PIC X(4) VALUE "TEST".
+       01 STRING PIC X(4) VALUE "TEST".
+       01 NUMBER PIC 9(4) VALUE 1234.
        LINKAGE SECTION.
       *
        PROCEDURE DIVISION.
       *
        MAIN SECTION.
       *
-          IF VARIABLE EQUAL VARIABLE THEN
+          IF STRING EQUAL NUMBER THEN
+             DISPLAY "TRUE".
+          ELSE
+             DISPLAY "FALSE".
+          END-IF.
+
+          IF NUMBER EQUAL STRING THEN
              DISPLAY "TRUE".
           ELSE
              DISPLAY "FALSE".
@@ -22,4 +29,4 @@
        PROG-EX.
            EXIT PROGRAM.
       *
-       END PROGRAM EQUALSSAMEVARIABLE.
+       END PROGRAM EQUALSAMEVARIABLE.

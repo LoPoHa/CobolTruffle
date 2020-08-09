@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 public class DisplayIT {
   @Test
   void helloWorld() throws IOException {
-    //simple hello world
     String file = "display/helloworld.cbl";
     ProgramRun programResult = ProgramRun.runProgram(file);
     assertEquals(RunResult.Success, programResult.runResult);
@@ -20,7 +19,6 @@ public class DisplayIT {
 
   @Test
   void variables() throws IOException {
-    //simple hello world
     String file = "display/variables.cbl";
     ProgramRun programResult = ProgramRun.runProgram(file);
     assertEquals(RunResult.Success, programResult.runResult);

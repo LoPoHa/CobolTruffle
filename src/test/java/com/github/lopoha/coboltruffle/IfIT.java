@@ -9,12 +9,20 @@ import org.junit.jupiter.api.Test;
 
 class IfIT {
   @Test
-  void equalsSameVariable() throws IOException {
-    //simple hello world
-    String file = "if/equalsSameVariable.cbl";
+  void equalSameVariable() throws IOException {
+    String file = "if/equalSameVariable.cbl";
     ProgramRun programResult = ProgramRun.runProgram(file);
     assertEquals(RunResult.Success, programResult.runResult);
-    assertEquals(String.format("TRUE%n"), programResult.sysout);
+    assertEquals(String.format("TRUE%nTRUE%n"), programResult.sysout);
+    assertEquals("", programResult.errout);
+  }
+
+  @Test
+  void equalNotSameVariable() throws IOException {
+    String file = "if/equalNotSameVariable.cbl";
+    ProgramRun programResult = ProgramRun.runProgram(file);
+    assertEquals(RunResult.Success, programResult.runResult);
+    assertEquals(String.format("FALSE%nFALSE%n"), programResult.sysout);
     assertEquals("", programResult.errout);
   }
 }
