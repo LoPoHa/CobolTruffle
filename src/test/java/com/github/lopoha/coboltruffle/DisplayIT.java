@@ -8,7 +8,6 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 class DisplayIT {
-
   @Test
   void helloWorld() throws IOException {
     //simple hello world
