@@ -78,8 +78,12 @@ public abstract class CobolStatementNode extends Node implements InstrumentableN
     return sourceLength;
   }
 
-  // invoked by the parser to set the source
-  final void setSourceSection(int charIndex, int length) {
+  /**
+   * Set the source for the node.
+   * @param charIndex the start position.
+   * @param length the length.
+   */
+  public final void setSourceSection(int charIndex, int length) {
     assert sourceCharIndex == NO_SOURCE : "source must only be set once";
     if (charIndex < 0) {
       throw new IllegalArgumentException("charIndex < 0");

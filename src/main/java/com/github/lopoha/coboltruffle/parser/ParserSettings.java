@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.parser.common;
+package com.github.lopoha.coboltruffle.parser;
 
 import java.util.ArrayList;
 import java.util.List;

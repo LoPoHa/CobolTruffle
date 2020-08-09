@@ -9,8 +9,8 @@ import CobolLexerRules;
 //       Pro: Better adhear to standards + maybe some stuff depends on the column (-> investigate)
 //       Con: Allows to break e.g. the 80 char limit, ...
 
-file : identificationDivision environmentDivision dataDivision procedureDivision programEnd;
-// environmentDivision;
+program : identificationDivision environmentDivision dataDivision procedureDivision programEnd;
+variableDefinitionCopy : (variableDefinition | copy)+;
 
 identificationDivision : IDENTIFICATION DIVISION DOT
                         programID;
@@ -35,15 +35,18 @@ dataDivision : DATA DIVISION DOT
 fileSection : FILE SECTION DOT;
 
 workingStorageSection : WORKINGSTORAGE SECTION DOT
-                        variableDefinition*;
+                        variableDefinitionCopy;
 linkageSection : LINKAGE SECTION DOT
-                 variableDefinition*;
+                 copy*;
 
 procedureDivision : PROCEDURE DIVISION procedureUsing? DOT
                     functionSection*;
 procedureUsing : USING (ID+);
 
-variableDefinition : NUMBER (FILLER | ID) (variableRedefines | variableDataType)? DOT;
+variableDefinition : (variableConst | variableVariable);
+variableConst : LEVEL88 ID (variableValueString | variableValueNumber) DOT;
+// todo: better name
+variableVariable : NUMBER (FILLER | ID) (variableRedefines | variableDataType)? DOT;
 // todo: make unrepresentable state impossible (only allow string in picx, number in pic9)
 variableRedefines : REDEFINES ID;
 variableDataType : PIC (variableDataTypeString | variableDataTypeNumber);
@@ -68,6 +71,7 @@ statement : ( moveStatement
             | ifStatement
             | functionCallStatement
             | displayStatement
+            | externalCallStatement
             );
 
 
@@ -79,13 +83,14 @@ moveTo : ID+;
 initializeStatement : INITIALIZE ID DOT?;
 
 // todo: support and, or, ...
-ifStatement : IF ifCondition THEN? statement* elseBranch? endIf;
+ifStatement : IF ifCondition THEN? trueBranch (ELSE elseBranch)? endIf;
 ifCondition : (ifNumeric | ifCompare | ifSingleValue);
 ifNumeric : ID NUMERIC;
 ifCompare : value (EQUAL | (LESS | BIGGER) (EQUAL | THAN)?) value;
 // should we support something else than id? by rule it may be allowed, but it doesn't make sense...
 ifSingleValue : ID;
-elseBranch : ELSE statement*;
+trueBranch : statement*;
+elseBranch : statement*;
 endIf : (ENDIF DOT?);
 // better name!!!
 value : (ID | SPACE | STRING | NUMBER);
@@ -95,5 +100,12 @@ functionCallStatement : PERFORM ID DOT?;
 
 displayStatement : DISPLAY (displayParameter)+ DOT?;
 displayParameter : (ID | STRING);
+
+externalCallStatement : CALL externalCallProgramName externalCallInputParameter? externalCallOutput? DOT?;
+externalCallProgramName : (ID | STRING);
+externalCallInputParameter: USING ID (',' ID)*;
+externalCallOutput: INTO ID;
+
+copy : COPY ID SUPPRESS? DOT;
 
 programEnd : END PROGRAM ID DOT;

@@ -1,7 +1,6 @@
 package com.github.lopoha.coboltruffle.nodes.expression.comparison;
 
 import com.github.lopoha.coboltruffle.CobolException;
-import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.nodes.CobolBinaryNode;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -16,26 +15,8 @@ public abstract class CobolEqualNode extends CobolBinaryNode {
 
   @Specialization
   @TruffleBoundary
-  protected boolean equal(HeapPointer left, HeapPointer right) {
-    return left.compareTo(right) <= 0;
-  }
-
-  @Specialization
-  @TruffleBoundary
-  protected boolean equal(String left, HeapPointer right) {
-    return left.compareTo(right.getValue()) <= 0;
-  }
-
-  @Specialization
-  @TruffleBoundary
-  protected boolean equal(HeapPointer left, String right) {
-    return left.getValue().compareTo(right) <= 0;
-  }
-
-  @Specialization
-  @TruffleBoundary
   protected boolean equal(String left, String right) {
-    return left.compareTo(right) <= 0;
+    return left.compareTo(right) == 0;
   }
 
   @Fallback

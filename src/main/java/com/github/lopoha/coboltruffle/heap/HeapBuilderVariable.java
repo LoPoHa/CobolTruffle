@@ -1,6 +1,6 @@
 package com.github.lopoha.coboltruffle.heap;
 
-import com.github.lopoha.coboltruffle.parser.NotImplementedException;
+import com.github.lopoha.coboltruffle.NotImplementedException;
 import java.lang.RuntimeException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +34,10 @@ public class HeapBuilderVariable {
                              String redefines) {
     this.level = level;
     this.size = 0;
-    this.variableName = variableName;
+    this.variableName = variableName == null ? null : variableName.toLowerCase();
     this.heapVariableType = heapVariableType;
     this.value = null;
-    this.redefines = redefines;
+    this.redefines = redefines == null ? null : redefines.toLowerCase();
   }
 
   /**
@@ -58,7 +58,7 @@ public class HeapBuilderVariable {
     assert size > 0;
     this.level = level;
     this.size = size;
-    this.variableName = variableName;
+    this.variableName = variableName == null ? null : variableName.toLowerCase();
     this.heapVariableType = heapVariableType;
     this.value = value;
     this.redefines = null;
@@ -72,15 +72,18 @@ public class HeapBuilderVariable {
   // todo: create default value from children
 
   /**
-   * Finalize the heap builder.]
+   * Finalize the heap builder.
    * TODO
+   * todo: cleanup
    */
   public void finalizeHeapBuilder() {
     if (this.children.size() > 0) {
       int childrenSize = 0;
       StringBuilder value = new StringBuilder();
       for (HeapBuilderVariable child : children) {
-        if (child.redefines == null) {
+        if (child.heapVariableType == HeapVariableType.Const) {
+          // do nothing
+        } else if (child.redefines == null) {
           child.finalizeHeapBuilder();
           childrenSize += child.size;
           // child value should never be null, since we set it for all children before adding it.
@@ -96,10 +99,14 @@ public class HeapBuilderVariable {
           //throw new NotImplementedException();
         }
       }
+
+      /* todo: find a solution for const values
       if (this.size != 0 && this.size != childrenSize) {
         throw new CobolVariableSizeMismatch(this.variableName, this.size, childrenSize);
       }
-      this.size = childrenSize;
+       */
+      // todo: this is a dirty quickfix for constants...
+      this.size = childrenSize == 0 ? this.size : childrenSize;
       // todo: check if value length is equal to size...
       String defaultValue = value.toString();
       if (defaultValue.equals("")) {

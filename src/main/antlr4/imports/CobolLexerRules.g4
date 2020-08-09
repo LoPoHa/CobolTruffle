@@ -53,3 +53,15 @@ REDEFINES : R E D E F I N E S;
 FILLER : F I L L E R;
 DISPLAY : D I S P L A Y;
 THAN : T H A N;
+LEVEL88 : '88';
+CALL : C A L L;
+INTO : I N T O;
+COPY      : C O P Y;
+SUPPRESS  : S U P P R E S S;
+
+COMMENT : ('*' | '/') {getCharPositionInLine() == 7}? ~[\r\n]* -> skip;
+
+
+// would it be better to require the removement of the line numbers?
+STARTNUMBER : (INT {getCharPositionInLine() == 1}? INT INT INT INT INT) -> skip;
+ENDNUMBER   : INT {getCharPositionInLine() == 73}? INT INT INT INT INT INT INT (EOL | EOF) -> skip;

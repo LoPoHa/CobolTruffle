@@ -1,7 +1,7 @@
 package com.github.lopoha.coboltruffle.runtime;
 
 import com.github.lopoha.coboltruffle.CobolLanguage;
-import com.github.lopoha.coboltruffle.parser.NotImplementedException;
+import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.source.Source;
@@ -24,6 +24,7 @@ public final class CobolSectionRegistry {
    * it is created.
    */
   public CobolSection lookup(String name, boolean createIfNotPresent) {
+    name = name.toLowerCase();
     CobolSection result = functionsObject.functions.get(name);
     if (result == null && createIfNotPresent) {
       result = new CobolSection(language, name);

@@ -42,7 +42,11 @@ public class Main {
     Context context;
     PrintStream err = System.err;
     try {
-      context = Context.newBuilder(CobolLanguage.ID).in(in).out(out).options(options).build();
+      context = Context.newBuilder(CobolLanguage.ID).in(in)
+                                                    .out(out)
+                                                    .options(options)
+                                                    .allowAllAccess(true) // because of includes
+                                                    .build();
     } catch (IllegalArgumentException e) {
       err.println(e.getMessage());
       return 1;

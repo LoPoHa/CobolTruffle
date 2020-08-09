@@ -1,5 +1,6 @@
 package com.github.lopoha.coboltruffle.nodes.local;
 
+import com.github.lopoha.coboltruffle.CobolException;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.runtime.CobolNull;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -30,10 +31,7 @@ public class CobolReadArgumentNode extends CobolExpressionNode {
     if (index < args.length) {
       return args[index];
     } else {
-      /* In the interpreter, record profiling information that the branch was used. */
-      outOfBoundsTaken.enter();
-      /* Use the default null value. */
-      return CobolNull.SINGLETON;
+      throw new CobolException("Unknown Parameter position", this);
     }
   }
 }

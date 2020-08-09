@@ -4,17 +4,13 @@ import com.github.lopoha.coboltruffle.builtins.CobolBuiltinNode;
 import com.github.lopoha.coboltruffle.builtins.CobolDisplayBuiltinFactory;
 import com.github.lopoha.coboltruffle.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.heap.HeapBuilder;
-import com.github.lopoha.coboltruffle.heap.HeapPointer;
 import com.github.lopoha.coboltruffle.nodes.CobolEvalRootNode;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
+import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.github.lopoha.coboltruffle.nodes.local.CobolLexicalScope;
 import com.github.lopoha.coboltruffle.nodes.local.CobolReadArgumentNode;
-import com.github.lopoha.coboltruffle.parser.CobolBaseListenerImpl;
-import com.github.lopoha.coboltruffle.parser.NotImplementedException;
-import com.github.lopoha.coboltruffle.parser.antlr.CobolLexer;
-import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
-import com.github.lopoha.coboltruffle.parser.common.ParserSettings;
-import com.github.lopoha.coboltruffle.parser.preprocessor.ParserPreprocessor;
+import com.github.lopoha.coboltruffle.parser.CobolMainParser;
+import com.github.lopoha.coboltruffle.parser.ParserSettings;
 import com.github.lopoha.coboltruffle.runtime.CobolContext;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -39,10 +35,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 
 @TruffleLanguage.Registration(id = CobolLanguage.ID,
@@ -64,7 +56,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   public static final String ID = "Cobol";
   public static final String MIME_TYPE = "application/x-cbl";
-  private final CobolHeap heap = new CobolHeap();
   // todo what should happen if a name is there multiple times?
   private static final Map<String, CobolBuiltinNode> builtins
       = Collections.synchronizedMap(new HashMap<>());
@@ -94,19 +85,6 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
    */
   public static List<String> getBuiltinFunctionNames() {
     return new ArrayList<>(CobolLanguage.builtins.keySet());
-  }
-
-  /**
-   * Add a HeapBuilder to the heap.
-   * TODO: Should only one heapbuilder be allowed to be added?
-   * @param heapBuilder The heapbuilder to add.
-   */
-  public void addToHeap(HeapBuilder heapBuilder) {
-    heap.addToHeap(heapBuilder);
-  }
-
-  public HeapPointer heapGetVariable(String name) {
-    return this.heap.getHeapPointer(name);
   }
 
   @Override
@@ -141,50 +119,19 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     addRelativeToPath(source, programSearchPath, copySearchPath);
     ParserSettings parserSettings = new ParserSettings(copySearchPath, programSearchPath);
     // programName and filename must be the same!
-    String preprocessed = ParserPreprocessor.getPreprocessedString(source, parserSettings);
-
-    Map<String, RootCallTarget> functions = processPreprocessed(preprocessed);
+    Map<String, RootCallTarget> functions
+        = CobolMainParser.processSource(source, this, parserSettings);
     // todo: if repl is allowed, this doesn't work anymore
-    String fileName = getFilenameWithoutExtension(source.getName());
-    RootCallTarget main = functions.get(fileName);
+    String fileName = CobolMainParser.getFilenameWithoutExtension(source);
+    RootCallTarget intro = functions.get(fileName);
+    //RootCallTarget main = functions.get(fileName);
 
-    if (main == null) {
-      throw new NotImplementedException();
-    }
+    //if (main == null) {
+    //throw new NotImplementedException();
+    //}
 
-    RootNode evalMain = new CobolEvalRootNode(this, main, functions);
+    RootNode evalMain = new CobolEvalRootNode(this, intro, functions);
     return Truffle.getRuntime().createCallTarget(evalMain);
-  }
-
-  private String getFilenameWithoutExtension(String name) {
-    int pos = name.lastIndexOf(".");
-    if (pos > 0) {
-      name = name.substring(0, pos);
-    }
-    return name;
-  }
-
-  /**
-   * TODO: replace method.
-   * @param source the preprocessed source code.
-   * @return a map with all functions.
-   */
-  public Map<String, RootCallTarget> processPreprocessed(String source) {
-    try {
-      CharStream input = CharStreams.fromString(source);
-      CobolLexer lexer = new CobolLexer(input);
-      CommonTokenStream tokens = new CommonTokenStream(lexer);
-      CobolParser parser = new CobolParser(tokens);
-      CobolParser.FileContext fileContext = parser.file();
-      ParseTreeWalker walker = new ParseTreeWalker();
-      CobolBaseListenerImpl listener = new CobolBaseListenerImpl(this);
-      walker.walk(listener, fileContext);
-
-      return listener.getAllSections();
-
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
   @Override
@@ -313,8 +260,7 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
    * @param builtin the builtin to add.
    */
   public static void installBuiltin(NodeFactory<? extends CobolBuiltinNode> builtin) {
-    CobolBuiltinNode cobolBuiltinNode
-        = createBuiltinNode(CobolDisplayBuiltinFactory.getInstance());
+    CobolBuiltinNode cobolBuiltinNode = createBuiltinNode(builtin);
     String name = CobolContext.lookupNodeInfo(cobolBuiltinNode.getClass()).shortName();
     CobolLanguage.builtins.put(name, cobolBuiltinNode);
   }
