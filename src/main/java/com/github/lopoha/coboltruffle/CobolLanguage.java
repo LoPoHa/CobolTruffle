@@ -68,20 +68,24 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   // todo what should happen if a name is there multiple times?
   private static final Map<String, CobolBuiltinNode> builtins
       = Collections.synchronizedMap(new HashMap<>());
+
+  /*
+  todo: replace system for external builtins.
+        it was removed, because if a builtin is added once,
+        and a different context is created to execute the source, it aborts because
+        the context of the builtin and the current context don't match
   private static boolean addedInternalBuiltins = false;
   private static final List<String> copySearchPath
       = Collections.synchronizedList(new ArrayList<>());
   private static final List<String> programSearchPath
       = Collections.synchronizedList(new ArrayList<>());
+  */
 
   /**
    * TODO.
    */
   public CobolLanguage() {
-    if (!addedInternalBuiltins) {
-      CobolLanguage.installBuiltin(CobolDisplayBuiltinFactory.getInstance());
-      addedInternalBuiltins = true;
-    }
+    installBuiltin(CobolDisplayBuiltinFactory.getInstance());
   }
 
   /**
@@ -132,8 +136,8 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   protected CallTarget parse(ParsingRequest request) {
     Source source = request.getSource();
     // todo: should a repl be allowed? would be a fun experiment...
-    List<String> programSearchPath = new ArrayList<>(CobolLanguage.programSearchPath);
-    List<String> copySearchPath = new ArrayList<>(CobolLanguage.copySearchPath);
+    List<String> programSearchPath = new ArrayList<>();
+    List<String> copySearchPath = new ArrayList<>();
     addRelativeToPath(source, programSearchPath, copySearchPath);
     ParserSettings parserSettings = new ParserSettings(copySearchPath, programSearchPath);
     // programName and filename must be the same!
@@ -181,21 +185,6 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-  }
-
-
-
-  /*
-   * Still necessary for the old SL TCK to pass. We should remove with the old TCK. New language
-   * should not override this.
-   */
-  @SuppressWarnings("deprecation")
-  @Override
-  protected Object findExportedSymbol(CobolContext context,
-                                      String globalName,
-                                      boolean onlyExplicit) {
-    //return context.getFunctionRegistry().lookup(globalName, false);
-    throw new NotImplementedException();
   }
 
   @Override
@@ -328,30 +317,6 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
         = createBuiltinNode(CobolDisplayBuiltinFactory.getInstance());
     String name = CobolContext.lookupNodeInfo(cobolBuiltinNode.getClass()).shortName();
     CobolLanguage.builtins.put(name, cobolBuiltinNode);
-  }
-
-  /**
-   * Add a path to be searched if a copy is included.
-   * FIFO, the first path added is searched first.
-   * All paths added are evaluated before the interal search.
-   * This way it is possible to `overwrite` copy members.
-   *
-   * @param path the path to add.
-   */
-  public static void addCopySearchPath(String path) {
-    CobolLanguage.copySearchPath.add(path);
-  }
-
-  /**
-   * Add a path to be searched if a program is called.
-   * FIFO, the first path added is searched first.
-   * All paths added are evaluated before the interal search.
-   * This way it is possible to `overwrite` programs.
-   *
-   * @param path the path to add.
-   */
-  public static void addProgramSearchPath(String path) {
-    CobolLanguage.programSearchPath.add(path);
   }
 
   private static CobolBuiltinNode createBuiltinNode(
