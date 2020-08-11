@@ -40,6 +40,6 @@ public final class CobolHeapPointerRaw extends CobolHeapPointer {
 
   @Override
   public List<Character> executeGeneric(VirtualFrame frame) {
-    return (List<Character>) this.getValue(Helper.getProgramStateFromFrame(frame));
+    return this.getRawValue(Helper.getProgramStateFromFrame(frame));
   }
 }
