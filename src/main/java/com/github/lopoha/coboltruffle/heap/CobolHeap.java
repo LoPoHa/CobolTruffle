@@ -65,9 +65,11 @@ public class CobolHeap {
                                        final int variableBasePosition) {
     // todo should a check if the variable is already defined be here?
     //      this time it should be an error? or not?
-    CobolHeapPointer pointer;
+    CobolHeapPointer pointer = null;
     switch (variable.heapVariableType) {
-      case Filler: // fallthrough
+      case Filler:
+        // do nothing
+        break;
       case None:   // fallthrough
       case Number: // fallthrough
       case String:
@@ -93,7 +95,10 @@ public class CobolHeap {
     if (variable.variableName != null && this.pointerMap.containsKey(variable.variableName)) {
       throw new VariableAlreadyDefinedException(variable.variableName);
     }
-    this.pointerMap.put(variable.variableName, pointer);
+
+    if (pointer != null) {
+      this.pointerMap.put(variable.variableName, pointer);
+    }
 
     int variableHeapPosition = variableBasePosition;
     for (HeapBuilderVariable child : variable.getChildren()) {

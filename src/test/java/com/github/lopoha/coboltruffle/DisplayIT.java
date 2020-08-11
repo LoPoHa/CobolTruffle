@@ -21,6 +21,11 @@ public class DisplayIT {
     TestRunner.run("display/variables");
   }
 
+  @Test
+  void variablesCopy() throws IOException {
+    TestRunner.run("display/variablesCopy");
+  }
+
   // doesn't work currently
   //  @Test
   //  void number() throws IOException {
