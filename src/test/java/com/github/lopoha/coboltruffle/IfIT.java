@@ -19,7 +19,7 @@ class IfIT {
 
   @Test
   void equalNotSameVariable() throws IOException {
-    String file = "if/equalNotSameVariable.cbl";
+    String file = "if/equalDifferentVariable.cbl";
     ProgramRun programResult = ProgramRun.runProgram(file);
     assertEquals(RunResult.Success, programResult.runResult);
     assertEquals(String.format("FALSE%nFALSE%n"), programResult.sysout);
