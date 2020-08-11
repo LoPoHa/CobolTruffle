@@ -158,11 +158,13 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     } else if (moveFromContext.STRING() != null) {
       String inputString = removeStringQuotes(moveFromContext.STRING().getText());
       this.cobolNodeFactory.addMove(inputString, targetPointer);
+    } else if (moveFromContext.SPACE() != null) {
+      // todo: should something more specialized be used here?
+      //       maybe number pointer should check if source is numeric
+      //       and only space should be allowed.
+      this.cobolNodeFactory.addMove("", targetPointer);
     } else {
       // todo: how should number be implemented?
-      //       and should space be implemented specially or should it just have a value
-      //       and behave like a string with blanks was given?
-      //       and should it behave different if the target datatype is string or number?
       throw new NotImplementedException();
     }
   }

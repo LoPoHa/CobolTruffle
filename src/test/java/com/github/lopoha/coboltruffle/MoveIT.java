@@ -25,4 +25,14 @@ class MoveIT {
   void workingStorageStringSubLevel() throws IOException {
     TestRunner.run("move/workingStorageStringSubLevel");
   }
+
+  @Test
+  void workingStorageVariable() throws IOException {
+    TestRunner.run("move/workingStorageVariable");
+  }
+
+  @Test
+  void workingStorageSoace() throws IOException {
+    TestRunner.run("move/workingStorageSpace");
+  }
 }
