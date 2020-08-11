@@ -20,4 +20,10 @@ public class DisplayIT {
   void variables() throws IOException {
     TestRunner.run("display/variables");
   }
+
+  // doesn't work currently
+  //  @Test
+  //  void number() throws IOException {
+  //    TestRunner.run("display/number");
+  //  }
 }

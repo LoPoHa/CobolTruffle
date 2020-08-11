@@ -1,10 +1,7 @@
 {
   "runResult" : "Success",
   "sysout" : [
-    "     ",
-    "12345",
-    "    1",
-    "12345"
+    "1234"
   ],
   "syserr" : [
   ]
