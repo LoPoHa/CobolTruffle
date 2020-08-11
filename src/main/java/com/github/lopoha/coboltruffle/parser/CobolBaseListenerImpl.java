@@ -162,6 +162,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
       // todo: how should number be implemented?
       //       and should space be implemented specially or should it just have a value
       //       and behave like a string with blanks was given?
+      //       and should it behave different if the target datatype is string or number?
       throw new NotImplementedException();
     }
   }

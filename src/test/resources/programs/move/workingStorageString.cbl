@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. VARIABLES.
+       PROGRAM-ID. WORKINGSTORAGESTRING.
       *
       *
        ENVIRONMENT DIVISION.
@@ -7,8 +7,7 @@
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  PROGRAMNATIVE.
-        05       STRING                  PIC X(4) VALUE "TEST".
-        05       NUMBER                  PIC 9(4) VALUE 1234.
+        05       STRING                   PIC X(5).
        LINKAGE SECTION.
       *
        PROCEDURE DIVISION.
@@ -16,9 +15,17 @@
        MAIN SECTION.
       *
            DISPLAY STRING.
-           DISPLAY NUMBER.
+
+           MOVE "12345" TO STRING.
+           DISPLAY STRING.
+
+           MOVE "1" TO STRING.
+           DISPLAY STRING.
+
+           MOVE "123456" TO STRING.
+           DISPLAY STRING.
       *
        PROG-EX.
            EXIT PROGRAM.
       *
-       END PROGRAM VARIABLES.
+       END PROGRAM WORKINGSTORAGESTRING.

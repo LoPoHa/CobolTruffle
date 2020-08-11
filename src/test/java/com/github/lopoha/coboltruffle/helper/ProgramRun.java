@@ -13,15 +13,15 @@ import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 
-public class ProgramRun {
+class ProgramRun {
   public final RunResult runResult;
   public final String sysout;
-  public final String errout;
+  public final String syserr;
 
-  private ProgramRun(RunResult runResult, String sysout, String errout) {
+  private ProgramRun(RunResult runResult, String sysout, String syserr) {
     this.runResult = runResult;
     this.sysout = sysout;
-    this.errout = errout;
+    this.syserr = syserr;
   }
 
   private static RunResult executeSource(Source source,
@@ -65,8 +65,7 @@ public class ProgramRun {
    * @return the result of the run.
    * @throws IOException if the file was not found.
    */
-  public static ProgramRun runProgram(String fileName) throws IOException {
-    fileName = "./src/test/resources/programs/" + fileName;
+  static ProgramRun runProgram(String fileName) throws IOException {
     Source source = Source.newBuilder(CobolLanguage.ID, new File(fileName)).build();
     final ByteArrayOutputStream baosSysOut = new ByteArrayOutputStream();
     final ByteArrayOutputStream baosErrOut = new ByteArrayOutputStream();

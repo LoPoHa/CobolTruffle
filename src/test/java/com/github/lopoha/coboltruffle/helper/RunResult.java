@@ -1,6 +1,6 @@
 package com.github.lopoha.coboltruffle.helper;
 
-public enum RunResult {
+enum RunResult {
   Success,
   Failure,
 }
