@@ -7,6 +7,9 @@ import com.github.lopoha.coboltruffle.helper.RunResult;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests for `IF`.
+ */
 class IfIT {
   @Test
   void equalSameVariable() throws IOException {
@@ -18,11 +21,21 @@ class IfIT {
   }
 
   @Test
-  void equalNotSameVariable() throws IOException {
+  void equalSameVariableDifferentType() throws IOException {
+    String file = "if/equalSameVariableDifferentType.cbl";
+    ProgramRun programResult = ProgramRun.runProgram(file);
+    assertEquals(RunResult.Success, programResult.runResult);
+    assertEquals(String.format("TRUE%nTRUE%n"), programResult.sysout);
+    assertEquals("", programResult.errout);
+  }
+
+  @Test
+  void equalDifferentVariable() throws IOException {
     String file = "if/equalDifferentVariable.cbl";
     ProgramRun programResult = ProgramRun.runProgram(file);
     assertEquals(RunResult.Success, programResult.runResult);
-    assertEquals(String.format("FALSE%nFALSE%n"), programResult.sysout);
+    assertEquals(String.format("FALSE%nFALSE%nFALSE%nFALSE%nFALSE%nFALSE%n"),
+                 programResult.sysout);
     assertEquals("", programResult.errout);
   }
 }

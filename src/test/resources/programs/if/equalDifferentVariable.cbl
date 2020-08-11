@@ -6,21 +6,50 @@
       * 
        DATA DIVISION.
        WORKING-STORAGE SECTION.
-       01 STRING PIC X(4) VALUE "TEST".
-       01 NUMBER PIC 9(4) VALUE 1234.
+       01 STRING1 PIC X(4) VALUE "TEST".
+       01 STRING2 PIC X(4) VALUE "TES ".
+       01 NUMBER1 PIC 9(4) VALUE 1234.
+       01 NUMBER2 PIC 9(4) VALUE 1235.
        LINKAGE SECTION.
       *
        PROCEDURE DIVISION.
       *
        MAIN SECTION.
       *
-          IF STRING EQUAL NUMBER THEN
+      * DIFFERENT TYPES
+          IF STRING1 EQUAL NUMBER1 THEN
              DISPLAY "TRUE".
           ELSE
              DISPLAY "FALSE".
           END-IF.
 
-          IF NUMBER EQUAL STRING THEN
+          IF NUMBER1 EQUAL STRING1 THEN
+             DISPLAY "TRUE".
+          ELSE
+             DISPLAY "FALSE".
+          END-IF.
+
+      * STRING
+          IF STRING1 EQUAL STRING2 THEN
+             DISPLAY "TRUE".
+          ELSE
+             DISPLAY "FALSE".
+          END-IF.
+
+          IF STRING2 EQUAL STRING1 THEN
+             DISPLAY "TRUE".
+          ELSE
+             DISPLAY "FALSE".
+          END-IF.
+
+      * NUMBER
+          IF NUMBER1 EQUAL NUMBER2 THEN
+             DISPLAY "TRUE".
+          ELSE
+             DISPLAY "FALSE".
+          END-IF.
+
+          IF NUMBER2 EQUAL NUMBER1 THEN
              DISPLAY "TRUE".
           ELSE
              DISPLAY "FALSE".
