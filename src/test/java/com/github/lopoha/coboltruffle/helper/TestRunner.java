@@ -12,13 +12,13 @@ public class TestRunner {
 
   /**
    * Run a test cobol program and compares the result to the expected one from the json file.
-   * @param fileName file path/name with the programs folder as root and without file ending.
+   * @param fileName file path/name with the resources folder as root and without file ending.
    *                 a corresponding .json file is expected to be there too.
    * @throws IOException if a file is not found.
    */
   public static void run(String fileName) throws IOException {
-    String cobolFileName = "./src/test/resources/programs/" + fileName + ".cbl";
-    String jsonFileName  = "./src/test/resources/programs/" + fileName + ".json";
+    String cobolFileName = "./src/test/resources/" + fileName + ".cbl";
+    String jsonFileName  = "./src/test/resources/" + fileName + ".json";
     String content = Files.readString(Path.of(jsonFileName));
     ExpectedResult expectedResult = gson.fromJson(content, ExpectedResult.class);
     ProgramRun programRun = ProgramRun.runProgram(cobolFileName);

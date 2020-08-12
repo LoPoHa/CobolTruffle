@@ -10,16 +10,16 @@ import org.junit.jupiter.api.Test;
 class IfIT {
   @Test
   void equalSameVariable() throws IOException {
-    TestRunner.run("if/equalSameVariable");
+    TestRunner.run("integration/if/equalSameVariable");
   }
 
   @Test
   void equalSameVariableDifferentType() throws IOException {
-    TestRunner.run("if/equalSameVariableDifferentType");
+    TestRunner.run("integration/if/equalSameVariableDifferentType");
   }
 
   @Test
   void equalDifferentVariable() throws IOException {
-    TestRunner.run("if/equalDifferentVariable");
+    TestRunner.run("integration/if/equalDifferentVariable");
   }
 }

@@ -10,6 +10,6 @@ import org.junit.jupiter.api.Test;
 public class CallIT {
   @Test
   void simpleCall() throws IOException {
-    TestRunner.run("call/simpleCall");
+    TestRunner.run("integration/call/simpleCall");
   }
 }

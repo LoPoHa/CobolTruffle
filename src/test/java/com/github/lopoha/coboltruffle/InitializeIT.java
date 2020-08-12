@@ -12,6 +12,6 @@ class InitializeIT {
 
   @Test
   void programStartSimple() throws IOException {
-    TestRunner.run("initialize/programStartSimple");
+    TestRunner.run("integration/initialize/programStartSimple");
   }
 }

@@ -13,26 +13,26 @@ class MoveIT {
   //
   //  @Test
   //  void workingStorageNumber() throws IOException {
-  //    TestRunner.run("move/workingStorageNumber");
+  //    TestRunner.run("integration/move/workingStorageNumber");
   //  }
 
   @Test
   void workingStorageString() throws IOException {
-    TestRunner.run("move/workingStorageString");
+    TestRunner.run("integration/move/workingStorageString");
   }
 
   @Test
   void workingStorageStringSubLevel() throws IOException {
-    TestRunner.run("move/workingStorageStringSubLevel");
+    TestRunner.run("integration/move/workingStorageStringSubLevel");
   }
 
   @Test
   void workingStorageVariable() throws IOException {
-    TestRunner.run("move/workingStorageVariable");
+    TestRunner.run("integration/move/workingStorageVariable");
   }
 
   @Test
   void workingStorageSoace() throws IOException {
-    TestRunner.run("move/workingStorageSpace");
+    TestRunner.run("integration/move/workingStorageSpace");
   }
 }

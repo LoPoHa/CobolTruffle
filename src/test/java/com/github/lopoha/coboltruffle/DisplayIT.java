@@ -13,22 +13,22 @@ import org.junit.jupiter.api.Test;
 public class DisplayIT {
   @Test
   void helloWorld() throws IOException {
-    TestRunner.run("display/helloworld");
+    TestRunner.run("integration/display/helloworld");
   }
 
   @Test
   void variables() throws IOException {
-    TestRunner.run("display/variables");
+    TestRunner.run("integration/display/variables");
   }
 
   @Test
   void variablesCopy() throws IOException {
-    TestRunner.run("display/variablesCopy");
+    TestRunner.run("integration/display/variablesCopy");
   }
 
   // doesn't work currently
   //  @Test
   //  void number() throws IOException {
-  //    TestRunner.run("display/number");
+  //    TestRunner.run("unit/display/number");
   //  }
 }

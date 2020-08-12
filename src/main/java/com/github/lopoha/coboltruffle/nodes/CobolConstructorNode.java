@@ -3,6 +3,7 @@ package com.github.lopoha.coboltruffle.nodes;
 import com.github.lopoha.coboltruffle.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
+import com.github.lopoha.coboltruffle.nodes.expression.heap.RawHeapSlice;
 import com.github.lopoha.coboltruffle.runtime.CobolSection;
 import com.github.lopoha.coboltruffle.runtime.CobolSectionRegistry;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -50,11 +51,11 @@ public final class CobolConstructorNode extends CobolFunctionLiteralNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    final Map<String, List<Character>> inputParameters = new HashMap<>();
+    final Map<String, RawHeapSlice> inputParameters = new HashMap<>();
     final Object[] frameArguments = frame.getArguments();
     for (int i = 0; i < inputParameterNames.size(); i++) {
       // todo: make it safe
-      List<Character> value = (List<Character>) frameArguments[i];
+      RawHeapSlice value = (RawHeapSlice) frameArguments[i];
       inputParameters.put(this.inputParameterNames.get(i), value);
     }
 

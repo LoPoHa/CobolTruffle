@@ -1,6 +1,10 @@
 {
   "runResult" : "Success",
   "sysout" : [
+    "1234 ABCD",
+    "12345678",
+    "HELLO WOR",
+    "12345678"
   ],
   "syserr" : [
   ]
