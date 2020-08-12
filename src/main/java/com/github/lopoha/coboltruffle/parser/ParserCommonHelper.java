@@ -13,6 +13,7 @@ class ParserCommonHelper {
     for (String path : paths) {
       path = path + "/" + name;
       File file = new File(path);
+      System.out.println(path);
       System.out.println(file.exists() ? "true" : "false");
       if (file.isFile()) {
         return file;
