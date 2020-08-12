@@ -11,7 +11,7 @@ class InitializeIT {
   // todo: how should program start initialization work, if a sub level has a initialization too?
 
   @Test
-  void programStartSimple() throws IOException {
+  void programStartSimple() {
     TestRunner.run("integration/initialize/programStartSimple");
   }
 }

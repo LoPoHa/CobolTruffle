@@ -12,17 +12,17 @@ import org.junit.jupiter.api.Test;
  */
 public class DisplayIT {
   @Test
-  void helloWorld() throws IOException {
+  void helloWorld() {
     TestRunner.run("integration/display/helloworld");
   }
 
   @Test
-  void variables() throws IOException {
+  void variables() {
     TestRunner.run("integration/display/variables");
   }
 
   @Test
-  void variablesCopy() throws IOException {
+  void variablesCopy() {
     TestRunner.run("integration/display/variablesCopy");
   }
 

@@ -9,12 +9,12 @@ import org.junit.jupiter.api.Test;
  */
 public class CallIT {
   @Test
-  void simpleCall() throws IOException {
+  void simpleCall() {
     TestRunner.run("integration/call/simpleCall");
   }
 
   @Test
-  void multipleCallSameProgram() throws IOException {
+  void multipleCallSameProgram() {
     TestRunner.run("integration/call/multipleCallSameProgram");
   }
 }

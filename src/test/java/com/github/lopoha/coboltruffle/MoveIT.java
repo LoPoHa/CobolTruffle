@@ -17,22 +17,22 @@ class MoveIT {
   //  }
 
   @Test
-  void workingStorageString() throws IOException {
+  void workingStorageString() {
     TestRunner.run("integration/move/workingStorageString");
   }
 
   @Test
-  void workingStorageStringSubLevel() throws IOException {
+  void workingStorageStringSubLevel() {
     TestRunner.run("integration/move/workingStorageStringSubLevel");
   }
 
   @Test
-  void workingStorageVariable() throws IOException {
+  void workingStorageVariable() {
     TestRunner.run("integration/move/workingStorageVariable");
   }
 
   @Test
-  void workingStorageSoace() throws IOException {
+  void workingStorageSpace() {
     TestRunner.run("integration/move/workingStorageSpace");
   }
 }
