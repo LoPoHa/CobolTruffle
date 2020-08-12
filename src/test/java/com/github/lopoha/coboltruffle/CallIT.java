@@ -12,4 +12,9 @@ public class CallIT {
   void simpleCall() throws IOException {
     TestRunner.run("integration/call/simpleCall");
   }
+
+  @Test
+  void multipleCallSameProgram() throws IOException {
+    TestRunner.run("integration/call/multipleCallSameProgram");
+  }
 }
