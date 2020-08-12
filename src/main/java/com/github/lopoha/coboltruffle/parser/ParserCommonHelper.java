@@ -12,6 +12,7 @@ class ParserCommonHelper {
 
     for (String path : paths) {
       path = path + "/" + name;
+      System.out.println("Searching : " + path);
       File file = new File(path);
       if (file.isFile()) {
         return file;
