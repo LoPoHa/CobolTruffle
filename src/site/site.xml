@@ -1,0 +1,15 @@
+<project name="CobolTruffle Test">
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>1.9</version>
+    </skin>
+
+    <body>
+        <menu ref="reports"/>
+        <menu name="Code Coverage">
+            <item name="All Tests" href="jacoco-merged-coverage-report/index.html" />
+            <item name="Integration Tests" href="jacoco-integration-test-coverage-report/index.html" />
+        </menu>
+    </body>
+</project>

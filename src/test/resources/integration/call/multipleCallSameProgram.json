@@ -1,0 +1,35 @@
+{
+  "runResult" : "Success",
+  "sysout" : [
+    "1234 ABCD",
+    "12345678",
+    "1234 ABCD",
+    "12345678",
+    "TEST",
+    "    HELLO",
+    "11111111",
+    "NOPE",
+    "    HELLO",
+    "11111111",
+    "    HELLO",
+    "11111111",
+    "TEST",
+    "    HELLO",
+    "11111111",
+    "NOPE",
+    "    HELLO",
+    "11111111",
+    "MAIN MAIN",
+    "99999999",
+    "MAIN MAIN",
+    "99999999",
+    "TEST",
+    "    HELLO",
+    "11111111",
+    "NOPE",
+    "    HELLO",
+    "11111111"
+  ],
+  "syserr" : [
+  ]
+}

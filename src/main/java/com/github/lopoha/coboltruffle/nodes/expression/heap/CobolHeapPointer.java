@@ -164,7 +164,9 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
     // safe, since the parent always returns List<Character>
     return (this.heapName == null)
         ? programState.getLocalFileHeap().subList(position, position + length)
-        : programState.getLinkageHeap(this.heapName).subList(position, position + length);
+        : programState.getLinkageHeap(this.heapName)
+                      .getHeapSlice()
+                      .subList(position, position + length);
   }
 
   /**
@@ -178,7 +180,7 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
     List<Character> heap =
         (this.heapName == null)
         ? programState.getLocalFileHeap()
-        : programState.getLinkageHeap(this.heapName);
+        : programState.getLinkageHeap(this.heapName).getHeapSlice();
     // todo: check if the alignment etc. is correct
     // todo: is the default for number here space or zero?
     // todo: is parallel always faster?

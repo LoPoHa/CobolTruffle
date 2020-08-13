@@ -9,6 +9,7 @@ import java.util.List;
 // todo: handle arrays (table)
 public class HeapBuilder {
   private final List<HeapBuilderVariable> variables = new ArrayList<>();
+  private HeapBuilderVariable lastNotConstVariable;
 
   // root level is either 1 or 77 (todo: what does the 77 mean?)
   private boolean isRootLevel(int level) {
@@ -27,6 +28,9 @@ public class HeapBuilder {
       // better handle not root values for error messages
       this.variables.get(this.variables.size() - 1).add(heapVariable);
     }
+    if (heapVariable.heapVariableType != HeapVariableType.Const) {
+      this.lastNotConstVariable = heapVariable;
+    }
   }
 
   /**
@@ -44,8 +48,9 @@ public class HeapBuilder {
    * Used for level 88 to get the parent.
    */
   public HeapBuilderVariable getLastVariable() {
-    return this.variables.get(this.variables.size() - 1);
+    return this.lastNotConstVariable;
   }
+
 
 
   /**

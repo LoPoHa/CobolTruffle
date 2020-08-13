@@ -1,0 +1,23 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. VARIABLESCOPY.
+      *
+      *
+       ENVIRONMENT DIVISION.
+      * 
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY BASICDEFINITIONS.
+
+       LINKAGE SECTION.
+      *
+       PROCEDURE DIVISION.
+      *
+       MAIN SECTION.
+      *
+           DISPLAY COPY-STRING.
+           DISPLAY COPY-NUMBER.
+      *
+       PROG-EX.
+           EXIT PROGRAM.
+      *
+       END PROGRAM VARIABLESCOPY.
