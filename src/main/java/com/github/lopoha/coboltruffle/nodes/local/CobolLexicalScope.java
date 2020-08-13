@@ -210,7 +210,6 @@ public final class CobolLexicalScope {
   }
 
   private Map<String, FrameSlot> collectVars(Node varsBlock, Node currentNode) {
-    Map<String, FrameSlot> slots = new LinkedHashMap<>(4);
     /*
     NodeUtil.forEachChild(varsBlock, new NodeVisitor() {
         @Override
@@ -237,14 +236,13 @@ public final class CobolLexicalScope {
         }
     });
     */
-    return slots;
+    return new LinkedHashMap<>(4);
   }
 
   private static Map<String, FrameSlot> collectArgs(Node block) {
     // Arguments are pushed to frame slots at the beginning of the function block.
     // To collect argument slots, search for SLReadArgumentNode inside of
     // SLWriteLocalVariableNode.
-    Map<String, FrameSlot> args = new LinkedHashMap<>(4);
     /*
     NodeUtil.forEachChild(block, new NodeVisitor() {
 
@@ -273,7 +271,7 @@ public final class CobolLexicalScope {
         }
     });
     */
-    return args;
+    return new LinkedHashMap<>(4);
   }
 
   @ExportLibrary(InteropLibrary.class)

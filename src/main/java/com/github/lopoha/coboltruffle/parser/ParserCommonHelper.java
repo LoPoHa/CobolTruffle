@@ -1,7 +1,6 @@
 package com.github.lopoha.coboltruffle.parser;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 // todo: implement cache for loading (or should the caching better happen after?)

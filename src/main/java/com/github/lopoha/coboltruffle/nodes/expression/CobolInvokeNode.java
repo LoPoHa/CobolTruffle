@@ -30,7 +30,7 @@ public final class CobolInvokeNode extends CobolExpressionNode {
   @Node.Child
   private CobolExpressionNode functionNode;
   @Node.Children
-  private final CobolExpressionNode[] argumentNodes;
+  private CobolExpressionNode[] argumentNodes;
   @Node.Child
   private InteropLibrary library;
 

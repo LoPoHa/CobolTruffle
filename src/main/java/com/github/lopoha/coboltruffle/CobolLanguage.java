@@ -2,11 +2,8 @@ package com.github.lopoha.coboltruffle;
 
 import com.github.lopoha.coboltruffle.builtins.CobolBuiltinNode;
 import com.github.lopoha.coboltruffle.builtins.CobolDisplayBuiltinFactory;
-import com.github.lopoha.coboltruffle.heap.CobolHeap;
-import com.github.lopoha.coboltruffle.heap.HeapBuilder;
 import com.github.lopoha.coboltruffle.nodes.CobolEvalRootNode;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
-import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.github.lopoha.coboltruffle.nodes.local.CobolLexicalScope;
 import com.github.lopoha.coboltruffle.nodes.local.CobolReadArgumentNode;
 import com.github.lopoha.coboltruffle.parser.CobolMainParser;

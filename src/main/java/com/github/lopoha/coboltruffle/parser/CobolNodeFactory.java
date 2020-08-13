@@ -31,7 +31,6 @@ import com.oracle.truffle.api.source.SourceSection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.antlr.v4.runtime.Token;
 
 
@@ -217,7 +216,7 @@ class CobolNodeFactory {
   void addFormalParameter(Token nameToken) {
     final CobolReadArgumentNode readArg = new CobolReadArgumentNode(this.parameterCount);
     CobolExpressionNode assignment
-        = createAssignment(createStringLiteral(nameToken, false), readArg, this.parameterCount);
+        = createAssignment(createStringLiteral(nameToken), readArg, this.parameterCount);
 
     this.currentBlock.addStatement(assignment);
 
@@ -342,13 +341,11 @@ class CobolNodeFactory {
     return result;
   }
 
-  private CobolStringLiteralNode createStringLiteral(Token literalToken, boolean removeQuotes) {
+  private CobolStringLiteralNode createStringLiteral(Token literalToken) {
     /* Remove the trailing and ending " */
     String literal = literalToken.getText();
-    if (removeQuotes) {
-      assert literal.length() >= 2 && literal.startsWith("\"") && literal.endsWith("\"");
-      literal = literal.substring(1, literal.length() - 1);
-    }
+    assert literal.length() >= 2 && literal.startsWith("\"") && literal.endsWith("\"");
+    literal = literal.substring(1, literal.length() - 1);
 
     final CobolStringLiteralNode result = new CobolStringLiteralNode(literal.intern());
     srcFromToken(result, literalToken);

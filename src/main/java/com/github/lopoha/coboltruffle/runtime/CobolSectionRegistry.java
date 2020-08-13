@@ -39,10 +39,9 @@ public final class CobolSectionRegistry {
    * node. If the function did not exist before, it defines the function. If the function existed
    * before, it redefines the function and the old implementation is discarded.
    */
-  public CobolSection register(String name, RootCallTarget callTarget) {
+  public void register(String name, RootCallTarget callTarget) {
     CobolSection function = lookup(name, true);
     function.setCallTarget(callTarget);
-    return function;
   }
 
   /**

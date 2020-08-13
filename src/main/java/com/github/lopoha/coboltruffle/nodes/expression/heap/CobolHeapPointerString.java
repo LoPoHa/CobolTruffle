@@ -5,7 +5,6 @@ import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public final class CobolHeapPointerString extends CobolHeapPointer {
   /**
@@ -37,7 +36,7 @@ public final class CobolHeapPointerString extends CobolHeapPointer {
   @Override
   public String getValue(CobolProgramStateNode programState) {
     // safe, since the parent always returns List<Character>
-    List<Character> chars = (List<Character>) super.getValue(programState);
+    List<Character> chars = super.getRawValue(programState);
     return chars.stream().map(String::valueOf).collect(Collectors.joining());
   }
 

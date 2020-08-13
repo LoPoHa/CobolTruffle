@@ -1,7 +1,6 @@
 package com.github.lopoha.coboltruffle;
 
 import com.github.lopoha.coboltruffle.helper.TestRunner;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 /**
