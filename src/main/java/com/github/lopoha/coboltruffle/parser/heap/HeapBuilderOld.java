@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.heap;
+package com.github.lopoha.coboltruffle.parser.heap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,9 +7,9 @@ import java.util.List;
 // todo: split heapbuilder into heapbuilder and variable class
 // todo: handle redefines
 // todo: handle arrays (table)
-public class HeapBuilder {
-  private final List<HeapBuilderVariable> variables = new ArrayList<>();
-  private HeapBuilderVariable lastNotConstVariable;
+public class HeapBuilderOld {
+  private final List<HeapBuilderVariableOld> variables = new ArrayList<>();
+  private HeapBuilderVariableOld lastNotConstVariable;
 
   // root level is either 1 or 77 (todo: what does the 77 mean?)
   private boolean isRootLevel(int level) {
@@ -18,10 +18,11 @@ public class HeapBuilder {
 
   /**
    * Add a heapVariable to the heap.
+   *
    * @param heapVariable The variable to add.
    */
   // todo handle levels
-  public void add(HeapBuilderVariable heapVariable) {
+  public void add(HeapBuilderVariableOld heapVariable) {
     if (isRootLevel(heapVariable.level)) {
       this.variables.add(heapVariable);
     } else {
@@ -35,34 +36,32 @@ public class HeapBuilder {
 
   /**
    * Add all the variables of a heap builder to this.
+   *
    * @param heapBuilder the heap builder to add.
    */
-  public void add(HeapBuilder heapBuilder) {
-    for (HeapBuilderVariable variable : heapBuilder.variables) {
+  public void add(HeapBuilderOld heapBuilder) {
+    for (HeapBuilderVariableOld variable : heapBuilder.variables) {
       this.add(variable);
     }
   }
 
   /**
-   * Get the last heap builder variable.
-   * Used for level 88 to get the parent.
+   * Get the last heap builder variable. Used for level 88 to get the parent.
+   *
+   * @return last variable.
    */
-  public HeapBuilderVariable getLastVariable() {
+  public HeapBuilderVariableOld getLastVariable() {
     return this.lastNotConstVariable;
   }
 
-
-
-  /**
-   * Pretty print the Heap.
-   */
+  /** Pretty print the Heap. */
   public void prettyPrint() {
-    for (HeapBuilderVariable heapVariable : this.variables) {
+    for (HeapBuilderVariableOld heapVariable : this.variables) {
       heapVariable.prettyPrint(0);
     }
   }
 
-  public List<HeapBuilderVariable> getVariables() {
+  public List<HeapBuilderVariableOld> getVariables() {
     return new ArrayList<>(this.variables);
   }
 }

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests for `DISPLAY`.
- * <br />
+ * <br>
  * Since all/most of the other tests depend on the display output of the program(s),
  * it is really important that display works 100% correct!
  */

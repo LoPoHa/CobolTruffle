@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.heap;
+package com.github.lopoha.coboltruffle.parser.heap;
 
 // todo: allow floats
 public enum HeapVariableType {

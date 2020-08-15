@@ -15,6 +15,7 @@ public class CobolMoveNode extends CobolStatementNode {
 
   /**
    * Create a new `move` node command with a fixed value.
+   *
    * @param value The value to set the target to.
    * @param target Pointer on the heap which value gets changed.
    */
@@ -27,6 +28,7 @@ public class CobolMoveNode extends CobolStatementNode {
 
   /**
    * Create a new `move` node command where a value from one part of the heap is copied to another.
+   *
    * @param from The position to copy from.
    * @param target The position to copy to.
    */
@@ -40,7 +42,6 @@ public class CobolMoveNode extends CobolStatementNode {
   @Override
   public void executeVoid(VirtualFrame frame) {
     CobolProgramStateNode programStateNode = Helper.getProgramStateFromFrame(frame);
-
 
     if (this.value == null) {
       assert from != null;

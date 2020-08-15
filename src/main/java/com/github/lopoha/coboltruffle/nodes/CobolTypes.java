@@ -6,9 +6,7 @@ import com.oracle.truffle.api.dsl.TypeCast;
 import com.oracle.truffle.api.dsl.TypeCheck;
 import com.oracle.truffle.api.dsl.TypeSystem;
 
-/**
- * TODO.
- */
+/** TODO. */
 @TypeSystem({long.class, boolean.class})
 public abstract class CobolTypes {
 

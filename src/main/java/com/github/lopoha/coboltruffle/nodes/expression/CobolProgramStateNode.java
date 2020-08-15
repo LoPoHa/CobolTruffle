@@ -8,10 +8,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Contains the complete state of the program.
- * Like an instance of an object.
- */
+/** Contains the complete state of the program. Like an instance of an object. */
 @NodeInfo(shortName = "programstate")
 public class CobolProgramStateNode extends CobolExpressionNode implements TruffleObject {
   public static final String FRAME_NAME = "LOCALSTATE";
@@ -20,9 +17,10 @@ public class CobolProgramStateNode extends CobolExpressionNode implements Truffl
   private final Map<String, RawHeapSlice> linkageHeap;
 
   /**
-   * Create a new State.
-   * Used from the Constructor Node.
+   * Create a new State. Used from the Constructor Node.
+   *
    * @param localFileHeap the local file heap
+   * @param linkageHeap the heap that is passed through the linkage section.
    */
   public CobolProgramStateNode(List<Character> localFileHeap,
                                Map<String, RawHeapSlice> linkageHeap) {

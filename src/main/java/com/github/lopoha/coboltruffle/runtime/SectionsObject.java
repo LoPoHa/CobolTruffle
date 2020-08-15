@@ -21,6 +21,10 @@ final class SectionsObject implements TruffleObject {
   SectionsObject() {
   }
 
+  public static boolean isInstance(TruffleObject obj) {
+    return obj instanceof SectionsObject;
+  }
+
   @ExportMessage
   boolean hasLanguage() {
     return true;
@@ -69,10 +73,6 @@ final class SectionsObject implements TruffleObject {
   @TruffleBoundary
   Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
     return functions.toString();
-  }
-
-  public static boolean isInstance(TruffleObject obj) {
-    return obj instanceof SectionsObject;
   }
 
   @ExportLibrary(InteropLibrary.class)

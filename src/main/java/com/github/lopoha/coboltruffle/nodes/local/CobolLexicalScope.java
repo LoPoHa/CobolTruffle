@@ -21,10 +21,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-
-/**
- * Simple language lexical scope. There can be a block scope, or function scope.
- */
+/** Simple language lexical scope. There can be a block scope, or function scope. */
 public final class CobolLexicalScope {
 
   private final Node current;
@@ -50,6 +47,7 @@ public final class CobolLexicalScope {
 
   /**
    * todo.
+   *
    * @param node todo.
    * @return todo
    */
@@ -62,7 +60,7 @@ public final class CobolLexicalScope {
       if (block == null) {
         RootNode root = node.getRootNode();
         assert root instanceof CobolEvalRootNode || root instanceof CobolRootNode
-               : "Corrupted Cobol AST under " + node;
+            : "Corrupted Cobol AST under " + node;
         return new CobolLexicalScope(null, null, (CobolBlockNode) null);
       }
       node = null;
@@ -93,19 +91,56 @@ public final class CobolLexicalScope {
 
   private static CobolBlockNode findChildrenBlock(Node node) {
     CobolBlockNode[] blockPtr = new CobolBlockNode[1];
-    node.accept(n -> {
-      if (n instanceof CobolBlockNode) {
-        blockPtr[0] = (CobolBlockNode) n;
-        return false;
-      } else {
-        return true;
-      }
-    });
+    node.accept(
+        n -> {
+          if (n instanceof CobolBlockNode) {
+            blockPtr[0] = (CobolBlockNode) n;
+            return false;
+          } else {
+            return true;
+          }
+        });
     return blockPtr[0];
+  }
+
+  private static Map<String, FrameSlot> collectArgs(Node block) {
+    // Arguments are pushed to frame slots at the beginning of the function block.
+    // To collect argument slots, search for SLReadArgumentNode inside of
+    // SLWriteLocalVariableNode.
+    /*
+    NodeUtil.forEachChild(block, new NodeVisitor() {
+
+        private SLWriteLocalVariableNode wn; // The current write node containing a slot
+
+        @Override
+        public boolean visit(Node node) {
+            // When there is a write node, search for SLReadArgumentNode among its children:
+            if (node instanceof SLWriteLocalVariableNode) {
+                wn = (SLWriteLocalVariableNode) node;
+                boolean all = NodeUtil.forEachChild(node, this);
+                wn = null;
+                return all;
+            } else if (wn != null && (node instanceof SLReadArgumentNode)) {
+                FrameSlot slot = wn.getSlot();
+                String name = Objects.toString(slot.getIdentifier());
+                assert !args.containsKey(name) : name + " argument exists already.";
+                args.put(name, slot);
+                return true;
+            } else if (wn == null && (node instanceof SLStatementNode)) {
+                // A different SL node - we're done.
+                return false;
+            } else {
+                return NodeUtil.forEachChild(node, this);
+            }
+        }
+    });
+    */
+    return new LinkedHashMap<>(4);
   }
 
   /**
    * Todo.
+   *
    * @return todo.
    */
   public CobolLexicalScope findParent() {
@@ -129,6 +164,7 @@ public final class CobolLexicalScope {
 
   /**
    * todo.
+   *
    * @return the function name for function scope, "block" otherwise.
    */
   public String getName() {
@@ -141,8 +177,9 @@ public final class CobolLexicalScope {
 
   /**
    * todo.
-   * @return the node representing the scope, the block node for block scopes and the
-   *         {@link RootNode} for functional scope.
+   *
+   * @return the node representing the scope, the block node for block scopes and the {@link
+   *     RootNode} for functional scope.
    */
   public Node getNode() {
     if (root != null) {
@@ -154,6 +191,7 @@ public final class CobolLexicalScope {
 
   /**
    * todo.
+   *
    * @param frame todo
    * @return todo
    */
@@ -169,6 +207,7 @@ public final class CobolLexicalScope {
 
   /**
    * todo.
+   *
    * @param frame todo
    * @return todo
    */
@@ -239,41 +278,6 @@ public final class CobolLexicalScope {
     return new LinkedHashMap<>(4);
   }
 
-  private static Map<String, FrameSlot> collectArgs(Node block) {
-    // Arguments are pushed to frame slots at the beginning of the function block.
-    // To collect argument slots, search for SLReadArgumentNode inside of
-    // SLWriteLocalVariableNode.
-    /*
-    NodeUtil.forEachChild(block, new NodeVisitor() {
-
-        private SLWriteLocalVariableNode wn; // The current write node containing a slot
-
-        @Override
-        public boolean visit(Node node) {
-            // When there is a write node, search for SLReadArgumentNode among its children:
-            if (node instanceof SLWriteLocalVariableNode) {
-                wn = (SLWriteLocalVariableNode) node;
-                boolean all = NodeUtil.forEachChild(node, this);
-                wn = null;
-                return all;
-            } else if (wn != null && (node instanceof SLReadArgumentNode)) {
-                FrameSlot slot = wn.getSlot();
-                String name = Objects.toString(slot.getIdentifier());
-                assert !args.containsKey(name) : name + " argument exists already.";
-                args.put(name, slot);
-                return true;
-            } else if (wn == null && (node instanceof SLStatementNode)) {
-                // A different SL node - we're done.
-                return false;
-            } else {
-                return NodeUtil.forEachChild(node, this);
-            }
-        }
-    });
-    */
-    return new LinkedHashMap<>(4);
-  }
-
   @ExportLibrary(InteropLibrary.class)
   static final class VariablesMapObject implements TruffleObject {
 
@@ -301,8 +305,8 @@ public final class CobolLexicalScope {
 
     @ExportMessage
     @TruffleBoundary
-    void writeMember(String member, Object value) throws UnsupportedMessageException,
-                                                         UnknownIdentifierException {
+    void writeMember(String member, Object value)
+        throws UnsupportedMessageException, UnknownIdentifierException {
       if (frame == null) {
         throw UnsupportedMessageException.create();
       }
@@ -360,7 +364,6 @@ public final class CobolLexicalScope {
     boolean isMemberReadable(String member) {
       return frame == null || slots.containsKey(member);
     }
-
   }
 
   @ExportLibrary(InteropLibrary.class)
@@ -395,7 +398,5 @@ public final class CobolLexicalScope {
       }
       return keys[(int) index];
     }
-
   }
-
 }

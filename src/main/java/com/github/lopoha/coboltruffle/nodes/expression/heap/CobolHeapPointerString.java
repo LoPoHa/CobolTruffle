@@ -8,20 +8,18 @@ import java.util.stream.Collectors;
 
 public final class CobolHeapPointerString extends CobolHeapPointer {
   /**
-   * Create a Pointer to the heap.
-   * The heap must be on the frame.
+   * Create a Pointer to the heap. The heap must be on the frame.
+   *
    * @param name name of the variable.
    * @param position start position on the heap.
    * @param length length of the variable
    * @param defaultValue the default value.
    * @param level the level of the variable declaration.
+   * @param heapName the name of the heap, that is used for the linkage section.
+   *                 it is used to get the correct heap when accessing a variable inside.
    */
-  public CobolHeapPointerString(String name,
-                                int position,
-                                int length,
-                                String defaultValue,
-                                int level,
-                                String heapName) {
+  public CobolHeapPointerString(
+      String name, int position, int length, String defaultValue, int level, String heapName) {
     super(name, position, length, defaultValue, level, heapName);
   }
 

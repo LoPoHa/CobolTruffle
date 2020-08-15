@@ -1,37 +1,34 @@
-package com.github.lopoha.coboltruffle.heap;
+package com.github.lopoha.coboltruffle.parser.heap;
 
 import com.github.lopoha.coboltruffle.NotImplementedException;
-import java.lang.RuntimeException;
 import java.util.ArrayList;
 import java.util.List;
 
 // todo: better name (as always...)
 // todo: handle level 88
-public class HeapBuilderVariable {
+public class HeapBuilderVariableOld {
+  public final String variableName;
+  public final String redefines;
   final int level;
+  final HeapVariableType heapVariableType;
+  private final List<HeapBuilderVariableOld> children = new ArrayList<>();
   // size = 0 => combined size of all children.
   // todo : size of 0 + children size 0 => error
   private int size;
-  public final String variableName;
-  final HeapVariableType heapVariableType;
   private String value;
-  private final List<HeapBuilderVariable> children = new ArrayList<>();
   private int childLevel = 0;
-  public final String redefines;
 
   /**
-   * Create a new Variable that can be added to the heap.
-   * This does *NOT* represent an actual variable on the heap!
+   * Create a new Variable that can be added to the heap. This does *NOT* represent an actual
+   * variable on the heap!
    *
    * @param level the level.
    * @param variableName the name.
    * @param heapVariableType the type.
    * @param redefines the variable it redefines.
    */
-  public HeapBuilderVariable(int level,
-                             String variableName,
-                             HeapVariableType heapVariableType,
-                             String redefines) {
+  public HeapBuilderVariableOld(
+      int level, String variableName, HeapVariableType heapVariableType, String redefines) {
     this.level = level;
     this.size = 0;
     this.variableName = variableName == null ? null : variableName.toLowerCase();
@@ -41,8 +38,8 @@ public class HeapBuilderVariable {
   }
 
   /**
-   * Create a new Variable that can be added to the heap.
-   * This does *NOT* represent an actual variable on the heap!
+   * Create a new Variable that can be added to the heap. This does *NOT* represent an actual
+   * variable on the heap!
    *
    * @param level the level.
    * @param variableName the name of the variable.
@@ -50,11 +47,8 @@ public class HeapBuilderVariable {
    * @param size the size of the variable.
    * @param value the default value.
    */
-  public HeapBuilderVariable(int level,
-                      String variableName,
-                      HeapVariableType heapVariableType,
-                      int size,
-                      String value) {
+  public HeapBuilderVariableOld(
+      int level, String variableName, HeapVariableType heapVariableType, int size, String value) {
     assert size > 0;
     this.level = level;
     this.size = size;
@@ -71,16 +65,12 @@ public class HeapBuilderVariable {
   // todo: better name
   // todo: create default value from children
 
-  /**
-   * Finalize the heap builder.
-   * TODO
-   * todo: cleanup
-   */
+  /** Finalize the heap builder. TODO todo: cleanup */
   public void finalizeHeapBuilder() {
     if (this.children.size() > 0) {
       int childrenSize = 0;
       StringBuilder value = new StringBuilder();
-      for (HeapBuilderVariable child : children) {
+      for (HeapBuilderVariableOld child : children) {
         if (child.heapVariableType == HeapVariableType.Const) {
           // do nothing
         } else if (child.redefines == null) {
@@ -94,9 +84,11 @@ public class HeapBuilderVariable {
           // todo: should redefines should checked too if the child sizes match?
           //       + if it is the same size as the variable it redefines?
           //       or should it be checked better checked in cobolheap
-          System.out.println(String.format("TODO: Handle redefines in parser for %s redefining %s",
-                                           child.variableName, child.redefines));
-          //throw new NotImplementedException();
+          System.out.println(
+              String.format(
+                  "TODO: Handle redefines in parser for %s redefining %s",
+                  child.variableName, child.redefines));
+          // throw new NotImplementedException();
         }
       }
 
@@ -128,13 +120,12 @@ public class HeapBuilderVariable {
     return this.size;
   }
 
-  public List<HeapBuilderVariable> getChildren() {
+  public List<HeapBuilderVariableOld> getChildren() {
     return new ArrayList<>(this.children);
   }
 
-
   // todo handle levels
-  void add(HeapBuilderVariable heapVariable) {
+  void add(HeapBuilderVariableOld heapVariable) {
     assert heapVariable != null;
     if (this.childLevel == 0 || this.childLevel == heapVariable.level) {
       this.childLevel = heapVariable.level;
@@ -146,9 +137,9 @@ public class HeapBuilderVariable {
     }
   }
 
-
   void prettyPrint(int index) {
-    System.out.printf("%s%d %s %s %d %s redefining %s\n",
+    System.out.printf(
+        "%s%d %s %s %d %s redefining %s\n",
         " ".repeat(index),
         this.level,
         this.variableName == null ? "" : this.variableName,
@@ -156,7 +147,7 @@ public class HeapBuilderVariable {
         this.size,
         this.value == null ? "" : this.value,
         this.redefines == null ? "-" : this.redefines);
-    for (HeapBuilderVariable child : this.children) {
+    for (HeapBuilderVariableOld child : this.children) {
       child.prettyPrint(index + 2);
     }
   }

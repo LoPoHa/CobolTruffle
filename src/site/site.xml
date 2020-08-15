@@ -7,9 +7,5 @@
 
     <body>
         <menu ref="reports"/>
-        <menu name="Code Coverage">
-            <item name="All Tests" href="jacoco-merged-coverage-report/index.html" />
-            <item name="Integration Tests" href="jacoco-integration-test-coverage-report/index.html" />
-        </menu>
     </body>
 </project>

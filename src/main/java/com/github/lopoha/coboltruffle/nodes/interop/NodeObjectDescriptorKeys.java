@@ -44,5 +44,4 @@ public final class NodeObjectDescriptorKeys implements TruffleObject {
     }
     return keyName;
   }
-
 }

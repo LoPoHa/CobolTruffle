@@ -1,7 +1,7 @@
 package com.github.lopoha.coboltruffle.nodes.controlflow;
 
-// Modified version of https://github.com/graalvm/simplelanguage/blob/a25e385dd8626a85e8374f213e708b2f813ab9b7/language/src/main/java/com/oracle/truffle/sl/nodes/controlflow/SLBlockNode.java#L59
-
+// Modified version of
+// https://github.com/graalvm/simplelanguage/blob/a25e385dd8626a85e8374f213e708b2f813ab9b7/language/src/main/java/com/oracle/truffle/sl/nodes/controlflow/SLBlockNode.java#L59
 
 import com.github.lopoha.coboltruffle.nodes.CobolStatementNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -11,17 +11,16 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * A statement node that just executes a list of other statements.
- */
+/** A statement node that just executes a list of other statements. */
 @NodeInfo(shortName = "block", description = "The node implementing a source code block")
 public final class CobolBlockNode extends CobolStatementNode
-                                  implements BlockNode.ElementExecutor<CobolStatementNode> {
+    implements BlockNode.ElementExecutor<CobolStatementNode> {
 
   @Child private BlockNode<CobolStatementNode> block;
 
   /**
    * TODO.
+   *
    * @param bodyNodes TODO
    */
   public CobolBlockNode(CobolStatementNode[] bodyNodes) {
@@ -33,9 +32,8 @@ public final class CobolBlockNode extends CobolStatementNode
   }
 
   /**
-   * TODO: replace sllanguage comment
-   * Execute all block statements. The block node makes sure that {@link ExplodeLoop full
-   * unrolling} of the loop is triggered during compilation. This allows the
+   * TODO: replace sllanguage comment Execute all block statements. The block node makes sure that
+   * {@link ExplodeLoop full unrolling} of the loop is triggered during compilation. This allows the
    * {@link CobolStatementNode#executeVoid} method of all children to be inlined.
    */
   @Override
@@ -52,6 +50,7 @@ public final class CobolBlockNode extends CobolStatementNode
 
   /**
    * returns all the statements inside this block.
+   *
    * @return the statements inside the node.
    */
   public List<CobolStatementNode> getStatements() {
@@ -60,5 +59,4 @@ public final class CobolBlockNode extends CobolStatementNode
     }
     return List.of(block.getElements());
   }
-
 }

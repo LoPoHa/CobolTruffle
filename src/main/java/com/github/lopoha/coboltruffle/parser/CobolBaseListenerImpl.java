@@ -1,8 +1,6 @@
 package com.github.lopoha.coboltruffle.parser;
 
 import com.github.lopoha.coboltruffle.NotImplementedException;
-import com.github.lopoha.coboltruffle.heap.CobolHeap;
-import com.github.lopoha.coboltruffle.heap.HeapBuilder;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolGlobalFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolStringLiteralNode;
@@ -15,6 +13,8 @@ import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.IfConditionContext;
+import com.github.lopoha.coboltruffle.parser.heap.CobolHeap;
+import com.github.lopoha.coboltruffle.parser.heap.HeapBuilderOld;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.source.Source;
 import java.util.ArrayList;
@@ -24,8 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.tree.ParseTree;
-
-
 
 // TODO: Move create separate exceptions instead of reusing runtimeexception!
 // todo: cleanup, merge methods, ...
@@ -39,7 +37,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 //       that gets passed in whe calling. (like a constructor)
 
 class CobolBaseListenerImpl extends CobolBaseListener {
-  private final HeapBuilder workingStorageHeapBuilder = new HeapBuilder();
+  private final HeapBuilderOld workingStorageHeapBuilder = new HeapBuilderOld();
   private final CobolMainParser cobolMainParser;
   private final CobolNodeFactory cobolNodeFactory;
   private final CobolHeap workingStorageHeap = new CobolHeap();
@@ -49,6 +47,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
   /**
    * Creates the Listener, that walks the Tokens and creates the coboltruffle classes.
+   *
    * @param cobolMainParser a reference to the cobol main parser.
    */
   CobolBaseListenerImpl(CobolMainParser cobolMainParser, Source source) {
@@ -66,10 +65,11 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void exitProgram(CobolParser.ProgramContext ctx) {
-    this.cobolNodeFactory.createConstructor(this.programName,
-                                            ctx.stop,
-                                            this.workingStorageHeap,
-                                            new ArrayList<>(this.linkageCopyHeaps.keySet()));
+    this.cobolNodeFactory.createConstructor(
+        this.programName,
+        ctx.stop,
+        this.workingStorageHeap,
+        new ArrayList<>(this.linkageCopyHeaps.keySet()));
     System.out.println("Are you cold...? Oh, good hunter,");
   }
 
@@ -77,7 +77,6 @@ class CobolBaseListenerImpl extends CobolBaseListener {
   public void enterProgramID(CobolParser.ProgramIDContext ctx) {
     this.programName = ctx.ID().getText();
   }
-
 
   @Override
   public void enterWorkingStorageSection(CobolParser.WorkingStorageSectionContext ctx) {
@@ -89,7 +88,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
   public void enterLinkageSection(CobolParser.LinkageSectionContext ctx) {
     for (CobolParser.CopyContext copy : ctx.copy()) {
       Source copySource = this.cobolMainParser.getCopySource(copy.ID().getText());
-      HeapBuilder heapBuilder = this.cobolMainParser.processStorageCopy(copySource);
+      HeapBuilderOld heapBuilder = this.cobolMainParser.processStorageCopy(copySource);
       String copyName = CobolMainParser.getFilenameWithoutExtension(copySource);
       CobolHeap heap = new CobolHeap(copyName);
       heap.addToHeap(heapBuilder);
@@ -105,8 +104,8 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void exitDataDivision(CobolParser.DataDivisionContext ctx) {
-    CobolProgramInfo cobolProgramInfo
-        = new CobolProgramInfo(this.source, new ArrayList<>(this.linkageCopyHeaps.keySet()));
+    CobolProgramInfo cobolProgramInfo =
+        new CobolProgramInfo(this.source, new ArrayList<>(this.linkageCopyHeaps.keySet()));
     this.cobolMainParser.addProgram(cobolProgramInfo);
 
     this.workingStorageHeap.addToHeap(this.workingStorageHeapBuilder);
@@ -131,7 +130,6 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     }
   }
 
-
   @Override
   public void enterElseBranch(CobolParser.ElseBranchContext ctx) {
     this.cobolNodeFactory.elseIf(ctx.start);
@@ -151,8 +149,8 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
     CobolParser.MoveFromContext moveFromContext = ctx.moveFrom();
     if (moveFromContext.ID() != null) {
-      CobolHeapPointer fromPointer
-          = this.workingStorageHeap.getHeapPointer(moveFromContext.ID().toString());
+      CobolHeapPointer fromPointer =
+          this.workingStorageHeap.getHeapPointer(moveFromContext.ID().toString());
       this.cobolNodeFactory.addMove(fromPointer, targetPointer);
     } else if (moveFromContext.STRING() != null) {
       String inputString = removeStringQuotes(moveFromContext.STRING().getText());
@@ -186,8 +184,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
       }
     }
 
-    CobolGlobalFunctionLiteralNode displayNode
-        = new CobolGlobalFunctionLiteralNode("display");
+    CobolGlobalFunctionLiteralNode displayNode = new CobolGlobalFunctionLiteralNode("display");
     this.cobolNodeFactory.addCall(ctx.start, displayNode, displayArgs);
   }
 
@@ -222,9 +219,8 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     }
   }
 
-  private CobolExpressionNode ifComparisonToExpression(CobolParser.IfCompareContext ctx,
-                                                       CobolExpressionNode left,
-                                                       CobolExpressionNode right) {
+  private CobolExpressionNode ifComparisonToExpression(
+      CobolParser.IfCompareContext ctx, CobolExpressionNode left, CobolExpressionNode right) {
     // TODO: IMPLEMENT LESSEQUAL, LESSTHAN as separate items
     if (ctx.LESS() != null) {
       if (ctx.EQUAL() != null) {
@@ -249,13 +245,11 @@ class CobolBaseListenerImpl extends CobolBaseListener {
   @Override
   public void enterExternalCallStatement(CobolParser.ExternalCallStatementContext ctx) {
     String callProgramName = ctx.externalCallProgramName().getText();
-    CobolProgramInfo calledProgram
-        = this.cobolMainParser.getProgram(callProgramName);
-    List<String> params = ctx.externalCallInputParameter()
-                             .ID()
-                             .stream()
-                             .map(ParseTree::getText)
-                             .collect(Collectors.toList());
+    CobolProgramInfo calledProgram = this.cobolMainParser.getProgram(callProgramName);
+    List<String> params =
+        ctx.externalCallInputParameter().ID().stream()
+            .map(ParseTree::getText)
+            .collect(Collectors.toList());
 
     // todo: check if "using" is only using definitions from copy members!
 
@@ -268,8 +262,8 @@ class CobolBaseListenerImpl extends CobolBaseListener {
       // todo: check if input and caller match!
       // todo: use raw pointer only for internal calls. everything else should be
       //       either always string or the specialized version -> needs a decision
-      CobolHeapPointer fromPointer = this.workingStorageHeap.getHeapPointer(params.get(i))
-                                                            .asRawPointer();
+      CobolHeapPointer fromPointer =
+          this.workingStorageHeap.getHeapPointer(params.get(i)).asRawPointer();
       arguments.add(fromPointer);
     }
 

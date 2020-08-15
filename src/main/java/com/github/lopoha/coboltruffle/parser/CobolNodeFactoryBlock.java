@@ -9,10 +9,10 @@ import org.antlr.v4.runtime.Token;
 
 class CobolNodeFactoryBlock {
   private final Token token;
-  private CobolExpressionNode condition;
   private final List<CobolStatementNode> sectionNodes = new ArrayList<>();
   private final CobolNodeFactoryBlock parent;
   private final List<CobolNodeFactoryBlock> childs = new ArrayList<>();
+  private CobolExpressionNode condition;
 
   CobolNodeFactoryBlock(Token token, CobolExpressionNode condition, CobolNodeFactoryBlock parent) {
     this.token = token;

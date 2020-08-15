@@ -10,6 +10,7 @@ public class Helper {
 
   /**
    * get the program state from the given frame.
+   *
    * @param frame the frame.
    * @return the program state
    */

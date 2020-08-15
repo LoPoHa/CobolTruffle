@@ -15,7 +15,6 @@ public class TestRunner {
    * Run a test cobol program and compares the result to the expected one from the json file.
    * @param fileName file path/name with the resources folder as root and without file ending.
    *                 a corresponding .json file is expected to be there too.
-   * @throws IOException if a file is not found.
    */
   public static void run(String fileName) {
     try {

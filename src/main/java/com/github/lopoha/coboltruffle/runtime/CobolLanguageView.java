@@ -12,9 +12,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
-/**
- * TODO.
- */
+/** TODO. */
 @ExportLibrary(value = InteropLibrary.class, delegateTo = "delegate")
 @SuppressWarnings("static-method")
 public final class CobolLanguageView implements TruffleObject {
@@ -23,6 +21,60 @@ public final class CobolLanguageView implements TruffleObject {
 
   CobolLanguageView(Object delegate) {
     this.delegate = delegate;
+  }
+
+  /*
+   * Long.toString is not safe for partial evaluation and therefore needs to be called behind a
+   * boundary.
+   */
+  @TruffleBoundary
+  private static String longToString(long l) {
+    return Long.toString(l);
+  }
+
+  public static Object create(Object value) {
+    assert isPrimitiveOrFromOtherLanguage(value);
+    return new CobolLanguageView(value);
+  }
+
+  /*
+   * Language views are intended to be used only for primitives and other language values.
+   */
+  private static boolean isPrimitiveOrFromOtherLanguage(Object value) {
+    InteropLibrary interop = InteropLibrary.getFactory().getUncached(value);
+    try {
+      return !interop.hasLanguage(value) || interop.getLanguage(value) != CobolLanguage.class;
+    } catch (UnsupportedMessageException e) {
+      CompilerDirectives.transferToInterpreter();
+      throw new AssertionError(e);
+    }
+  }
+
+  /**
+   * todo: own description.
+   * Returns a language view for primitive or foreign values. Returns the same value for values that
+   * are already originating from SimpleLanguage. This is useful to view values from the perspective
+   * of simple language in slow paths, for example, printing values in error messages.
+   *
+   * @param value the value to view.
+   * @return a object (or null) that can be viewed.
+   */
+  @TruffleBoundary
+  public static Object forValue(Object value) {
+    if (value == null) {
+      return null;
+    }
+    InteropLibrary lib = InteropLibrary.getFactory().getUncached(value);
+    try {
+      if (lib.hasLanguage(value) && lib.getLanguage(value) == CobolLanguage.class) {
+        return value;
+      } else {
+        return create(value);
+      }
+    } catch (UnsupportedMessageException e) {
+      CompilerDirectives.transferToInterpreter();
+      throw new AssertionError(e);
+    }
   }
 
   @ExportMessage
@@ -60,8 +112,9 @@ public final class CobolLanguageView implements TruffleObject {
 
   @ExportMessage
   @ExplodeLoop
-  Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects,
-                         @CachedLibrary("this.delegate") InteropLibrary interop) {
+  Object toDisplayString(
+      @SuppressWarnings("unused") boolean allowSideEffects,
+      @CachedLibrary("this.delegate") InteropLibrary interop) {
     for (CobolType type : CobolType.PRECEDENCE) {
       if (type.isInstance(this.delegate, interop)) {
         try {
@@ -79,55 +132,4 @@ public final class CobolLanguageView implements TruffleObject {
     }
     return "Unsupported";
   }
-
-  /*
-   * Long.toString is not safe for partial evaluation and therefore needs to be called behind a
-   * boundary.
-   */
-  @TruffleBoundary
-  private static String longToString(long l) {
-    return Long.toString(l);
-  }
-
-  public static Object create(Object value) {
-    assert isPrimitiveOrFromOtherLanguage(value);
-    return new CobolLanguageView(value);
-  }
-
-  /*
-   * Language views are intended to be used only for primitives and other language values.
-   */
-  private static boolean isPrimitiveOrFromOtherLanguage(Object value) {
-    InteropLibrary interop = InteropLibrary.getFactory().getUncached(value);
-    try {
-      return !interop.hasLanguage(value) || interop.getLanguage(value) != CobolLanguage.class;
-    } catch (UnsupportedMessageException e) {
-      CompilerDirectives.transferToInterpreter();
-      throw new AssertionError(e);
-    }
-  }
-
-  /**
-   * Returns a language view for primitive or foreign values. Returns the same value for values
-   * that are already originating from SimpleLanguage. This is useful to view values from the
-   * perspective of simple language in slow paths, for example, printing values in error messages.
-   */
-  @TruffleBoundary
-  public static Object forValue(Object value) {
-    if (value == null) {
-      return null;
-    }
-    InteropLibrary lib = InteropLibrary.getFactory().getUncached(value);
-    try {
-      if (lib.hasLanguage(value) && lib.getLanguage(value) == CobolLanguage.class) {
-        return value;
-      } else {
-        return create(value);
-      }
-    } catch (UnsupportedMessageException e) {
-      CompilerDirectives.transferToInterpreter();
-      throw new AssertionError(e);
-    }
-  }
-
 }

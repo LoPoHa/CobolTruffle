@@ -7,19 +7,16 @@ import java.util.List;
 
 public final class CobolHeapPointerRaw extends CobolHeapPointer {
   /**
-   * Create a Pointer to the heap.
-   * The heap must be on the frame.
+   * Create a Pointer to the heap. The heap must be on the frame.
+   *
    * @param name name of the variable.
    * @param position start position on the heap.
    * @param length length of the variable
    * @param defaultValue the default value.
    * @param level the level of the variable declaration.
    */
-  public CobolHeapPointerRaw(String name,
-                             int position,
-                             int length,
-                             List<Character> defaultValue,
-                             int level) {
+  public CobolHeapPointerRaw(
+      String name, int position, int length, List<Character> defaultValue, int level) {
     super(name, position, length, defaultValue, level);
   }
 

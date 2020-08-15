@@ -18,13 +18,13 @@ public final class CobolEvalRootNode extends RootNode {
 
   /**
    * TODO.
+   *
    * @param language reference to the cobollanguage.
    * @param rootFunction the root function to execute.
    * @param functions the list of all functions.
    */
-  public CobolEvalRootNode(CobolLanguage language,
-                           RootCallTarget rootFunction,
-                           Map<String, RootCallTarget> functions) {
+  public CobolEvalRootNode(
+      CobolLanguage language, RootCallTarget rootFunction, Map<String, RootCallTarget> functions) {
     super(language);
     this.functions = functions;
     this.mainCallNode = rootFunction != null ? DirectCallNode.create(rootFunction) : null;

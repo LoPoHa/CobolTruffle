@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.heap;
+package com.github.lopoha.coboltruffle.parser.heap;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleException;

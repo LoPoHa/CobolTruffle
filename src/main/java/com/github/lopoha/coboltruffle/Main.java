@@ -10,7 +10,6 @@ import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 
-
 // todo: don't import everything;
 // todo: test performance for string, bytearrayoutputstream, ...
 //       for the preprocessor -> parser pipeline
@@ -20,6 +19,7 @@ public class Main {
 
   /**
    * Entry point.
+   *
    * @param args args.
    * @throws Exception TODO
    */
@@ -29,18 +29,18 @@ public class Main {
     System.exit(executeSource(source, System.in, System.out, new HashMap<>()));
   }
 
-  private static int executeSource(Source source,
-                                   InputStream in,
-                                   PrintStream out,
-                                   Map<String, String> options) {
+  private static int executeSource(
+      Source source, InputStream in, PrintStream out, Map<String, String> options) {
     Context context;
     PrintStream err = System.err;
     try {
-      context = Context.newBuilder(CobolLanguage.ID).in(in)
-                                                    .out(out)
-                                                    .options(options)
-                                                    .allowAllAccess(true) // because of includes
-                                                    .build();
+      context =
+          Context.newBuilder(CobolLanguage.ID)
+              .in(in)
+              .out(out)
+              .options(options)
+              .allowAllAccess(true) // because of includes
+              .build();
     } catch (IllegalArgumentException e) {
       err.println(e.getMessage());
       return 1;

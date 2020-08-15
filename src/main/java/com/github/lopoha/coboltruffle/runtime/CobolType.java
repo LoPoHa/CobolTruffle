@@ -35,7 +35,7 @@ public final class CobolType implements TruffleObject {
    * functions and not objects.
    */
   @CompilationFinal(dimensions = 1)
-  public static final CobolType[] PRECEDENCE = new CobolType[]{NULL, STRING, SECTION};
+  public static final CobolType[] PRECEDENCE = new CobolType[] {NULL, STRING, SECTION};
 
   private final String name;
   private final TypeCheck isInstance;
@@ -81,14 +81,20 @@ public final class CobolType implements TruffleObject {
     return "CobolType[" + name + "]";
   }
 
+  @FunctionalInterface
+  interface TypeCheck {
+    boolean check(InteropLibrary lib, Object value);
+  }
+
   @ExportMessage
   static class IsMetaInstance {
 
     @Specialization(guards = "type == cachedType", limit = "3")
-    static boolean doCached(@SuppressWarnings("unused") CobolType type,
-                            Object value,
-                            @Cached("type") CobolType cachedType,
-                            @CachedLibrary("value") InteropLibrary valueLib) {
+    static boolean doCached(
+        @SuppressWarnings("unused") CobolType type,
+        Object value,
+        @Cached("type") CobolType cachedType,
+        @CachedLibrary("value") InteropLibrary valueLib) {
       return cachedType.isInstance.check(valueLib, value);
     }
 
@@ -98,10 +104,4 @@ public final class CobolType implements TruffleObject {
       return type.isInstance.check(InteropLibrary.getFactory().getUncached(), value);
     }
   }
-
-  @FunctionalInterface
-  interface TypeCheck {
-    boolean check(InteropLibrary lib, Object value);
-  }
-
 }

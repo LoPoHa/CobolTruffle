@@ -12,10 +12,7 @@ import com.oracle.truffle.api.instrumentation.Tag;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-/**
- * Required for builtin functions that produce a value.
- * e.g. ReadLine 
- */
+/** Required for builtin functions that produce a value. e.g. ReadLine */
 @TypeSystemReference(CobolTypes.class)
 @NodeInfo(description = "The abstract base node for all expressions")
 @GenerateWrapper
@@ -25,6 +22,7 @@ public abstract class CobolExpressionNode extends CobolStatementNode {
 
   /**
    * TODO.
+   *
    * @param frame todo
    * @return todo
    */
@@ -32,6 +30,7 @@ public abstract class CobolExpressionNode extends CobolStatementNode {
 
   /**
    * TODO.
+   *
    * @param frame todo.
    */
   @Override
@@ -66,12 +65,12 @@ public abstract class CobolExpressionNode extends CobolStatementNode {
    */
 
   public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
-    //return SLTypesGen.expectLong(executeGeneric(frame));
+    // return SLTypesGen.expectLong(executeGeneric(frame));
     throw new NotImplementedException();
   }
 
   public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
-    //return SLTypesGen.expectBoolean(executeGeneric(frame));
+    // return SLTypesGen.expectBoolean(executeGeneric(frame));
     throw new NotImplementedException();
   }
 }

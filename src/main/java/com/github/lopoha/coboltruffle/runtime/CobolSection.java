@@ -27,19 +27,17 @@ public final class CobolSection implements TruffleObject {
 
   public static final int INLINE_CACHE_SIZE = 2;
 
-  private static final TruffleLogger LOG
-      = TruffleLogger.getLogger(CobolLanguage.ID, CobolSection.class);
+  private static final TruffleLogger LOG =
+      TruffleLogger.getLogger(CobolLanguage.ID, CobolSection.class);
 
   private final String name;
-
-  private RootCallTarget callTarget;
-
   private final CyclicAssumption callTargetStable;
+  private RootCallTarget callTarget;
 
   protected CobolSection(CobolLanguage language, String name) {
     this.name = name;
-    this.callTarget
-        = Truffle.getRuntime().createCallTarget(new CobolUndefinedSectionRootNode(language, name));
+    this.callTarget =
+        Truffle.getRuntime().createCallTarget(new CobolUndefinedSectionRootNode(language, name));
     this.callTargetStable = new CyclicAssumption(name);
   }
 
@@ -47,14 +45,14 @@ public final class CobolSection implements TruffleObject {
     return name;
   }
 
+  public RootCallTarget getCallTarget() {
+    return callTarget;
+  }
+
   protected void setCallTarget(RootCallTarget callTarget) {
     this.callTarget = callTarget;
     LOG.log(Level.FINE, "Installed call target for: {0}", name);
     callTargetStable.invalidate();
-  }
-
-  public RootCallTarget getCallTarget() {
-    return callTarget;
   }
 
   public Assumption getCallTargetStable() {
@@ -112,25 +110,24 @@ public final class CobolSection implements TruffleObject {
   @ReportPolymorphism
   @ExportMessage
   abstract static class Execute {
-    @Specialization(limit = "INLINE_CACHE_SIZE",
-            guards = "function.getCallTarget() == cachedTarget", //
-            assumptions = "callTargetStable")
+    @Specialization(
+        limit = "INLINE_CACHE_SIZE",
+        guards = "function.getCallTarget() == cachedTarget", //
+        assumptions = "callTargetStable")
     @SuppressWarnings("unused")
-    protected static Object doDirect(CobolSection function, Object[] arguments,
-                                     @Cached("function.getCallTargetStable()")
-                                     Assumption callTargetStable,
-                                     @Cached("function.getCallTarget()")
-                                     RootCallTarget cachedTarget,
-                                     @Cached("create(cachedTarget)")
-                                     DirectCallNode callNode) {
+    protected static Object doDirect(
+        CobolSection function,
+        Object[] arguments,
+        @Cached("function.getCallTargetStable()") Assumption callTargetStable,
+        @Cached("function.getCallTarget()") RootCallTarget cachedTarget,
+        @Cached("create(cachedTarget)") DirectCallNode callNode) {
       return callNode.call(arguments);
     }
 
     @Specialization(replaces = "doDirect")
-    protected static Object doIndirect(CobolSection function, Object[] arguments,
-                                       @Cached IndirectCallNode callNode) {
+    protected static Object doIndirect(
+        CobolSection function, Object[] arguments, @Cached IndirectCallNode callNode) {
       return callNode.call(function.getCallTarget(), arguments);
     }
   }
-
 }

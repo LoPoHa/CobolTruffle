@@ -10,9 +10,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * A container class used to store per-node attributes used by the instrumentation framework.
- */
+/** A container class used to store per-node attributes used by the instrumentation framework. */
 public abstract class NodeObjectDescriptor implements TruffleObject {
 
   private final String name;
@@ -44,8 +42,8 @@ public abstract class NodeObjectDescriptor implements TruffleObject {
   @ExportLibrary(InteropLibrary.class)
   static final class ReadDescriptor extends NodeObjectDescriptor {
 
-    private static final TruffleObject KEYS_READ
-        = new NodeObjectDescriptorKeys(StandardTags.ReadVariableTag.NAME);
+    private static final TruffleObject KEYS_READ =
+        new NodeObjectDescriptorKeys(StandardTags.ReadVariableTag.NAME);
 
     ReadDescriptor(String name) {
       super(name);
@@ -79,8 +77,8 @@ public abstract class NodeObjectDescriptor implements TruffleObject {
   @ExportLibrary(InteropLibrary.class)
   static final class WriteDescriptor extends NodeObjectDescriptor {
 
-    private static final TruffleObject KEYS_WRITE
-        = new NodeObjectDescriptorKeys(StandardTags.WriteVariableTag.NAME);
+    private static final TruffleObject KEYS_WRITE =
+        new NodeObjectDescriptorKeys(StandardTags.WriteVariableTag.NAME);
 
     private final Object nameSymbol;
 

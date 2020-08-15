@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.heap;
+package com.github.lopoha.coboltruffle.parser.heap;
 
 import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 public class CobolHeap {
   private final HashMap<String, CobolHeapPointer> pointerMap = new HashMap<>();
-  private int heapSize = 0;
   private final String heapName;
+  private int heapSize = 0;
 
   public CobolHeap() {
     heapName = null;
@@ -40,10 +40,11 @@ public class CobolHeap {
 
   /**
    * Add a HeapBuilder to the heap.
+   *
    * @param heapBuilder The HeapBuilder to add to the heap.
    */
-  public void addToHeap(HeapBuilder heapBuilder) {
-    for (HeapBuilderVariable variable : heapBuilder.getVariables()) {
+  public void addToHeap(HeapBuilderOld heapBuilder) {
+    for (HeapBuilderVariableOld variable : heapBuilder.getVariables()) {
       if (this.pointerMap.containsKey(variable.variableName)) {
         // what should happen if it is already defined?
         // nothing? because of the global heap?
@@ -60,8 +61,8 @@ public class CobolHeap {
   }
 
   // todo cleanup!!!
-  private void addVariableToPointerMap(final HeapBuilderVariable variable,
-                                       final int variableBasePosition) {
+  private void addVariableToPointerMap(
+      final HeapBuilderVariableOld variable, final int variableBasePosition) {
     // todo should a check if the variable is already defined be here?
     //      this time it should be an error? or not?
     CobolHeapPointer pointer = null;
@@ -69,23 +70,27 @@ public class CobolHeap {
       case Filler:
         // do nothing
         break;
-      case None:   // fallthrough
+      case None: // fallthrough
       case Number: // fallthrough
       case String:
-        pointer = new CobolHeapPointerString(variable.variableName,
-                                             variableBasePosition,
-                                             variable.getSize(),
-                                             variable.getValue(),
-                                             variable.level,
-                                             this.heapName);
+        pointer =
+            new CobolHeapPointerString(
+                variable.variableName,
+                variableBasePosition,
+                variable.getSize(),
+                variable.getValue(),
+                variable.level,
+                this.heapName);
         break;
       case Const:
-        pointer = new CobolHeapPointerConst(variable.variableName,
-            variableBasePosition,
-            variable.getSize(),
-            variable.getValue(),
-            variable.level,
-            this.heapName);
+        pointer =
+            new CobolHeapPointerConst(
+                variable.variableName,
+                variableBasePosition,
+                variable.getSize(),
+                variable.getValue(),
+                variable.level,
+                this.heapName);
         break;
       default:
         throw new NotImplementedException();
@@ -100,7 +105,7 @@ public class CobolHeap {
     }
 
     int variableHeapPosition = variableBasePosition;
-    for (HeapBuilderVariable child : variable.getChildren()) {
+    for (HeapBuilderVariableOld child : variable.getChildren()) {
       if (child.redefines != null) {
         CobolHeapPointer redefinePointer = this.pointerMap.get(child.redefines);
         if (redefinePointer == null) {
@@ -112,12 +117,12 @@ public class CobolHeap {
         variableHeapPosition += child.getSize();
       }
     }
-
   }
 
   /**
-   * Get the heap pointer from the given name.
-   * Throws a CobolVariableNotFoundException if the name was not found.
+   * Get the heap pointer from the given name. Throws a CobolVariableNotFoundException if the name
+   * was not found.
+   *
    * @param variableName the name of the pointer/variable.
    * @return The pointer.
    */
@@ -136,12 +141,10 @@ public class CobolHeap {
 
   /**
    * Collect all the root (level 1) pointer and return it as a list.
+   *
    * @return the list with all the root heap pointers.
    */
   public List<CobolHeapPointer> getRootPointers() {
-    return this.pointerMap.values()
-                          .stream()
-                          .filter(x -> x.level == 1)
-                          .collect(Collectors.toList());
+    return this.pointerMap.values().stream().filter(x -> x.level == 1).collect(Collectors.toList());
   }
 }

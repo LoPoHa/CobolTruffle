@@ -11,12 +11,12 @@ public class CobolInitializeNode extends CobolStatementNode {
 
   /**
    * Create a new `initialize` node to reset the value.
+   * @param pointer the {@link CobolHeapPointer} to initialize with the default variable.
    */
   public CobolInitializeNode(CobolHeapPointer pointer) {
     assert pointer != null;
     this.pointer = pointer;
   }
-
 
   @Override
   public void executeVoid(VirtualFrame frame) {
