@@ -2,7 +2,7 @@ package com.github.lopoha.coboltruffle.parser;
 
 import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
-import com.github.lopoha.coboltruffle.parser.heap.HeapBuilderOld;
+import com.github.lopoha.coboltruffle.parser.heap.HeapBuilder;
 import com.oracle.truffle.api.source.Source;
 
 // TODO: Move create separate exceptions instead of reusing runtimeexception!
@@ -19,7 +19,7 @@ import com.oracle.truffle.api.source.Source;
 class CobolStorageCopyListenerImpl extends CobolBaseListener {
   private final CobolMainParser cobolMainParser;
   private final Source source;
-  private HeapBuilderOld heap;
+  private HeapBuilder heap;
 
   /**
    * Creates the Listener, that walks the Tokens and creates the coboltruffle classes.
@@ -38,7 +38,7 @@ class CobolStorageCopyListenerImpl extends CobolBaseListener {
     this.heap = CobolVariableCopyHelper.getHeap(ctx, this.cobolMainParser);
   }
 
-  public HeapBuilderOld getHeap() {
+  public HeapBuilder getHeap() {
     return heap;
   }
 }

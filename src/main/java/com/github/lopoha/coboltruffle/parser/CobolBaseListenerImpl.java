@@ -14,7 +14,7 @@ import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.IfConditionContext;
 import com.github.lopoha.coboltruffle.parser.heap.CobolHeap;
-import com.github.lopoha.coboltruffle.parser.heap.HeapBuilderOld;
+import com.github.lopoha.coboltruffle.parser.heap.HeapBuilder;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.source.Source;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 //       that gets passed in whe calling. (like a constructor)
 
 class CobolBaseListenerImpl extends CobolBaseListener {
-  private final HeapBuilderOld workingStorageHeapBuilder = new HeapBuilderOld();
+  private final HeapBuilder workingStorageHeapBuilder = new HeapBuilder();
   private final CobolMainParser cobolMainParser;
   private final CobolNodeFactory cobolNodeFactory;
   private final CobolHeap workingStorageHeap = new CobolHeap();
@@ -88,7 +88,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
   public void enterLinkageSection(CobolParser.LinkageSectionContext ctx) {
     for (CobolParser.CopyContext copy : ctx.copy()) {
       Source copySource = this.cobolMainParser.getCopySource(copy.ID().getText());
-      HeapBuilderOld heapBuilder = this.cobolMainParser.processStorageCopy(copySource);
+      HeapBuilder heapBuilder = this.cobolMainParser.processStorageCopy(copySource);
       String copyName = CobolMainParser.getFilenameWithoutExtension(copySource);
       CobolHeap heap = new CobolHeap(copyName);
       heap.addToHeap(heapBuilder);

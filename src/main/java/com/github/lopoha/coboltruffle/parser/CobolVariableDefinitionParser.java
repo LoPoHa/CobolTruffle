@@ -2,7 +2,7 @@ package com.github.lopoha.coboltruffle.parser;
 
 import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
-import com.github.lopoha.coboltruffle.parser.heap.HeapBuilderOld;
+import com.github.lopoha.coboltruffle.parser.heap.HeapBuilder;
 import com.github.lopoha.coboltruffle.parser.heap.HeapBuilderVariable;
 import com.github.lopoha.coboltruffle.parser.heap.HeapVariableType;
 import java.util.ArrayList;
@@ -144,7 +144,7 @@ class CobolVariableDefinitionParser {
   // todo: cleanup!!! + names + split
   static HeapBuilderVariable createVariableDefinition(
       CobolParser.VariableVariableContext variableContext,
-      HeapBuilderOld heapBuilder) {
+      HeapBuilder heapBuilder) {
 
     final int level = Integer.parseInt(variableContext.NUMBER().getText());
     final CobolParser.VariableRedefinesContext redefinesContext =
@@ -171,7 +171,7 @@ class CobolVariableDefinitionParser {
     }
   }
 
-  static void addVariable(CobolParser.VariableDefinitionContext ctx, HeapBuilderOld heapBuilder) {
+  static void addVariable(CobolParser.VariableDefinitionContext ctx, HeapBuilder heapBuilder) {
     if (ctx.variableVariable() != null) {
       heapBuilder.add(createVariableDefinition(ctx.variableVariable(), heapBuilder));
     } else if (ctx.variableConst() != null) {

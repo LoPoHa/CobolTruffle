@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 // todo: better name (as always...)
-// todo: split heapbuilder into heapbuilder and variable class
-// todo: handle redefines
 // todo: handle arrays (table)
-public class HeapBuilderOld {
+public class HeapBuilder {
   private final List<HeapBuilderVariable> variables = new ArrayList<>();
   private HeapBuilderVariable lastNotConstVariable;
 
@@ -38,12 +36,10 @@ public class HeapBuilderOld {
    *
    * @param heapVariable The variable to add.
    */
-  // todo handle levels
   public void add(HeapBuilderVariable heapVariable) {
     if (isRootLevel(heapVariable.level)) {
       this.variables.add(heapVariable);
     } else {
-      // better handle not root values for error messages
       this.variables.get(this.variables.size() - 1).add(heapVariable);
     }
     if (heapVariable.type != HeapVariableType.Const) {
@@ -56,7 +52,7 @@ public class HeapBuilderOld {
    *
    * @param heapBuilder the heap builder to add.
    */
-  public void add(HeapBuilderOld heapBuilder) {
+  public void add(HeapBuilder heapBuilder) {
     for (HeapBuilderVariable variable : heapBuilder.variables) {
       this.add(variable);
     }

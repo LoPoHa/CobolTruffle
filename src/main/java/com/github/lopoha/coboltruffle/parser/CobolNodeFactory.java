@@ -156,24 +156,6 @@ class CobolNodeFactory {
     this.addLocalHeapParameter();
   }
 
-  void startSection(Token token, String programName) {
-    assert this.functionStartPos == 0;
-    assert this.functionName == null;
-    assert this.currentBlock == null;
-    assert this.frameDescriptor == null;
-    assert this.parameterCount == 0;
-    assert this.frameSlots == null;
-
-    this.frameDescriptor = new FrameDescriptor();
-    this.frameSlots = new HashMap<>();
-
-    this.functionStartPos = token.getStartIndex();
-    this.functionName = programName;
-    this.currentBlock = new CobolNodeFactoryBlock(token);
-
-    this.addLocalHeapParameter();
-  }
-
   /**
    * TODO.
    *

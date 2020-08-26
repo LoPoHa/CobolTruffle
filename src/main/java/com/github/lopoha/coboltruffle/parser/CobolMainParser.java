@@ -3,7 +3,7 @@ package com.github.lopoha.coboltruffle.parser;
 import com.github.lopoha.coboltruffle.CobolLanguage;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolLexer;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
-import com.github.lopoha.coboltruffle.parser.heap.HeapBuilderOld;
+import com.github.lopoha.coboltruffle.parser.heap.HeapBuilder;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.source.Source;
 import java.io.File;
@@ -19,7 +19,7 @@ public class CobolMainParser {
   private final CobolLanguage cobolLanguage;
   private final ParserSettings parserSettings;
   private final Map<String, CobolProgramInfo> parsedPrograms = new HashMap<>();
-  private final Map<String, HeapBuilderOld> heapBuilderCache = new HashMap<>();
+  private final Map<String, HeapBuilder> heapBuilderCache = new HashMap<>();
   private final Map<String, RootCallTarget> programs = new HashMap<>();
 
   private CobolMainParser(CobolLanguage cobolLanguage, ParserSettings parserSettings) {
@@ -98,7 +98,7 @@ public class CobolMainParser {
     }
   }
 
-  HeapBuilderOld processStorageCopy(Source source) {
+  HeapBuilder processStorageCopy(Source source) {
     if (this.heapBuilderCache.containsKey(source.getPath())) {
       return this.heapBuilderCache.get(source.getPath());
     } else {
@@ -112,7 +112,7 @@ public class CobolMainParser {
         CobolStorageCopyListenerImpl listener = new CobolStorageCopyListenerImpl(this, source);
         walker.walk(listener, copyContext);
 
-        HeapBuilderOld heapBuilder = listener.getHeap();
+        HeapBuilder heapBuilder = listener.getHeap();
         this.heapBuilderCache.put(source.getPath(), heapBuilder);
         return heapBuilder;
       } catch (Exception e) {
