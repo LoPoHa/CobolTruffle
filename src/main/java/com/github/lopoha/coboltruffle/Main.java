@@ -1,6 +1,7 @@
 package com.github.lopoha.coboltruffle;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -26,7 +27,9 @@ public class Main {
   public static void main(final String[] args) throws Exception {
     String file = "./teststuff/program/test.cbl";
     Source source = Source.newBuilder(CobolLanguage.ID, new File(file)).build();
-    System.exit(executeSource(source, System.in, System.out, new HashMap<>()));
+    try (FileOutputStream fos = new FileOutputStream("./teststuff/sysout.txt")) {
+      System.exit(executeSource(source, System.in, new PrintStream(fos), new HashMap<>()));
+    }
   }
 
   private static int executeSource(
