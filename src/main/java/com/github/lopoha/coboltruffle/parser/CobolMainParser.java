@@ -1,5 +1,6 @@
 package com.github.lopoha.coboltruffle.parser;
 
+import com.github.lopoha.coboltruffle.CobolInternalException;
 import com.github.lopoha.coboltruffle.CobolLanguage;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolLexer;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
@@ -85,7 +86,7 @@ public class CobolMainParser {
 
       this.programs.put(getFilenameWithoutExtension(source), listener.getConstructor());
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new CobolInternalException(e);
     }
   }
 
@@ -94,7 +95,7 @@ public class CobolMainParser {
     try {
       return Source.newBuilder(CobolLanguage.ID, file.toURI().toURL()).build();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new CobolInternalException(e);
     }
   }
 
@@ -116,7 +117,7 @@ public class CobolMainParser {
         this.heapBuilderCache.put(source.getPath(), heapBuilder);
         return heapBuilder;
       } catch (Exception e) {
-        throw new RuntimeException(e);
+        throw new CobolInternalException(e);
       }
     }
   }
@@ -126,7 +127,7 @@ public class CobolMainParser {
     try {
       return Source.newBuilder(CobolLanguage.ID, file.toURI().toURL()).build();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new CobolInternalException(e);
     }
   }
 

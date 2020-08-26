@@ -1,5 +1,6 @@
 package com.github.lopoha.coboltruffle.nodes.expression.heap;
 
+import com.github.lopoha.coboltruffle.CobolInternalException;
 import com.github.lopoha.coboltruffle.nodes.Helper;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -39,12 +40,12 @@ public class CobolHeapPointerConst extends CobolHeapPointer {
   @Override
   public void setValue(List<Character> value, CobolProgramStateNode programState) {
     // todo: this should be checked at "compile time" instead at runtime.
-    throw new RuntimeException("Internal error");
+    throw new CobolInternalException();
   }
 
   @Override
   public int compareTo(CobolHeapPointer o) {
-    throw new RuntimeException("Internal error");
+    throw new CobolInternalException();
   }
 
   @TruffleBoundary

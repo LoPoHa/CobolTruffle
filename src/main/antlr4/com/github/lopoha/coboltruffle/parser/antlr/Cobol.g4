@@ -43,10 +43,9 @@ procedureDivision : PROCEDURE DIVISION procedureUsing? DOT
                     functionSection*;
 procedureUsing : USING (ID+);
 
-variableDefinition : (variableConst | variableVariable);
+variableDefinition : (variableConst | variableNonConst);
 variableConst : LEVEL88 ID (variableValueString | variableValueNumber) DOT;
-// todo: better name
-variableVariable : NUMBER (FILLER | ID) (variableRedefines | variableDataType)? DOT;
+variableNonConst : NUMBER (FILLER | ID) (variableRedefines | variableDataType)? DOT;
 // todo: make unrepresentable state impossible (only allow string in picx, number in pic9)
 variableRedefines : REDEFINES ID;
 variableDataType : PIC (variableDataTypeString | variableDataTypeNumber);

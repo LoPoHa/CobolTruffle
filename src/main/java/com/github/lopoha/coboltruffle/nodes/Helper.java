@@ -1,5 +1,6 @@
 package com.github.lopoha.coboltruffle.nodes;
 
+import com.github.lopoha.coboltruffle.CobolInternalException;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotTypeException;
@@ -22,10 +23,11 @@ public class Helper {
         try {
           return (CobolProgramStateNode) frame.getObject(slot);
         } catch (FrameSlotTypeException e) {
-          throw new RuntimeException(e);
+          throw new CobolInternalException(e);
         }
       }
     }
-    throw new RuntimeException("internal error");
+    throw new CobolInternalException(
+        String.format("FrameSlots didn't contain %s", CobolProgramStateNode.FRAME_NAME));
   }
 }

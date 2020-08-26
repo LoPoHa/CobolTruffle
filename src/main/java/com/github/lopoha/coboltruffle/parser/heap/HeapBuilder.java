@@ -17,6 +17,7 @@ public class HeapBuilder {
    * @return The variable if found, else an exception is thrown.
    */
   public HeapBuilderVariable findVariable(String name) {
+    name = name.toLowerCase();
     for (HeapBuilderVariable variable : variables) {
       HeapBuilderVariable found = variable.findVariable(name);
       if (found != null) {

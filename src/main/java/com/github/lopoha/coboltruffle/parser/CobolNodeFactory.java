@@ -162,8 +162,8 @@ class CobolNodeFactory {
    * @param endNode The node of EXIT.
    */
   void finishSection(Token endNode) {
-    this.fileLocalFunctions.register(
-        this.functionName.toLowerCase(), getCallTarget(endNode.getStopIndex()));
+    this.fileLocalFunctions.register(this.functionName.toLowerCase(),
+                                     getCallTarget(endNode.getStopIndex()));
 
     this.functionStartPos = 0;
     this.functionName = null;

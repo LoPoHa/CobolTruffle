@@ -94,12 +94,6 @@ class CobolBaseListenerImpl extends CobolBaseListener {
       heap.addToHeap(heapBuilder);
       this.linkageCopyHeaps.put(copyName, heap);
     }
-    // how should the linkage section work?
-    /*
-    for (VariableDefinitionContext variableDefinitionContext : variableDefinitions) {
-      addVariableDefinition(variableDefinitionContext, this.linkageHeap);
-    }
-     */
   }
 
   @Override
