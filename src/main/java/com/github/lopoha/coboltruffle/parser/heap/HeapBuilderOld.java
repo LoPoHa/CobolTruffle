@@ -1,5 +1,6 @@
 package com.github.lopoha.coboltruffle.parser.heap;
 
+import com.github.lopoha.coboltruffle.parser.CobolVariableNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,8 +9,24 @@ import java.util.List;
 // todo: handle redefines
 // todo: handle arrays (table)
 public class HeapBuilderOld {
-  private final List<HeapBuilderVariableOld> variables = new ArrayList<>();
-  private HeapBuilderVariableOld lastNotConstVariable;
+  private final List<HeapBuilderVariable> variables = new ArrayList<>();
+  private HeapBuilderVariable lastNotConstVariable;
+
+  /**
+   * Find a variable by name.
+   *
+   * @param name The name of the variable.
+   * @return The variable if found, else an exception is thrown.
+   */
+  public HeapBuilderVariable findVariable(String name) {
+    for (HeapBuilderVariable variable : variables) {
+      HeapBuilderVariable found = variable.findVariable(name);
+      if (found != null) {
+        return found;
+      }
+    }
+    throw new CobolVariableNotFoundException(name);
+  }
 
   // root level is either 1 or 77 (todo: what does the 77 mean?)
   private boolean isRootLevel(int level) {
@@ -22,14 +39,14 @@ public class HeapBuilderOld {
    * @param heapVariable The variable to add.
    */
   // todo handle levels
-  public void add(HeapBuilderVariableOld heapVariable) {
+  public void add(HeapBuilderVariable heapVariable) {
     if (isRootLevel(heapVariable.level)) {
       this.variables.add(heapVariable);
     } else {
       // better handle not root values for error messages
       this.variables.get(this.variables.size() - 1).add(heapVariable);
     }
-    if (heapVariable.heapVariableType != HeapVariableType.Const) {
+    if (heapVariable.type != HeapVariableType.Const) {
       this.lastNotConstVariable = heapVariable;
     }
   }
@@ -40,7 +57,7 @@ public class HeapBuilderOld {
    * @param heapBuilder the heap builder to add.
    */
   public void add(HeapBuilderOld heapBuilder) {
-    for (HeapBuilderVariableOld variable : heapBuilder.variables) {
+    for (HeapBuilderVariable variable : heapBuilder.variables) {
       this.add(variable);
     }
   }
@@ -50,18 +67,11 @@ public class HeapBuilderOld {
    *
    * @return last variable.
    */
-  public HeapBuilderVariableOld getLastVariable() {
+  public HeapBuilderVariable getLastVariable() {
     return this.lastNotConstVariable;
   }
 
-  /** Pretty print the Heap. */
-  public void prettyPrint() {
-    for (HeapBuilderVariableOld heapVariable : this.variables) {
-      heapVariable.prettyPrint(0);
-    }
-  }
-
-  public List<HeapBuilderVariableOld> getVariables() {
+  public List<HeapBuilderVariable> getVariables() {
     return new ArrayList<>(this.variables);
   }
 }

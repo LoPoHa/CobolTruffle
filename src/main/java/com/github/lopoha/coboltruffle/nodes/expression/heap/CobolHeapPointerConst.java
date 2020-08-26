@@ -19,7 +19,12 @@ public class CobolHeapPointerConst extends CobolHeapPointer {
    *                 it is used to get the correct heap when accessing a variable inside.
    */
   public CobolHeapPointerConst(
-      String name, int position, int length, String defaultValue, int level, String heapName) {
+      String name,
+      int position,
+      int length,
+      List<Character> defaultValue,
+      int level,
+      String heapName) {
     super(name, position, length, defaultValue, level, heapName);
   }
 

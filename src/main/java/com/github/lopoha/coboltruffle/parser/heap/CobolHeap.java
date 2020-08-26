@@ -44,14 +44,14 @@ public class CobolHeap {
    * @param heapBuilder The HeapBuilder to add to the heap.
    */
   public void addToHeap(HeapBuilderOld heapBuilder) {
-    for (HeapBuilderVariableOld variable : heapBuilder.getVariables()) {
-      if (this.pointerMap.containsKey(variable.variableName)) {
+    for (HeapBuilderVariable variable : heapBuilder.getVariables()) {
+      if (this.pointerMap.containsKey(variable.name)) {
         // what should happen if it is already defined?
         // nothing? because of the global heap?
-        throw new VariableAlreadyDefinedException(variable.variableName);
+        throw new VariableAlreadyDefinedException(variable.name);
       } else {
         final int variableBaseHeapPosition = this.heapSize;
-        variable.finalizeHeapBuilder();
+        variable.finalizeVariable();
         // todo: respect the default value instead of blank...
         //       this should be done in the addVariableToPointerMap function
         this.heapSize += variable.getSize();
@@ -62,11 +62,11 @@ public class CobolHeap {
 
   // todo cleanup!!!
   private void addVariableToPointerMap(
-      final HeapBuilderVariableOld variable, final int variableBasePosition) {
+      final HeapBuilderVariable variable, final int variableBasePosition) {
     // todo should a check if the variable is already defined be here?
     //      this time it should be an error? or not?
     CobolHeapPointer pointer = null;
-    switch (variable.heapVariableType) {
+    switch (variable.type) {
       case Filler:
         // do nothing
         break;
@@ -75,20 +75,20 @@ public class CobolHeap {
       case String:
         pointer =
             new CobolHeapPointerString(
-                variable.variableName,
+                variable.name,
                 variableBasePosition,
                 variable.getSize(),
-                variable.getValue(),
+                variable.getDefaultValue(),
                 variable.level,
                 this.heapName);
         break;
       case Const:
         pointer =
             new CobolHeapPointerConst(
-                variable.variableName,
+                variable.name,
                 variableBasePosition,
                 variable.getSize(),
-                variable.getValue(),
+                variable.getDefaultValue(),
                 variable.level,
                 this.heapName);
         break;
@@ -96,20 +96,21 @@ public class CobolHeap {
         throw new NotImplementedException();
     }
 
-    if (variable.variableName != null && this.pointerMap.containsKey(variable.variableName)) {
-      throw new VariableAlreadyDefinedException(variable.variableName);
+    if (variable.name != null && this.pointerMap.containsKey(variable.name)) {
+      throw new VariableAlreadyDefinedException(variable.name);
     }
 
     if (pointer != null) {
-      this.pointerMap.put(variable.variableName, pointer);
+      this.pointerMap.put(variable.name, pointer);
     }
 
     int variableHeapPosition = variableBasePosition;
-    for (HeapBuilderVariableOld child : variable.getChildren()) {
+    for (HeapBuilderVariable child : variable.getChildren()) {
       if (child.redefines != null) {
-        CobolHeapPointer redefinePointer = this.pointerMap.get(child.redefines);
+        // todo
+        CobolHeapPointer redefinePointer = this.pointerMap.get(child.redefines.name);
         if (redefinePointer == null) {
-          throw new CobolUnknownVariableRedefineException(child.redefines, child.variableName);
+          throw new CobolUnknownVariableRedefineException(child.redefines.name, child.name);
         }
         addVariableToPointerMap(child, redefinePointer.position);
       } else {

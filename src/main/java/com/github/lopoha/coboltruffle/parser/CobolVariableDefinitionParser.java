@@ -3,8 +3,12 @@ package com.github.lopoha.coboltruffle.parser;
 import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
 import com.github.lopoha.coboltruffle.parser.heap.HeapBuilderOld;
-import com.github.lopoha.coboltruffle.parser.heap.HeapBuilderVariableOld;
+import com.github.lopoha.coboltruffle.parser.heap.HeapBuilderVariable;
 import com.github.lopoha.coboltruffle.parser.heap.HeapVariableType;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 class CobolVariableDefinitionParser {
   static int variableGetStringLength(CobolParser.VariableDataTypeStringContext ctx) {
@@ -20,18 +24,26 @@ class CobolVariableDefinitionParser {
 
   // either returns null if no value was specified or a string with the length of the given size
   // and the value right bound + filled with space if it is shorter.
-  static String variableGetStringValue(
+  static List<Character> variableGetStringValue(
       CobolParser.VariableValueStringContext ctx, String variableName, int size) {
     // todo: cleanup
     if (ctx == null) {
       return null;
     } else if (ctx.SPACE() != null) {
-      return " ".repeat(size);
+      return IntStream.range(0, size)
+          .mapToObj(i -> ' ')
+          .collect(Collectors.toList());
     } else {
       String string = ctx.STRING().getText();
       String removedQuotes = string.substring(1, string.length() - 1);
       if (removedQuotes.length() <= size) {
-        return " ".repeat(size - removedQuotes.length()) + removedQuotes;
+        List<Character> value = IntStream.range(0, size - removedQuotes.length())
+            .mapToObj(i -> ' ')
+            .collect(Collectors.toList());
+        for (char ch: removedQuotes.toCharArray()) {
+          value.add(ch);
+        }
+        return value;
       } else {
         throw new RuntimeException(
             String.format(
@@ -55,7 +67,7 @@ class CobolVariableDefinitionParser {
 
   // either returns null if no value was specified or a string with the length of the given size
   // and the value right bound + filled with space if it is shorter.
-  static String variableGetNumberValue(
+  static List<Character> variableGetNumberValue(
       CobolParser.VariableValueNumberContext ctx, String variableName, int size) {
     // todo: cleanup
     if (ctx == null) {
@@ -63,7 +75,13 @@ class CobolVariableDefinitionParser {
     } else {
       String string = ctx.NUMBER().getText();
       if (string.length() <= size) {
-        return " ".repeat(size - string.length()) + string;
+        List<Character> value = IntStream.range(0, size - string.length())
+            .mapToObj(i -> ' ')
+            .collect(Collectors.toList());
+        for (char ch: string.toCharArray()) {
+          value.add(ch);
+        }
+        return value;
       } else {
         throw new RuntimeException(
             String.format(
@@ -75,46 +93,48 @@ class CobolVariableDefinitionParser {
   }
 
   // todo: cleanup + combine with addNamedVariable
-  static HeapBuilderVariableOld createFillerVariable(
+  static HeapBuilderVariable createFillerVariable(
       String redefines, int level, CobolParser.VariableDataTypeContext dataType) {
     if (dataType == null) {
-      return new HeapBuilderVariableOld(level, null, HeapVariableType.Filler, redefines);
-
+      return new HeapBuilderVariable(level, HeapVariableType.Filler, null);
+      //return new HeapBuilderVariable(level, HeapVariableType.Filler, redefines);
     } else if (dataType.variableDataTypeString() != null) {
       CobolParser.VariableDataTypeStringContext dataTypeString = dataType.variableDataTypeString();
       final int size = variableGetStringLength(dataTypeString);
-      final String value = variableGetStringValue(dataTypeString.variableValueString(), null, size);
-      return new HeapBuilderVariableOld(level, null, HeapVariableType.Filler, size, value);
+      final List<Character> value
+          = variableGetStringValue(dataTypeString.variableValueString(), null, size);
+      return new HeapBuilderVariable(level, HeapVariableType.Filler, size, value);
 
     } else if (dataType.variableDataTypeNumber() != null) {
       CobolParser.VariableDataTypeNumberContext dataTypeNumber = dataType.variableDataTypeNumber();
       // todo: allow comma values e.g. 999.99
       final int size = variableGetNumberSize(dataTypeNumber);
-      final String value = variableGetNumberValue(dataTypeNumber.variableValueNumber(), null, size);
-      return new HeapBuilderVariableOld(level, null, HeapVariableType.Filler, size, value);
+      final List<Character> value
+          = variableGetNumberValue(dataTypeNumber.variableValueNumber(), null, size);
+      return new HeapBuilderVariable(level, HeapVariableType.Filler, size, value);
     } else {
       throw new NotImplementedException();
     }
   }
 
   // todo: cleanup + combine with addFillerVariable
-  static HeapBuilderVariableOld createNamedVariable(
+  static HeapBuilderVariable createNamedVariable(
       String variableName, int level, CobolParser.VariableDataTypeContext dataType) {
     // todo: allow array (table)
     if (dataType.variableDataTypeString() != null) {
       CobolParser.VariableDataTypeStringContext dataTypeString = dataType.variableDataTypeString();
       final int size = variableGetStringLength(dataTypeString);
-      final String value =
+      final List<Character> value =
           variableGetStringValue(dataTypeString.variableValueString(), variableName, size);
-      return new HeapBuilderVariableOld(level, variableName, HeapVariableType.String, size, value);
+      return new HeapBuilderVariable(variableName, level, HeapVariableType.String, size, value);
 
     } else if (dataType.variableDataTypeNumber() != null) {
       CobolParser.VariableDataTypeNumberContext dataTypeNumber = dataType.variableDataTypeNumber();
       // todo: allow comma values e.g. 999.99
       final int size = variableGetNumberSize(dataTypeNumber);
-      final String value =
+      final List<Character> value =
           variableGetNumberValue(dataTypeNumber.variableValueNumber(), variableName, size);
-      return new HeapBuilderVariableOld(level, variableName, HeapVariableType.Number, size, value);
+      return new HeapBuilderVariable(variableName, level, HeapVariableType.Number, size, value);
 
     } else {
       throw new NotImplementedException();
@@ -122,8 +142,9 @@ class CobolVariableDefinitionParser {
   }
 
   // todo: cleanup!!! + names + split
-  static HeapBuilderVariableOld createVariableDefinition(
-      CobolParser.VariableVariableContext variableContext) {
+  static HeapBuilderVariable createVariableDefinition(
+      CobolParser.VariableVariableContext variableContext,
+      HeapBuilderOld heapBuilder) {
 
     final int level = Integer.parseInt(variableContext.NUMBER().getText());
     final CobolParser.VariableRedefinesContext redefinesContext =
@@ -138,7 +159,12 @@ class CobolVariableDefinitionParser {
       final CobolParser.VariableDataTypeContext dataType = variableContext.variableDataType();
       if (dataType == null) {
         // todo: handle redefines
-        return new HeapBuilderVariableOld(level, variableName, HeapVariableType.None, redefines);
+        HeapBuilderVariable redefineVariable =
+            redefines == null ? null : heapBuilder.findVariable(redefines);
+        return new HeapBuilderVariable(variableName,
+            level,
+            HeapVariableType.None,
+            redefineVariable);
       } else {
         return createNamedVariable(variableName, level, dataType);
       }
@@ -147,16 +173,26 @@ class CobolVariableDefinitionParser {
 
   static void addVariable(CobolParser.VariableDefinitionContext ctx, HeapBuilderOld heapBuilder) {
     if (ctx.variableVariable() != null) {
-      heapBuilder.add(createVariableDefinition(ctx.variableVariable()));
+      heapBuilder.add(createVariableDefinition(ctx.variableVariable(), heapBuilder));
     } else if (ctx.variableConst() != null) {
       CobolParser.VariableConstContext constContext = ctx.variableConst();
-      HeapBuilderVariableOld parent = heapBuilder.getLastVariable();
+      HeapBuilderVariable parent = heapBuilder.getLastVariable();
       // todo: allow other values
       // todo: match size with parent
       String value = constContext.variableValueString().STRING().getText();
-      final HeapBuilderVariableOld variable =
-          new HeapBuilderVariableOld(
-              88, constContext.ID().getText(), HeapVariableType.Const, parent.getSize(), value);
+
+      List<Character> defaultValue = new ArrayList<>();
+      for (char ch: value.toCharArray()) {
+        defaultValue.add(ch);
+      }
+
+      final HeapBuilderVariable variable =
+          new HeapBuilderVariable(
+              constContext.ID().getText(),
+              88,
+              HeapVariableType.Const,
+              parent.getSize(),
+              defaultValue);
       heapBuilder.add(variable);
     } else {
       throw new NotImplementedException();

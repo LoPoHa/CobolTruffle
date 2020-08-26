@@ -18,8 +18,12 @@ public final class CobolHeapPointerString extends CobolHeapPointer {
    * @param heapName the name of the heap, that is used for the linkage section.
    *                 it is used to get the correct heap when accessing a variable inside.
    */
-  public CobolHeapPointerString(
-      String name, int position, int length, String defaultValue, int level, String heapName) {
+  public CobolHeapPointerString(String name,
+      int position,
+      int length,
+      List<Character> defaultValue,
+      int level,
+      String heapName) {
     super(name, position, length, defaultValue, level, heapName);
   }
 
