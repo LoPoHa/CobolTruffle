@@ -91,7 +91,7 @@ public final class CobolType implements TruffleObject {
 
     @Specialization(guards = "type == cachedType", limit = "3")
     static boolean doCached(
-        @SuppressWarnings("unused") CobolType type,
+        CobolType type,
         Object value,
         @Cached("type") CobolType cachedType,
         @CachedLibrary("value") InteropLibrary valueLib) {

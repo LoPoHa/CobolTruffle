@@ -81,11 +81,18 @@ moveTo : ID+;
 
 initializeStatement : INITIALIZE ID DOT?;
 
+compareEqual : EQUAL;
+compareLess : LESS THAN?;
+compareLessEqual : LESS EQUAL;
+compareBigger : BIGGER THAN;
+compareBiggerEqual : BIGGER EQUAL;
+comparison : (compareEqual | compareLess | compareLessEqual | compareBigger | compareBiggerEqual);
+
 // todo: support and, or, ...
 ifStatement : IF ifCondition THEN? trueBranch (ELSE elseBranch)? endIf;
 ifCondition : (ifNumeric | ifCompare | ifSingleValue);
 ifNumeric : ID NUMERIC;
-ifCompare : value (EQUAL | (LESS | BIGGER) (EQUAL | THAN)?) value;
+ifCompare : value comparison value;
 // should we support something else than id? by rule it may be allowed, but it doesn't make sense...
 ifSingleValue : ID;
 trueBranch : statement*;

@@ -20,8 +20,6 @@ import java.util.Collections;
 import java.util.Map;
 
 public final class CobolContext {
-
-  static final Layout LAYOUT = Layout.createLayout();
   private static final Source BUILTIN_SOURCE =
       Source.newBuilder(CobolLanguage.ID, "", "Cobol builtin").build();
   private final Env env;
@@ -71,22 +69,6 @@ public final class CobolContext {
     } else {
       return lookupNodeInfo(clazz.getSuperclass());
     }
-  }
-
-  /**
-   * TODO.
-   *
-   * @param value todo
-   * @return todo
-   */
-  public static boolean isCobolObject(Object value) {
-    /*
-     * LAYOUT.getType() returns a concrete implementation class, i.e., a class that is more
-     * precise than the base class DynamicObject. This makes the type check faster.
-     */
-    // return LAYOUT.getType().isInstance(value)
-    //       && LAYOUT.getType().cast(value).getShape().getObjectType() == SLObjectType.SINGLETON;
-    throw new NotImplementedException();
   }
 
   /**
@@ -175,10 +157,6 @@ public final class CobolContext {
 
     /* Register the builtin function in our function registry. */
     getFunctionRegistry().register(name, Truffle.getRuntime().createCallTarget(rootNode));
-  }
-
-  public CallTarget parse(Source source) {
-    return env.parsePublic(source);
   }
 
   /**

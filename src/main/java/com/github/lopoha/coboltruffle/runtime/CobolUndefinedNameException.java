@@ -15,9 +15,4 @@ public final class CobolUndefinedNameException extends CobolException {
   public static CobolUndefinedNameException undefinedFunction(Node location, Object name) {
     throw new CobolUndefinedNameException("Undefined function: " + name, location);
   }
-
-  @TruffleBoundary
-  public static CobolUndefinedNameException undefinedProperty(Node location, Object name) {
-    throw new CobolUndefinedNameException("Undefined property: " + name, location);
-  }
 }

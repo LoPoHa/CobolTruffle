@@ -114,7 +114,6 @@ public final class CobolSection implements TruffleObject {
         limit = "INLINE_CACHE_SIZE",
         guards = "function.getCallTarget() == cachedTarget", //
         assumptions = "callTargetStable")
-    @SuppressWarnings("unused")
     protected static Object doDirect(
         CobolSection function,
         Object[] arguments,

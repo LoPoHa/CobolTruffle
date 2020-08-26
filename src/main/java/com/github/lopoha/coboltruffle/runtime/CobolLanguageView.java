@@ -113,7 +113,7 @@ public final class CobolLanguageView implements TruffleObject {
   @ExportMessage
   @ExplodeLoop
   Object toDisplayString(
-      @SuppressWarnings("unused") boolean allowSideEffects,
+      boolean allowSideEffects,
       @CachedLibrary("this.delegate") InteropLibrary interop) {
     for (CobolType type : CobolType.PRECEDENCE) {
       if (type.isInstance(this.delegate, interop)) {
