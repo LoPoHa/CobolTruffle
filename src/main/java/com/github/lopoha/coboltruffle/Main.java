@@ -1,7 +1,6 @@
 package com.github.lopoha.coboltruffle;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +11,6 @@ import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 
-// todo: don't import everything;
 // todo: test performance for string, bytearrayoutputstream, ...
 //       for the preprocessor -> parser pipeline
 //       the parser should call the preprocessor, it is called separatly here for demo purpose;
