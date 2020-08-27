@@ -11,10 +11,6 @@ import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 
-// todo: test performance for string, bytearrayoutputstream, ...
-//       for the preprocessor -> parser pipeline
-//       the parser should call the preprocessor, it is called separatly here for demo purpose;
-
 public class Main {
 
   /**

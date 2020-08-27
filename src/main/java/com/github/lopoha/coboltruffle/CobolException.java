@@ -12,8 +12,6 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public class CobolException extends RuntimeException implements TruffleException {
 
-  // TODO serialVersionUID
-  private static final long serialVersionUID = 1L;
   private final Node location;
 
   @TruffleBoundary
