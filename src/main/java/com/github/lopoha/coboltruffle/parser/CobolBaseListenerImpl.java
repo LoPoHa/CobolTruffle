@@ -60,18 +60,12 @@ class CobolBaseListenerImpl extends CobolBaseListener {
   }
 
   @Override
-  public void enterProgram(CobolParser.ProgramContext ctx) {
-    System.out.println("And so the hunt begins again...");
-  }
-
-  @Override
   public void exitProgram(CobolParser.ProgramContext ctx) {
     this.cobolNodeFactory.createConstructor(
         this.programName,
         ctx.stop,
         this.workingStorageHeap,
         new ArrayList<>(this.linkageCopyHeaps.keySet()));
-    System.out.println("Are you cold...? Oh, good hunter,");
   }
 
   @Override
@@ -257,10 +251,10 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     List<String> params =
         ctx.externalCallInputParameter().ID().stream()
             .map(ParseTree::getText)
-            .map(name -> )
             .collect(Collectors.toList());
 
-    checkCallParameter(calledProgram, params);
+    // todo
+    //checkCallParameter(calledProgram, params);
 
 
     final List<CobolExpressionNode> arguments = new ArrayList<>();

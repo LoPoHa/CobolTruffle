@@ -15,7 +15,9 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.object.Layout;
 import com.oracle.truffle.api.source.Source;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 
@@ -40,7 +42,7 @@ public final class CobolContext {
    */
   public CobolContext(CobolLanguage language, Env env, Map<String, CobolBuiltinNode> builtins) {
     this.env = env;
-    this.output = new PrintWriter(env.out(), true);
+    this.output = new PrintWriter(new OutputStreamWriter(env.out(), StandardCharsets.UTF_8), true);
     this.functionRegistry = new CobolSectionRegistry(language);
     this.topScopes =
         Collections.singleton(

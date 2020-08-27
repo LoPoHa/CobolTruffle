@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import org.graalvm.polyglot.Context;
@@ -27,8 +28,9 @@ public class Main {
   public static void main(final String[] args) throws Exception {
     String file = "./teststuff/program/test.cbl";
     Source source = Source.newBuilder(CobolLanguage.ID, new File(file)).build();
-    try (FileOutputStream fos = new FileOutputStream("./teststuff/sysout.txt")) {
-      System.exit(executeSource(source, System.in, new PrintStream(fos), new HashMap<>()));
+    String sysoutFile = "./teststuff/sysout.txt";
+    try (PrintStream ps = new PrintStream(sysoutFile, StandardCharsets.UTF_8)) {
+      System.exit(executeSource(source, System.in, ps, new HashMap<>()));
     }
   }
 
@@ -48,7 +50,7 @@ public class Main {
       err.println(e.getMessage());
       return 1;
     }
-    out.println("== running on " + context.getEngine());
+    //out.println("== running on " + context.getEngine());
 
     try {
       Value result = context.eval(source);

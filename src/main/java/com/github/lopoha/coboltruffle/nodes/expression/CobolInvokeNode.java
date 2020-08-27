@@ -38,7 +38,7 @@ public final class CobolInvokeNode extends CobolExpressionNode {
    */
   public CobolInvokeNode(CobolExpressionNode functionNode, CobolExpressionNode[] argumentNodes) {
     this.functionNode = functionNode;
-    this.argumentNodes = argumentNodes;
+    this.argumentNodes = argumentNodes.clone();
     this.library = InteropLibrary.getFactory().createDispatched(3);
   }
 

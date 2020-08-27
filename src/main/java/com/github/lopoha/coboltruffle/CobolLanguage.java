@@ -280,7 +280,7 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
           }
 
           private Object findFunctionObject() {
-            String name = node.getRootNode().getName();
+            //String name = node.getRootNode().getName();
             // return context.getFunctionRegistry().getFunction(name);
             throw new NotImplementedException();
           }

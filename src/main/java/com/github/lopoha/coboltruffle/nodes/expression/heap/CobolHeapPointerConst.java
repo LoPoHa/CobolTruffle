@@ -1,6 +1,7 @@
 package com.github.lopoha.coboltruffle.nodes.expression.heap;
 
 import com.github.lopoha.coboltruffle.CobolInternalException;
+import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.github.lopoha.coboltruffle.nodes.Helper;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -49,8 +50,8 @@ public class CobolHeapPointerConst extends CobolHeapPointer {
   }
 
   @TruffleBoundary
-  public boolean isSet() {
-    return this.defaultValue.equals(this.getValue(null));
+  public boolean isSet(CobolProgramStateNode programState) {
+    return this.defaultValue.equals(this.getValue(programState));
   }
 
   @Override
