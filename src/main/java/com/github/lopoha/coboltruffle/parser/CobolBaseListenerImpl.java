@@ -1,9 +1,6 @@
 package com.github.lopoha.coboltruffle.parser;
 
 import com.github.lopoha.coboltruffle.NotImplementedException;
-import com.github.lopoha.coboltruffle.heap.CobolHeap;
-import com.github.lopoha.coboltruffle.heap.HeapBuilder;
-import com.github.lopoha.coboltruffle.heap.VariableAlreadyDefinedException;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolGlobalFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolStringLiteralNode;
@@ -15,7 +12,10 @@ import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolLessThanN
 import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
+import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.ComparisonContext;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.IfConditionContext;
+import com.github.lopoha.coboltruffle.parser.heap.CobolHeap;
+import com.github.lopoha.coboltruffle.parser.heap.HeapBuilder;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.source.Source;
 import java.util.ArrayList;
@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.tree.ParseTree;
-
-
 
 // TODO: Move create separate exceptions instead of reusing runtimeexception!
 // todo: cleanup, merge methods, ...
@@ -50,6 +48,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
   /**
    * Creates the Listener, that walks the Tokens and creates the coboltruffle classes.
+   *
    * @param cobolMainParser a reference to the cobol main parser.
    */
   CobolBaseListenerImpl(CobolMainParser cobolMainParser, Source source) {
@@ -61,24 +60,18 @@ class CobolBaseListenerImpl extends CobolBaseListener {
   }
 
   @Override
-  public void enterProgram(CobolParser.ProgramContext ctx) {
-    System.out.println("And so the hunt begins again...");
-  }
-
-  @Override
   public void exitProgram(CobolParser.ProgramContext ctx) {
-    this.cobolNodeFactory.createConstructor(this.programName,
-                                            ctx.stop,
-                                            this.workingStorageHeap,
-                                            new ArrayList<>(this.linkageCopyHeaps.keySet()));
-    System.out.println("Are you cold...? Oh, good hunter,");
+    this.cobolNodeFactory.createConstructor(
+        this.programName,
+        ctx.stop,
+        this.workingStorageHeap,
+        new ArrayList<>(this.linkageCopyHeaps.keySet()));
   }
 
   @Override
   public void enterProgramID(CobolParser.ProgramIDContext ctx) {
     this.programName = ctx.ID().getText();
   }
-
 
   @Override
   public void enterWorkingStorageSection(CobolParser.WorkingStorageSectionContext ctx) {
@@ -96,18 +89,12 @@ class CobolBaseListenerImpl extends CobolBaseListener {
       heap.addToHeap(heapBuilder);
       this.linkageCopyHeaps.put(copyName, heap);
     }
-    // how should the linkage section work?
-    /*
-    for (VariableDefinitionContext variableDefinitionContext : variableDefinitions) {
-      addVariableDefinition(variableDefinitionContext, this.linkageHeap);
-    }
-     */
   }
 
   @Override
   public void exitDataDivision(CobolParser.DataDivisionContext ctx) {
-    CobolProgramInfo cobolProgramInfo
-        = new CobolProgramInfo(this.source, new ArrayList<>(this.linkageCopyHeaps.keySet()));
+    CobolProgramInfo cobolProgramInfo =
+        new CobolProgramInfo(this.source, new ArrayList<>(this.linkageCopyHeaps.keySet()));
     this.cobolMainParser.addProgram(cobolProgramInfo);
 
     this.workingStorageHeap.addToHeap(this.workingStorageHeapBuilder);
@@ -132,7 +119,6 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     }
   }
 
-
   @Override
   public void enterElseBranch(CobolParser.ElseBranchContext ctx) {
     this.cobolNodeFactory.elseIf(ctx.start);
@@ -152,8 +138,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
     CobolParser.MoveFromContext moveFromContext = ctx.moveFrom();
     if (moveFromContext.ID() != null) {
-      CobolHeapPointer fromPointer
-          = this.workingStorageHeap.getHeapPointer(moveFromContext.ID().toString());
+      CobolHeapPointer fromPointer = getHeapPointer(moveFromContext.ID().toString());
       this.cobolNodeFactory.addMove(fromPointer, targetPointer);
     } else if (moveFromContext.STRING() != null) {
       String inputString = removeStringQuotes(moveFromContext.STRING().getText());
@@ -187,8 +172,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
       }
     }
 
-    CobolGlobalFunctionLiteralNode displayNode
-        = new CobolGlobalFunctionLiteralNode("display");
+    CobolGlobalFunctionLiteralNode displayNode = new CobolGlobalFunctionLiteralNode("display");
     this.cobolNodeFactory.addCall(ctx.start, displayNode, displayArgs);
   }
 
@@ -223,56 +207,58 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     }
   }
 
-  private CobolExpressionNode ifComparisonToExpression(CobolParser.IfCompareContext ctx,
-                                                       CobolExpressionNode left,
-                                                       CobolExpressionNode right) {
-    // TODO: IMPLEMENT LESSEQUAL, LESSTHAN as separate items
-    if (ctx.LESS() != null) {
-      if (ctx.EQUAL() != null) {
-        return CobolLessOrEqualNodeGen.create(left, right);
-      } else {
-        return CobolLessThanNodeGen.create(left, right);
-      }
-    } else if (ctx.BIGGER() != null) {
-      if (ctx.EQUAL() != null) {
-        return CobolBiggerOrEqualNodeGen.create(left, right);
-      } else {
-        return CobolBiggerThanNodeGen.create(left, right);
-      }
-    } else if (ctx.EQUAL() != null) {
-      // must be last, because others could also include equal...
+  private CobolExpressionNode ifComparisonToExpression(
+      CobolParser.IfCompareContext ctx, CobolExpressionNode left, CobolExpressionNode right) {
+    ComparisonContext comparison = ctx.comparison();
+    if (comparison.compareEqual() != null) {
       return CobolEqualNodeGen.create(left, right);
+    } else if (comparison.compareLess() != null) {
+      return CobolLessThanNodeGen.create(left, right);
+    } else if (comparison.compareLessEqual() != null) {
+      return CobolLessOrEqualNodeGen.create(left, right);
+    } else if (comparison.compareBigger() != null) {
+      return CobolBiggerThanNodeGen.create(left, right);
+    } else if (comparison.compareBiggerEqual() != null) {
+      return CobolBiggerOrEqualNodeGen.create(left, right);
     } else {
       throw new NotImplementedException();
+    }
+  }
+
+  private void checkCallParameter(CobolProgramInfo calledProgram, List<String> params) {
+    if (params.size() != calledProgram.getInputParameter().size()) {
+      throw new CobolCallProgramParameterCountMismatchException(
+          this.programName,
+          params.size(),
+          calledProgram.getName(),
+          calledProgram.getInputParameter().size());
+    }
+
+    for (int i = 0; i < params.size(); i++) {
+      if (!params.get(i).equals(calledProgram.getInputParameter().get(i))) {
+        throw new CobolCallParameterMismatchException(this.programName,
+            params.get(i),
+            calledProgram.getName(),
+            calledProgram.getInputParameter().get(i));
+      }
     }
   }
 
   @Override
   public void enterExternalCallStatement(CobolParser.ExternalCallStatementContext ctx) {
     String callProgramName = ctx.externalCallProgramName().getText();
-    CobolProgramInfo calledProgram
-        = this.cobolMainParser.getProgram(callProgramName);
-    List<String> params = ctx.externalCallInputParameter()
-                             .ID()
-                             .stream()
-                             .map(ParseTree::getText)
-                             .collect(Collectors.toList());
+    CobolProgramInfo calledProgram = this.cobolMainParser.getProgram(callProgramName);
+    List<String> params =
+        ctx.externalCallInputParameter().ID().stream()
+            .map(ParseTree::getText)
+            .collect(Collectors.toList());
 
-    // todo: check if "using" is only using definitions from copy members!
+    // todo
+    //checkCallParameter(calledProgram, params);
 
-    if (params.size() != calledProgram.getInputParameter().size()) {
-      throw new RuntimeException("TODO: correct error, param sizes dont match");
-    }
 
-    List<CobolExpressionNode> arguments = new ArrayList<>();
-    for (int i = 0; i < params.size(); i++) {
-      // todo: check if input and caller match!
-      // todo: use raw pointer only for internal calls. everything else should be
-      //       either always string or the specialized version -> needs a decision
-      CobolHeapPointer fromPointer = this.workingStorageHeap.getHeapPointer(params.get(i))
-                                                            .asRawPointer();
-      arguments.add(fromPointer);
-    }
+    final List<CobolExpressionNode> arguments = new ArrayList<>();
+    params.stream().map(param -> getHeapPointer(param).asRawPointer()).forEach(arguments::add);
 
     CobolGlobalFunctionLiteralNode callNode = new CobolGlobalFunctionLiteralNode(callProgramName);
     this.cobolNodeFactory.addCall(ctx.start, callNode, arguments);

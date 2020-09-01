@@ -1,14 +1,13 @@
 package com.github.lopoha.coboltruffle.parser;
 
+import com.github.lopoha.coboltruffle.CobolInternalException;
 import com.github.lopoha.coboltruffle.CobolLanguage;
-import com.github.lopoha.coboltruffle.heap.CobolHeap;
-import com.github.lopoha.coboltruffle.heap.HeapBuilder;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolLexer;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
+import com.github.lopoha.coboltruffle.parser.heap.HeapBuilder;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.source.Source;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.antlr.v4.runtime.CharStream;
@@ -24,8 +23,7 @@ public class CobolMainParser {
   private final Map<String, HeapBuilder> heapBuilderCache = new HashMap<>();
   private final Map<String, RootCallTarget> programs = new HashMap<>();
 
-  private CobolMainParser(CobolLanguage cobolLanguage,
-                          ParserSettings parserSettings) {
+  private CobolMainParser(CobolLanguage cobolLanguage, ParserSettings parserSettings) {
     assert cobolLanguage != null;
     assert parserSettings != null;
 
@@ -35,6 +33,7 @@ public class CobolMainParser {
 
   /**
    * Get the filename from the source.
+   *
    * @param source the source.
    * @return filename without extension.
    */
@@ -45,6 +44,7 @@ public class CobolMainParser {
 
   /**
    * Get the filename from the filename.
+   *
    * @param name the name of the file with extenion.
    * @return filename without extension.
    */
@@ -56,16 +56,16 @@ public class CobolMainParser {
     return name;
   }
 
-
   /**
    * TODO: replace method.
    *
    * @param source the preprocessed source code.
+   * @param cobolLanguage a reference to the cobol language, e.g. for the included functions.
+   * @param parserSettings the settings for the parser, used e.g. to find copy members.
    * @return a map with all functions.
    */
-  public static Map<String, RootCallTarget> processSource(Source source,
-                                                          CobolLanguage cobolLanguage,
-                                                          ParserSettings parserSettings) {
+  public static Map<String, RootCallTarget> processSource(
+      Source source, CobolLanguage cobolLanguage, ParserSettings parserSettings) {
 
     CobolMainParser cobolMainParser = new CobolMainParser(cobolLanguage, parserSettings);
     cobolMainParser.parseProgram(source);
@@ -81,23 +81,21 @@ public class CobolMainParser {
       CobolParser.ProgramContext programContext = parser.program();
       ParseTreeWalker walker = new ParseTreeWalker();
 
-
       CobolBaseListenerImpl listener = new CobolBaseListenerImpl(this, source);
       walker.walk(listener, programContext);
 
       this.programs.put(getFilenameWithoutExtension(source), listener.getConstructor());
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new CobolInternalException(e);
     }
   }
-
 
   Source getCopySource(String name) {
     File file = ParserCommonHelper.getCopyFile(name, this.parserSettings);
     try {
       return Source.newBuilder(CobolLanguage.ID, file.toURI().toURL()).build();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new CobolInternalException(e);
     }
   }
 
@@ -112,15 +110,14 @@ public class CobolMainParser {
         CobolParser parser = new CobolParser(tokens);
         CobolParser.VariableDefinitionCopyContext copyContext = parser.variableDefinitionCopy();
         ParseTreeWalker walker = new ParseTreeWalker();
-        CobolStorageCopyListenerImpl listener
-            = new CobolStorageCopyListenerImpl(this, source);
+        CobolStorageCopyListenerImpl listener = new CobolStorageCopyListenerImpl(this, source);
         walker.walk(listener, copyContext);
 
         HeapBuilder heapBuilder = listener.getHeap();
         this.heapBuilderCache.put(source.getPath(), heapBuilder);
         return heapBuilder;
       } catch (Exception e) {
-        throw new RuntimeException(e);
+        throw new CobolInternalException(e);
       }
     }
   }
@@ -130,7 +127,7 @@ public class CobolMainParser {
     try {
       return Source.newBuilder(CobolLanguage.ID, file.toURI().toURL()).build();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new CobolInternalException(e);
     }
   }
 

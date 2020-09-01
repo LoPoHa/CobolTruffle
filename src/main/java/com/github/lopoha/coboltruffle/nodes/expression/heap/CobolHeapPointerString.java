@@ -5,24 +5,25 @@ import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public final class CobolHeapPointerString extends CobolHeapPointer {
   /**
-   * Create a Pointer to the heap.
-   * The heap must be on the frame.
+   * Create a Pointer to the heap. The heap must be on the frame.
+   *
    * @param name name of the variable.
    * @param position start position on the heap.
    * @param length length of the variable
    * @param defaultValue the default value.
    * @param level the level of the variable declaration.
+   * @param heapName the name of the heap, that is used for the linkage section.
+   *                 it is used to get the correct heap when accessing a variable inside.
    */
   public CobolHeapPointerString(String name,
-                                int position,
-                                int length,
-                                String defaultValue,
-                                int level,
-                                String heapName) {
+      int position,
+      int length,
+      List<Character> defaultValue,
+      int level,
+      String heapName) {
     super(name, position, length, defaultValue, level, heapName);
   }
 
@@ -37,7 +38,7 @@ public final class CobolHeapPointerString extends CobolHeapPointer {
   @Override
   public String getValue(CobolProgramStateNode programState) {
     // safe, since the parent always returns List<Character>
-    List<Character> chars = (List<Character>) super.getValue(programState);
+    List<Character> chars = super.getRawValue(programState);
     return chars.stream().map(String::valueOf).collect(Collectors.joining());
   }
 

@@ -12,8 +12,6 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public class CobolException extends RuntimeException implements TruffleException {
 
-  // TODO serialVersionUID
-  private static final long serialVersionUID = 1L;
   private final Node location;
 
   @TruffleBoundary
@@ -22,18 +20,9 @@ public class CobolException extends RuntimeException implements TruffleException
     this.location = location;
   }
 
-  @SuppressWarnings("sync-override")
-  @Override
-  public final Throwable fillInStackTrace() {
-    return this;
-  }
-
-  public Node getLocation() {
-    return location;
-  }
-
   /**
    * TODO.
+   *
    * @param operation todo
    * @param values todo
    * @return todo
@@ -46,12 +35,13 @@ public class CobolException extends RuntimeException implements TruffleException
     if (operation != null) {
       SourceSection ss = operation.getEncapsulatingSourceSection();
       if (ss != null && ss.isAvailable()) {
-        result.append(" at ")
-              .append(ss.getSource().getName())
-              .append(" line ")
-              .append(ss.getStartLine())
-              .append(" col ")
-              .append(ss.getStartColumn());
+        result
+            .append(" at ")
+            .append(ss.getSource().getName())
+            .append(" line ")
+            .append(ss.getStartLine())
+            .append(" col ")
+            .append(ss.getStartColumn());
       }
     }
 
@@ -86,4 +76,13 @@ public class CobolException extends RuntimeException implements TruffleException
     return new CobolException(result.toString(), operation);
   }
 
+  @SuppressWarnings("sync-override")
+  @Override
+  public final Throwable fillInStackTrace() {
+    return this;
+  }
+
+  public Node getLocation() {
+    return location;
+  }
 }

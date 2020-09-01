@@ -6,7 +6,7 @@ import java.util.List;
 public class ParserSettings {
   private final List<String> copySearchPath;
   private final List<String> programSearchPath;
-    
+
   public ParserSettings(List<String> copySearchPath, List<String> programSearchPath) {
     this.copySearchPath = new ArrayList<>(copySearchPath);
     this.programSearchPath = new ArrayList<>(programSearchPath);

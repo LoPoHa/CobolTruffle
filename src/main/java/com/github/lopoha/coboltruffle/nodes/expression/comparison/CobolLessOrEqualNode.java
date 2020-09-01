@@ -8,7 +8,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
 /**
- * This class is similar to the {@link CobolLessOrEqualNode}.
+ * A node for '&le;'.
  */
 @NodeInfo(shortName = "<=")
 public abstract class CobolLessOrEqualNode extends CobolBinaryNode {

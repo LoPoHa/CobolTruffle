@@ -1,9 +1,9 @@
 package com.github.lopoha.coboltruffle.nodes;
 
-import com.github.lopoha.coboltruffle.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.github.lopoha.coboltruffle.nodes.expression.heap.RawHeapSlice;
+import com.github.lopoha.coboltruffle.parser.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.runtime.CobolSection;
 import com.github.lopoha.coboltruffle.runtime.CobolSectionRegistry;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -15,9 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Used to call sections inside a file.
- */
+/** Used to call sections inside a file. */
 @NodeInfo(shortName = "func")
 public final class CobolConstructorNode extends CobolFunctionLiteralNode {
 
@@ -26,17 +24,23 @@ public final class CobolConstructorNode extends CobolFunctionLiteralNode {
   private final String firstFunctionName;
   private final CobolSectionRegistry fileLocalFunctions;
 
-  @CompilerDirectives.CompilationFinal
-  private CobolSection cachedFunction;
+  @CompilerDirectives.CompilationFinal private CobolSection cachedFunction;
 
   /**
-   * Create a function literal node, to call other functions.
+   * Create a cobol constructer, that creates the heap, initializes the variables and calls the
+   * first frunction.
+   * @param programName Name of the program.
+   * @param cobolHeap The heap that is created.
+   * @param inputParameterNames names of the input parameters, that gets passed to the program.
+   * @param firstFunctionName name of the first function to call.
+   * @param fileLocalFunctions all the local functions (sections) inside the program.
    */
-  public CobolConstructorNode(String programName,
-                              CobolHeap cobolHeap,
-                              List<String> inputParameterNames,
-                              String firstFunctionName,
-                              CobolSectionRegistry fileLocalFunctions) {
+  public CobolConstructorNode(
+      String programName,
+      CobolHeap cobolHeap,
+      List<String> inputParameterNames,
+      String firstFunctionName,
+      CobolSectionRegistry fileLocalFunctions) {
     super(programName);
     assert cobolHeap != null;
     assert inputParameterNames != null;
@@ -59,18 +63,17 @@ public final class CobolConstructorNode extends CobolFunctionLiteralNode {
       inputParameters.put(this.inputParameterNames.get(i), value);
     }
 
-
     List<Character> heap = this.cobolHeap.allocate();
     CobolProgramStateNode programStateNode = new CobolProgramStateNode(heap, inputParameters);
-    FrameSlot slot = frame.getFrameDescriptor()
-                          .findOrAddFrameSlot(CobolProgramStateNode.FRAME_NAME,
-                                              FrameSlotKind.Object);
+    FrameSlot slot =
+        frame
+            .getFrameDescriptor()
+            .findOrAddFrameSlot(CobolProgramStateNode.FRAME_NAME, FrameSlotKind.Object);
     frame.setObject(slot, programStateNode);
 
-
-    this.cobolHeap.getRootPointers()
-                  .forEach(pointer -> new CobolInitializeNode(pointer).executeVoid(frame));
-
+    this.cobolHeap
+        .getRootPointers()
+        .forEach(pointer -> new CobolInitializeNode(pointer).executeVoid(frame));
 
     if (cachedFunction == null) {
       /* We are about to change a @CompilationFinal field. */

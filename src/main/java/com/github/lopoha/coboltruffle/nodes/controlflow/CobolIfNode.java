@@ -15,43 +15,39 @@ import com.oracle.truffle.api.profiles.ConditionProfile;
 public final class CobolIfNode extends CobolStatementNode {
 
   /**
+   * Profiling information, collected by the interpreter, capturing the profiling information of the
+   * condition. This allows the compiler to generate better code for conditions that are always true
+   * or always false. Additionally the {@link CountingConditionProfile} implementation (as opposed
+   * to {@link BinaryConditionProfile} implementation) transmits the probability of the condition to
+   * be true to the compiler.
+   */
+  private final ConditionProfile condition = ConditionProfile.createCountingProfile();
+  /**
    * The condition of the {@code if}. This in a {@link CobolExpressionNode} because we require a
    * result value. We do not have a node type that can only return a {@code boolean} value, so
    * {@link #evaluateCondition executing the condition} can lead to a type error.
    */
-  @Node.Child
-  private CobolExpressionNode conditionNode;
-
+  @Node.Child private CobolExpressionNode conditionNode;
   /**
    * Statement (or {@link CobolBlockNode block}) executed when the condition is true.
    */
-  @Node.Child
-  private CobolStatementNode thenPartNode;
-
+  @Node.Child private CobolStatementNode thenPartNode;
   /**
    * Statement (or {@link CobolBlockNode block}) executed when the condition is false.
    */
-  @Node.Child
-  private CobolStatementNode elsePartNode;
-
-  /**
-   * Profiling information, collected by the interpreter, capturing the profiling information of
-   * the condition. This allows the compiler to generate better code for conditions that are
-   * always true or always false. Additionally the {@link CountingConditionProfile} implementation
-   * (as opposed to {@link BinaryConditionProfile} implementation) transmits the probability of
-   * the condition to be true to the compiler.
-   */
-  private final ConditionProfile condition = ConditionProfile.createCountingProfile();
+  @Node.Child private CobolStatementNode elsePartNode;
 
   /**
    * Create a new if node.
+   *
    * @param conditionNode the condition.
    * @param thenPartNode the statement (block) if the condition is true.
    * @param elsePartNode the statement (block) if the condition is false.
    */
-  public CobolIfNode(CobolExpressionNode conditionNode,
-                     CobolStatementNode thenPartNode,
-                     CobolStatementNode elsePartNode) {
+  public CobolIfNode(
+      CobolExpressionNode conditionNode,
+      CobolStatementNode thenPartNode,
+      CobolStatementNode elsePartNode) {
     this.conditionNode = CobolUnboxNodeGen.create(conditionNode);
     this.thenPartNode = thenPartNode;
     this.elsePartNode = elsePartNode;

@@ -13,9 +13,7 @@ import com.oracle.truffle.api.instrumentation.Tag;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
-/**
- * Store a variable on the current frame.
- */
+/** Store a variable on the current frame. */
 @NodeChild("valueNode")
 @NodeField(name = "slot", type = FrameSlot.class)
 @NodeField(name = "nameNode", type = CobolExpressionNode.class)
@@ -75,11 +73,11 @@ public abstract class CobolWriteLocalVariableNode extends CobolExpressionNode {
         nameSourceSection = null;
       } else {
         Source source = rootSourceSection.getSource();
-        nameSourceSection
-            = source.createSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
+        nameSourceSection =
+            source.createSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
       }
     }
-    return NodeObjectDescriptor.writeVariable(getSlot().getIdentifier().toString(),
-                                              nameSourceSection);
+    return NodeObjectDescriptor.writeVariable(
+        getSlot().getIdentifier().toString(), nameSourceSection);
   }
 }

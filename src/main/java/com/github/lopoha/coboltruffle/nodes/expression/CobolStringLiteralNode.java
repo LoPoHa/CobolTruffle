@@ -4,9 +4,7 @@ import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
-/**
- * Constant literal for a String value.
- */
+/** Constant literal for a String value. */
 @NodeInfo(shortName = "const")
 public final class CobolStringLiteralNode extends CobolExpressionNode {
 

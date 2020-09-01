@@ -16,7 +16,6 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 @GenerateNodeFactory
 public abstract class CobolBuiltinNode extends CobolExpressionNode {
 
-
   @Override
   public final Object executeGeneric(VirtualFrame frame) {
     try {

@@ -7,9 +7,7 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
-/**
- * Used to call sections inside a file.
- */
+/** Used to call sections inside a file. */
 @NodeInfo(shortName = "func")
 public final class CobolLocalFunctionLiteralNode extends CobolFunctionLiteralNode {
 
@@ -17,15 +15,15 @@ public final class CobolLocalFunctionLiteralNode extends CobolFunctionLiteralNod
 
   @CompilationFinal private CobolSection cachedFunction;
 
-
   /**
    * Create a function literal node, to call other functions.
+   *
    * @param functionName the name of the function to be called.
-   * @param fileLocalFunctions the CobolSectionRegistry that contains all the function
-   *                           inside the file.
+   * @param fileLocalFunctions the CobolSectionRegistry that contains all the function inside the
+   *     file.
    */
-  public CobolLocalFunctionLiteralNode(String functionName,
-                                       CobolSectionRegistry fileLocalFunctions) {
+  public CobolLocalFunctionLiteralNode(
+      String functionName, CobolSectionRegistry fileLocalFunctions) {
     super(functionName);
     assert fileLocalFunctions != null;
 
@@ -42,5 +40,4 @@ public final class CobolLocalFunctionLiteralNode extends CobolFunctionLiteralNod
     }
     return cachedFunction;
   }
-
 }

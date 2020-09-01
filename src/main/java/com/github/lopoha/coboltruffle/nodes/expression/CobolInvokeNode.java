@@ -16,32 +16,29 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
 /**
- * The node for function invocation in SL. Since SL has first class functions, the
- * {@link CobolSection target function} can be computed by an arbitrary expression.
- * This node is responsible for * evaluating this expression, as well as evaluating the
- * {@link #argumentNodes arguments}.
- * The actual invocation is delegated to a {@link InteropLibrary} instance.
+ * The node for function invocation in SL. Since SL has first class functions, the {@link
+ * CobolSection target function} can be computed by an arbitrary expression. This node is
+ * responsible for * evaluating this expression, as well as evaluating the {@link #argumentNodes
+ * arguments}. The actual invocation is delegated to a {@link InteropLibrary} instance.
  *
  * @see InteropLibrary#execute(Object, Object...)
  */
 @NodeInfo(shortName = "invoke")
 public final class CobolInvokeNode extends CobolExpressionNode {
 
-  @Node.Child
-  private CobolExpressionNode functionNode;
-  @Node.Children
-  private final CobolExpressionNode[] argumentNodes;
-  @Node.Child
-  private InteropLibrary library;
+  @Node.Child private CobolExpressionNode functionNode;
+  @Node.Children private CobolExpressionNode[] argumentNodes;
+  @Node.Child private InteropLibrary library;
 
   /**
    * TODO.
+   *
    * @param functionNode todo
    * @param argumentNodes todo
    */
   public CobolInvokeNode(CobolExpressionNode functionNode, CobolExpressionNode[] argumentNodes) {
     this.functionNode = functionNode;
-    this.argumentNodes = argumentNodes;
+    this.argumentNodes = argumentNodes.clone();
     this.library = InteropLibrary.getFactory().createDispatched(3);
   }
 
@@ -78,5 +75,4 @@ public final class CobolInvokeNode extends CobolExpressionNode {
     }
     return super.hasTag(tag);
   }
-
 }

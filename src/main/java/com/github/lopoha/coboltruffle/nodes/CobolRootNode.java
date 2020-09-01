@@ -12,29 +12,28 @@ import com.oracle.truffle.api.source.SourceSection;
 
 @NodeInfo(language = "Cobol", description = "The root of all Cobol execution trees")
 public class CobolRootNode extends RootNode {
-  /** The function body that is executed, and specialized during execution. */
-  @Child private CobolExpressionNode bodyNode;
-
   /** The name of the function, for printing purposes only. */
   private final String name;
-
-  @CompilationFinal private boolean isCloningAllowed;
-
   private final SourceSection sourceSection;
+  /** The function body that is executed, and specialized during execution. */
+  @Child private CobolExpressionNode bodyNode;
+  @CompilationFinal private boolean isCloningAllowed;
 
   /**
    * TODO.
+   *
    * @param language todo
    * @param frameDescriptor todo
    * @param bodyNode todo
    * @param sourceSection todo
    * @param name todo
    */
-  public CobolRootNode(CobolLanguage language,
-                       FrameDescriptor frameDescriptor,
-                       CobolExpressionNode bodyNode,
-                       SourceSection sourceSection,
-                       String name) {
+  public CobolRootNode(
+      CobolLanguage language,
+      FrameDescriptor frameDescriptor,
+      CobolExpressionNode bodyNode,
+      SourceSection sourceSection,
+      String name) {
     super(language, frameDescriptor);
     this.bodyNode = bodyNode;
     this.name = name;
@@ -61,13 +60,13 @@ public class CobolRootNode extends RootNode {
     return name;
   }
 
-  public void setCloningAllowed(boolean isCloningAllowed) {
-    this.isCloningAllowed = isCloningAllowed;
-  }
-
   @Override
   public boolean isCloningAllowed() {
     return isCloningAllowed;
+  }
+
+  public void setCloningAllowed(boolean isCloningAllowed) {
+    this.isCloningAllowed = isCloningAllowed;
   }
 
   @Override

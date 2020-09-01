@@ -12,9 +12,8 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 
 /**
- * From SimpleLanguage.
- * The node to normalize any value to an Cobol value. This is useful to reduce the number of values
- * expression nodes need to expect.
+ * From SimpleLanguage. The node to normalize any value to an Cobol value. This is useful to reduce
+ * the number of values expression nodes need to expect.
  */
 @TypeSystemReference(CobolTypes.class)
 @NodeChild
@@ -39,6 +38,7 @@ public abstract class CobolUnboxNode extends CobolExpressionNode {
 
   /**
    * TODO.
+   *
    * @param value todo
    * @param interop todo
    * @return todo
@@ -58,5 +58,4 @@ public abstract class CobolUnboxNode extends CobolExpressionNode {
       throw new AssertionError();
     }
   }
-
 }

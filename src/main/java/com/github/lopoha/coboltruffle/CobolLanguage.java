@@ -2,11 +2,8 @@ package com.github.lopoha.coboltruffle;
 
 import com.github.lopoha.coboltruffle.builtins.CobolBuiltinNode;
 import com.github.lopoha.coboltruffle.builtins.CobolDisplayBuiltinFactory;
-import com.github.lopoha.coboltruffle.heap.CobolHeap;
-import com.github.lopoha.coboltruffle.heap.HeapBuilder;
 import com.github.lopoha.coboltruffle.nodes.CobolEvalRootNode;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
-import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.github.lopoha.coboltruffle.nodes.local.CobolLexicalScope;
 import com.github.lopoha.coboltruffle.nodes.local.CobolReadArgumentNode;
 import com.github.lopoha.coboltruffle.parser.CobolMainParser;
@@ -36,12 +33,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-
-@TruffleLanguage.Registration(id = CobolLanguage.ID,
-                              name = "Cobol",
-                              defaultMimeType = CobolLanguage.MIME_TYPE,
-                              characterMimeTypes = CobolLanguage.MIME_TYPE,
-                              contextPolicy = ContextPolicy.SHARED)
+@TruffleLanguage.Registration(
+    id = CobolLanguage.ID,
+    name = "Cobol",
+    defaultMimeType = CobolLanguage.MIME_TYPE,
+    characterMimeTypes = CobolLanguage.MIME_TYPE,
+    contextPolicy = ContextPolicy.SHARED)
 /*
 // todo: check each tag...
 @ProvidedTags({StandardTags.CallTag.class,
@@ -57,8 +54,8 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
   public static final String ID = "Cobol";
   public static final String MIME_TYPE = "application/x-cbl";
   // todo what should happen if a name is there multiple times?
-  private static final Map<String, CobolBuiltinNode> builtins
-      = Collections.synchronizedMap(new HashMap<>());
+  private static final Map<String, CobolBuiltinNode> builtins =
+      Collections.synchronizedMap(new HashMap<>());
 
   /*
   todo: replace system for external builtins.
@@ -72,75 +69,23 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
       = Collections.synchronizedList(new ArrayList<>());
   */
 
-  /**
-   * TODO.
-   */
+  /** TODO. */
   public CobolLanguage() {
     installBuiltin(CobolDisplayBuiltinFactory.getInstance());
   }
 
   /**
    * Returns a list with all the builtin function names.
+   *
    * @return the list with all the builtin function names.
    */
   public static List<String> getBuiltinFunctionNames() {
     return new ArrayList<>(CobolLanguage.builtins.keySet());
   }
 
-  @Override
-  public CobolContext createContext(Env env) {
-    return new CobolContext(this, env, builtins);
-  }
-
-  private void addRelativeToPath(Source source,
-                                 List<String> programSearchPath,
-                                 List<String> copySearchPath) {
-    if (source.getPath() != null) {
-      Path path = Paths.get(source.getPath());
-      Path parent = path.getParent();
-      if (parent != null) {
-        programSearchPath.add(parent.toString());
-        // if the source file was at the root, there is no grandparent...
-        // e.g. /test.cbl or C:/test.cbl -> no way there is a copy folder "above" that.
-        Path grandParent = parent.getParent();
-        if (grandParent != null) {
-          copySearchPath.add(grandParent.toString() + "/copy");
-        }
-      }
-    }
-  }
-
-  @Override
-  protected CallTarget parse(ParsingRequest request) {
-    Source source = request.getSource();
-    // todo: should a repl be allowed? would be a fun experiment...
-    List<String> programSearchPath = new ArrayList<>();
-    List<String> copySearchPath = new ArrayList<>();
-    addRelativeToPath(source, programSearchPath, copySearchPath);
-    ParserSettings parserSettings = new ParserSettings(copySearchPath, programSearchPath);
-    // programName and filename must be the same!
-    Map<String, RootCallTarget> functions
-        = CobolMainParser.processSource(source, this, parserSettings);
-    // todo: if repl is allowed, this doesn't work anymore
-    String fileName = CobolMainParser.getFilenameWithoutExtension(source);
-    RootCallTarget intro = functions.get(fileName);
-    //RootCallTarget main = functions.get(fileName);
-
-    //if (main == null) {
-    //throw new NotImplementedException();
-    //}
-
-    RootNode evalMain = new CobolEvalRootNode(this, intro, functions);
-    return Truffle.getRuntime().createCallTarget(evalMain);
-  }
-
-  @Override
-  protected boolean isVisible(CobolContext context, Object value) {
-    return !InteropLibrary.getFactory().getUncached(value).isNull(value);
-  }
-
   /**
    * todo.
+   *
    * @param value todo
    * @return todo
    */
@@ -180,6 +125,7 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
 
   /**
    * TODO.
+   *
    * @param value todo
    * @return todo
    */
@@ -208,55 +154,13 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     */
   }
 
-  @Override
-  public Iterable<Scope> findLocalScopes(CobolContext context, Node node, Frame frame) {
-    final CobolLexicalScope scope = CobolLexicalScope.createScope(node);
-    return () -> new Iterator<>() {
-      private CobolLexicalScope previousScope;
-      private CobolLexicalScope nextScope = scope;
-
-      @Override
-      public boolean hasNext() {
-        if (nextScope == null) {
-          nextScope = previousScope.findParent();
-        }
-        return nextScope != null;
-      }
-
-      @Override
-      public Scope next() {
-        if (!hasNext()) {
-          throw new NoSuchElementException();
-        }
-        Object functionObject = findFunctionObject();
-        Scope vscope = Scope.newBuilder(nextScope.getName(), nextScope.getVariables(frame))
-                            .node(nextScope.getNode())
-                            .arguments(nextScope.getArguments(frame))
-                            .rootInstance(functionObject).build();
-        previousScope = nextScope;
-        nextScope = null;
-        return vscope;
-      }
-
-      private Object findFunctionObject() {
-        String name = node.getRootNode().getName();
-        //return context.getFunctionRegistry().getFunction(name);
-        throw new NotImplementedException();
-      }
-    };
-  }
-
-  @Override
-  protected Iterable<Scope> findTopScopes(CobolContext context) {
-    return context.getTopScopes();
-  }
-
   public static CobolContext getCurrentContext() {
     return getCurrentContext(CobolLanguage.class);
   }
 
   /**
    * add a new builtin.
+   *
    * @param builtin the builtin to add.
    */
   public static void installBuiltin(NodeFactory<? extends CobolBuiltinNode> builtin) {
@@ -291,4 +195,100 @@ public final class CobolLanguage extends TruffleLanguage<CobolContext> {
     return builtinBodyNode;
   }
 
+  @Override
+  public CobolContext createContext(Env env) {
+    return new CobolContext(this, env, builtins);
+  }
+
+  private void addRelativeToPath(
+      Source source, List<String> programSearchPath, List<String> copySearchPath) {
+    if (source.getPath() != null) {
+      Path path = Paths.get(source.getPath());
+      Path parent = path.getParent();
+      if (parent != null) {
+        programSearchPath.add(parent.toString());
+        // if the source file was at the root, there is no grandparent...
+        // e.g. /test.cbl or C:/test.cbl -> no way there is a copy folder "above" that.
+        Path grandParent = parent.getParent();
+        if (grandParent != null) {
+          copySearchPath.add(grandParent.toString() + "/copy");
+        }
+      }
+    }
+  }
+
+  @Override
+  protected CallTarget parse(ParsingRequest request) {
+    Source source = request.getSource();
+    // todo: should a repl be allowed? would be a fun experiment...
+    List<String> programSearchPath = new ArrayList<>();
+    List<String> copySearchPath = new ArrayList<>();
+    addRelativeToPath(source, programSearchPath, copySearchPath);
+    ParserSettings parserSettings = new ParserSettings(copySearchPath, programSearchPath);
+    // programName and filename must be the same!
+    Map<String, RootCallTarget> functions =
+        CobolMainParser.processSource(source, this, parserSettings);
+    // todo: if repl is allowed, this doesn't work anymore
+    String fileName = CobolMainParser.getFilenameWithoutExtension(source);
+    RootCallTarget intro = functions.get(fileName);
+    // RootCallTarget main = functions.get(fileName);
+
+    // if (main == null) {
+    // throw new NotImplementedException();
+    // }
+
+    RootNode evalMain = new CobolEvalRootNode(this, intro, functions);
+    return Truffle.getRuntime().createCallTarget(evalMain);
+  }
+
+  @Override
+  protected boolean isVisible(CobolContext context, Object value) {
+    return !InteropLibrary.getFactory().getUncached(value).isNull(value);
+  }
+
+  @Override
+  public Iterable<Scope> findLocalScopes(CobolContext context, Node node, Frame frame) {
+    final CobolLexicalScope scope = CobolLexicalScope.createScope(node);
+    return () ->
+        new Iterator<>() {
+          private CobolLexicalScope previousScope;
+          private CobolLexicalScope nextScope = scope;
+
+          @Override
+          public boolean hasNext() {
+            if (nextScope == null) {
+              nextScope = previousScope.findParent();
+            }
+            return nextScope != null;
+          }
+
+          @Override
+          public Scope next() {
+            if (!hasNext()) {
+              throw new NoSuchElementException();
+            }
+            Object functionObject = findFunctionObject();
+            Scope vscope =
+                Scope.newBuilder(nextScope.getName(), nextScope.getVariables(frame))
+                    .node(nextScope.getNode())
+                    .arguments(nextScope.getArguments(frame))
+                    .rootInstance(functionObject)
+                    .build();
+            previousScope = nextScope;
+            nextScope = null;
+            return vscope;
+          }
+
+          private Object findFunctionObject() {
+            //String name = node.getRootNode().getName();
+            // return context.getFunctionRegistry().getFunction(name);
+            throw new NotImplementedException();
+          }
+        };
+  }
+
+  @Override
+  protected Iterable<Scope> findTopScopes(CobolContext context) {
+    return context.getTopScopes();
+  }
 }
