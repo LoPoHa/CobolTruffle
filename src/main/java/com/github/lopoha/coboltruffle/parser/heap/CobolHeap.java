@@ -89,7 +89,9 @@ public class CobolHeap {
         addVariableToPointerMap(child, redefinePointer.position);
       } else {
         addVariableToPointerMap(child, variableHeapPosition);
-        variableHeapPosition += child.getSize();
+        if (child.type != HeapVariableType.Const) {
+          variableHeapPosition += child.getSize();
+        }
       }
     }
 

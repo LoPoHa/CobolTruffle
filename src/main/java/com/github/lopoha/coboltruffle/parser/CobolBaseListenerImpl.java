@@ -3,6 +3,7 @@ package com.github.lopoha.coboltruffle.parser;
 import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolGlobalFunctionLiteralNode;
+import com.github.lopoha.coboltruffle.nodes.expression.CobolNumericNodeGen;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolStringLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolBiggerOrEqualNodeGen;
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolBiggerThanNodeGen;
@@ -10,6 +11,7 @@ import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolEqualNode
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolLessOrEqualNodeGen;
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolLessThanNodeGen;
 import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
+import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointerConst;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.ComparisonContext;
@@ -104,7 +106,11 @@ class CobolBaseListenerImpl extends CobolBaseListener {
   public void enterIfStatement(CobolParser.IfStatementContext ctx) {
     IfConditionContext conditionContext = ctx.ifCondition();
     if (conditionContext.ifNumeric() != null) {
-      throw new NotImplementedException();
+      CobolParser.IfNumericContext ifNumericContext = conditionContext.ifNumeric();
+      CobolExpressionNode node = getHeapPointer(ifNumericContext.ID().getText());
+      CobolExpressionNode condition = CobolNumericNodeGen.create(node);
+      CobolParser.TrueBranchContext trueBranch = ctx.trueBranch();
+      this.cobolNodeFactory.startIf(ctx.start, trueBranch.start, condition);
     } else if (conditionContext.ifCompare() != null) {
       CobolParser.IfCompareContext ifCompareContext = conditionContext.ifCompare();
       CobolExpressionNode left = valueToExpression(ifCompareContext.value(0));
@@ -113,7 +119,13 @@ class CobolBaseListenerImpl extends CobolBaseListener {
       CobolParser.TrueBranchContext trueBranch = ctx.trueBranch();
       this.cobolNodeFactory.startIf(ctx.start, trueBranch.start, condition);
     } else if (conditionContext.ifSingleValue() != null) {
-      throw new NotImplementedException();
+      CobolParser.IfSingleValueContext ifSingleValueContext = conditionContext.ifSingleValue();
+      String variableName = ifSingleValueContext.ID().getText();
+      CobolHeapPointer pointer = getHeapPointer(variableName);
+      if (!(pointer instanceof CobolHeapPointerConst)) {
+        throw new CobolNonConst(variableName);
+      }
+      this.cobolNodeFactory.startIf(ctx.start, ctx.trueBranch().start, pointer);
     } else {
       throw new NotImplementedException();
     }
@@ -195,7 +207,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
   private CobolExpressionNode valueToExpression(CobolParser.ValueContext ctx) {
     if (ctx.ID() != null) {
-      return this.workingStorageHeap.getHeapPointer(ctx.ID().toString());
+      return getHeapPointer(ctx.ID().toString());
     } else if (ctx.SPACE() != null) {
       throw new NotImplementedException();
     } else if (ctx.STRING() != null) {

@@ -55,7 +55,7 @@ public class CobolHeapPointerConst extends CobolHeapPointer {
   }
 
   @Override
-  public Object executeGeneric(VirtualFrame frame) {
-    return this.getValue(Helper.getProgramStateFromFrame(frame));
+  public Boolean executeGeneric(VirtualFrame frame) {
+    return this.getValue(Helper.getProgramStateFromFrame(frame)).equals(this.defaultValue);
   }
 }

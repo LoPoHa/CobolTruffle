@@ -21,4 +21,14 @@ class IfIT {
   void equalDifferentVariable() {
     TestRunner.run("integration/if/equalDifferentVariable");
   }
+
+  @Test
+  void constCompare() {
+    TestRunner.run("integration/if/const");
+  }
+
+  @Test
+  void isNumeric() {
+    TestRunner.run("integration/if/isNumeric");
+  }
 }

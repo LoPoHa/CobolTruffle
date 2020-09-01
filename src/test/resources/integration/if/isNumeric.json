@@ -1,0 +1,11 @@
+{
+  "runResult" : "Success",
+  "sysout" : [
+    "1234",
+    "TRUE",
+    "AAAA",
+    "FALSE"
+  ],
+  "syserr" : [
+  ]
+}
