@@ -1,4 +1,4 @@
-package com.github.lopoha.coboltruffle.nodes.expression;
+package com.github.lopoha.coboltruffle.nodes.expression.comparison;
 
 import com.github.lopoha.coboltruffle.CobolException;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;

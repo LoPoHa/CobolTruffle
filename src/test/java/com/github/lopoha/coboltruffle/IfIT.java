@@ -31,4 +31,9 @@ class IfIT {
   void isNumeric() {
     TestRunner.run("integration/if/isNumeric");
   }
+
+  @Test
+  void not() {
+    TestRunner.run("integration/if/not");
+  }
 }
