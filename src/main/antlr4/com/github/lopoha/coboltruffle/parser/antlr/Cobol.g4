@@ -90,7 +90,10 @@ comparison : (compareEqual | compareLess | compareLessEqual | compareBigger | co
 
 // todo: support and, or, ...
 ifStatement : IF ifCondition THEN? trueBranch (ELSE elseBranch)? endIf;
-ifCondition : NOT? (ifNumeric | ifCompare | ifSingleValue) ((AND | OR) ifCondition)?;
+ifCondition : singleCondition | ifBracket | ifCombine;
+singleCondition : NOT? (ifNumeric | ifCompare | ifSingleValue);
+ifBracket : OPENBRACKET ifCondition CLOSEBRACKET;
+ifCombine : singleCondition (AND | OR) ifCondition;
 ifNumeric : ID IS NUMERIC;
 ifCompare : value comparison value;
 // should we support something else than id? by rule it may be allowed, but it doesn't make sense...
