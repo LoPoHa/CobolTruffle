@@ -4,6 +4,7 @@ import com.github.lopoha.coboltruffle.NotImplementedException;
 import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolGlobalFunctionLiteralNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolStringLiteralNode;
+import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolAndNodeGen;
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolBiggerOrEqualNodeGen;
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolBiggerThanNodeGen;
 import com.github.lopoha.coboltruffle.nodes.expression.comparison.CobolEqualNodeGen;
@@ -141,9 +142,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     }
   }
 
-  @Override
-  public void enterIfStatement(CobolParser.IfStatementContext ctx) {
-    IfConditionContext conditionContext = ctx.ifCondition();
+  private CobolExpressionNode getCondition(IfConditionContext conditionContext)  {
     CobolExpressionNode condition = null;
     if (conditionContext.ifNumeric() != null) {
       condition = getIfNumericCondition(conditionContext);
@@ -154,6 +153,17 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     } else {
       throw new NotImplementedException();
     }
+    if (conditionContext.AND() != null) {
+      return CobolAndNodeGen.create(condition, getCondition(conditionContext.ifCondition()));
+    } else {
+      return condition;
+    }
+  }
+
+  @Override
+  public void enterIfStatement(CobolParser.IfStatementContext ctx) {
+    IfConditionContext conditionContext = ctx.ifCondition();
+    CobolExpressionNode condition = getCondition(conditionContext);
     CobolParser.TrueBranchContext trueBranch = ctx.trueBranch();
     this.cobolNodeFactory.startIf(ctx.start, trueBranch.start, condition);
   }

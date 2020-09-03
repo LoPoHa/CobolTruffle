@@ -36,4 +36,9 @@ class IfIT {
   void not() {
     TestRunner.run("integration/if/not");
   }
+
+  @Test
+  void and() {
+    TestRunner.run("integration/if/and");
+  }
 }
