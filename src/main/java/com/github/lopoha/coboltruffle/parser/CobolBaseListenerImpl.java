@@ -18,10 +18,12 @@ import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointer;
 import com.github.lopoha.coboltruffle.nodes.expression.heap.CobolHeapPointerConst;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolBaseListener;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser;
+import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.AndCompareContext;
+import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.BracketCompareContext;
 import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.ComparisonContext;
-import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.IfCombineContext;
-import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.IfConditionContext;
-import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.SingleConditionContext;
+import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.ConditionContext;
+import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.NormalCompareContext;
+import com.github.lopoha.coboltruffle.parser.antlr.CobolParser.OrCompareContext;
 import com.github.lopoha.coboltruffle.parser.heap.CobolHeap;
 import com.github.lopoha.coboltruffle.parser.heap.HeapBuilder;
 import com.oracle.truffle.api.RootCallTarget;
@@ -108,9 +110,10 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     this.workingStorageHeap.addToHeap(this.workingStorageHeapBuilder);
   }
 
-  private CobolExpressionNode getIfNumericCondition(SingleConditionContext conditionContext) {
+  private CobolExpressionNode getIfNumericCondition(NormalCompareContext conditionContext) {
     assert conditionContext != null;
     CobolParser.IfNumericContext ifNumericContext = conditionContext.ifNumeric();
+    assert ifNumericContext != null;
     CobolExpressionNode node = getHeapPointer(ifNumericContext.ID().getText());
     CobolExpressionNode condition = CobolNumericNodeGen.create(node);
     if (conditionContext.NOT() != null) {
@@ -119,9 +122,10 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     return condition;
   }
 
-  private CobolExpressionNode getIfCompareCondition(SingleConditionContext conditionContext) {
+  private CobolExpressionNode getIfCompareCondition(NormalCompareContext conditionContext) {
     assert conditionContext != null;
     CobolParser.IfCompareContext ifCompareContext = conditionContext.ifCompare();
+    assert ifCompareContext != null;
     CobolExpressionNode left = valueToExpression(ifCompareContext.value(0));
     CobolExpressionNode right = valueToExpression(ifCompareContext.value(1));
     CobolExpressionNode condition = ifComparisonToExpression(ifCompareContext, left, right);
@@ -131,9 +135,10 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     return condition;
   }
 
-  private CobolExpressionNode getIfSingleCondition(SingleConditionContext conditionContext) {
+  private CobolExpressionNode getIfSingleCondition(NormalCompareContext conditionContext) {
     assert conditionContext != null;
     CobolParser.IfSingleValueContext ifSingleValueContext = conditionContext.ifSingleValue();
+    assert ifSingleValueContext != null;
     String variableName = ifSingleValueContext.ID().getText();
     CobolHeapPointer pointer = getHeapPointer(variableName);
     if (!(pointer instanceof CobolHeapPointerConst)) {
@@ -146,42 +151,35 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     }
   }
 
-  private CobolExpressionNode getSingleCondition(SingleConditionContext conditionContext) {
+  private CobolExpressionNode getSingleCondition(NormalCompareContext conditionContext) {
     assert conditionContext != null;
-    CobolExpressionNode condition = null;
     if (conditionContext.ifNumeric() != null) {
-      condition = getIfNumericCondition(conditionContext);
+      return getIfNumericCondition(conditionContext);
     } else if (conditionContext.ifCompare() != null) {
-      condition = getIfCompareCondition(conditionContext);
+      return getIfCompareCondition(conditionContext);
     } else if (conditionContext.ifSingleValue() != null) {
-      condition = getIfSingleCondition(conditionContext);
-    } else {
-      throw new NotImplementedException();
-    }
-    return condition;
-  }
-
-  private CobolExpressionNode getCombineCondition(IfCombineContext conditionContext) {
-    assert conditionContext != null;
-    CobolExpressionNode left = getSingleCondition(conditionContext.singleCondition());
-
-    // todo: correct ordering
-    if (conditionContext.AND() != null) {
-      return CobolAndNodeGen.create(left, getCondition(conditionContext.ifCondition()));
-    } else if (conditionContext.OR() != null) {
-      return CobolOrNodeGen.create(left, getCondition(conditionContext.ifCondition()));
+      return getIfSingleCondition(conditionContext);
     } else {
       throw new NotImplementedException();
     }
   }
 
-  private CobolExpressionNode getCondition(IfConditionContext conditionContext)  {
-    if (conditionContext.singleCondition() != null) {
-      return getSingleCondition(conditionContext.singleCondition());
-    } else if (conditionContext.ifBracket() != null) {
-      return getCondition(conditionContext.ifBracket().ifCondition());
-    } else if (conditionContext.ifCombine() != null) {
-      return getCombineCondition(conditionContext.ifCombine());
+  private CobolExpressionNode getCondition(ConditionContext conditionContext)  {
+    if (conditionContext instanceof NormalCompareContext) {
+      return getSingleCondition((NormalCompareContext) conditionContext);
+    } else if (conditionContext instanceof BracketCompareContext) {
+      //return getCondition(conditionContext.ifBracket().ifCondition());
+      throw new NotImplementedException();
+    } else if (conditionContext instanceof AndCompareContext) {
+      AndCompareContext andContext = (AndCompareContext) conditionContext;
+      CobolExpressionNode left = getCondition(andContext.condition(0));
+      CobolExpressionNode right = getCondition(andContext.condition(1));
+      return CobolAndNodeGen.create(left, right);
+    } else if (conditionContext instanceof OrCompareContext) {
+      OrCompareContext orContext = (OrCompareContext) conditionContext;
+      CobolExpressionNode left = getCondition(orContext.condition(0));
+      CobolExpressionNode right = getCondition(orContext.condition(1));
+      return CobolOrNodeGen.create(left, right);
     } else {
       throw new NotImplementedException();
     }
@@ -189,7 +187,7 @@ class CobolBaseListenerImpl extends CobolBaseListener {
 
   @Override
   public void enterIfStatement(CobolParser.IfStatementContext ctx) {
-    IfConditionContext conditionContext = ctx.ifCondition();
+    ConditionContext conditionContext = ctx.condition();
     CobolExpressionNode condition = getCondition(conditionContext);
     CobolParser.TrueBranchContext trueBranch = ctx.trueBranch();
     this.cobolNodeFactory.startIf(ctx.start, trueBranch.start, condition);

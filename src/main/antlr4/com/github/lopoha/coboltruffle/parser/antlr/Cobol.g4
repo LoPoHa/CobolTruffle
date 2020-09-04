@@ -89,11 +89,12 @@ compareBiggerEqual : BIGGER EQUAL;
 comparison : (compareEqual | compareLess | compareLessEqual | compareBigger | compareBiggerEqual);
 
 // todo: support and, or, ...
-ifStatement : IF ifCondition THEN? trueBranch (ELSE elseBranch)? endIf;
-ifCondition : singleCondition | ifBracket | ifCombine;
-singleCondition : NOT? (ifNumeric | ifCompare | ifSingleValue);
-ifBracket : OPENBRACKET ifCondition CLOSEBRACKET;
-ifCombine : singleCondition (AND | OR) ifCondition;
+ifStatement : IF condition THEN? trueBranch (ELSE elseBranch)? endIf;
+condition : NOT? (ifNumeric | ifCompare | ifSingleValue) #NormalCompare
+          | OPENBRACKET condition CLOSEBRACKET #BracketCompare
+          | condition AND condition #AndCompare
+          | condition OR condition #OrCompare
+          ;
 ifNumeric : ID IS NUMERIC;
 ifCompare : value comparison value;
 // should we support something else than id? by rule it may be allowed, but it doesn't make sense...

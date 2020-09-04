@@ -41,4 +41,14 @@ class IfIT {
   void and() {
     TestRunner.run("integration/if/and");
   }
+
+  @Test
+  void or() {
+    TestRunner.run("integration/if/or");
+  }
+
+  @Test
+  void andOr() {
+    TestRunner.run("integration/if/andor");
+  }
 }
