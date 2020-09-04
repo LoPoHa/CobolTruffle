@@ -59,6 +59,10 @@ INTO : I N T O;
 COPY      : C O P Y;
 SUPPRESS  : S U P P R E S S;
 
+NOT : N O T;
+AND : A N D;
+OR : O R;
+
 COMMENT : ('*' | '/') {getCharPositionInLine() == 7}? ~[\r\n]* -> skip;
 
 

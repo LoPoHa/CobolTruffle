@@ -8,6 +8,7 @@ import com.github.lopoha.coboltruffle.parser.heap.HeapBuilder;
 import com.github.lopoha.coboltruffle.parser.heap.HeapBuilderVariable;
 import com.github.lopoha.coboltruffle.parser.heap.HeapVariableType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -161,8 +162,13 @@ class CobolVariableDefinitionParser {
     String value = constContext.variableValueString().STRING().getText();
 
     List<Character> defaultValue = new ArrayList<>();
-    for (char ch: value.toCharArray()) {
-      defaultValue.add(ch);
+    if (value.startsWith("\"")) {
+      value = value.substring(1, value.length() - 1);
+      for (char ch: value.toCharArray()) {
+        defaultValue.add(ch);
+      }
+    } else {
+      throw new NotImplementedException();
     }
 
     return new HeapBuilderVariable(

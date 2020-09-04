@@ -65,12 +65,10 @@ public abstract class CobolExpressionNode extends CobolStatementNode {
    */
 
   public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
-    // return SLTypesGen.expectLong(executeGeneric(frame));
-    throw new NotImplementedException();
+    return CobolTypesGen.expectLong(executeGeneric(frame));
   }
 
   public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
-    // return SLTypesGen.expectBoolean(executeGeneric(frame));
-    throw new NotImplementedException();
+    return CobolTypesGen.expectBoolean(executeGeneric(frame));
   }
 }
