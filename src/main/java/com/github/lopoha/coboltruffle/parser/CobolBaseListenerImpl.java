@@ -168,8 +168,8 @@ class CobolBaseListenerImpl extends CobolBaseListener {
     if (conditionContext instanceof NormalCompareContext) {
       return getSingleCondition((NormalCompareContext) conditionContext);
     } else if (conditionContext instanceof BracketCompareContext) {
-      //return getCondition(conditionContext.ifBracket().ifCondition());
-      throw new NotImplementedException();
+      BracketCompareContext bracketContext = (BracketCompareContext) conditionContext;
+      return getCondition(bracketContext.condition());
     } else if (conditionContext instanceof AndCompareContext) {
       AndCompareContext andContext = (AndCompareContext) conditionContext;
       CobolExpressionNode left = getCondition(andContext.condition(0));

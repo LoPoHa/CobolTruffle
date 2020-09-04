@@ -51,4 +51,9 @@ class IfIT {
   void andOr() {
     TestRunner.run("integration/if/andor");
   }
+
+  @Test
+  void parenthesis() {
+    TestRunner.run("integration/if/parenthesis");
+  }
 }
