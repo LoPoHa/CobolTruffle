@@ -170,6 +170,14 @@
                   <exclude>org.graalvm.truffle:truffle-tck</exclude>
                 </excludes>
               </artifactSet>
+              <!-- For the executable -->
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <Main-Class>${groupId}.Main</Main-Class>
+                  </manifestEntries>
+                </transformer>
+              </transformers>
             </configuration>
           </execution>
         </executions>

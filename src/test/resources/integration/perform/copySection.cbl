@@ -1,0 +1,26 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. COPYSECTION.
+      *
+      *
+       ENVIRONMENT DIVISION.
+      * 
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  PROGRAMNATIVE.
+        05       COPY-VARIABLE PIC X(12) VALUE "MAIN-SECTION".
+       LINKAGE SECTION.
+      *
+       PROCEDURE DIVISION.
+      *
+       MAIN SECTION.
+      *
+           DISPLAY COPY-VARIABLE.
+           PERFORM COPY-SECTION.
+           DISPLAY COPY-VARIABLE.
+      *
+       PROG-EX.
+           EXIT PROGRAM.
+      *
+       COPY SIMPLECOPYPROGRAMSECTION.
+      *
+       END PROGRAM COPYSECTION.

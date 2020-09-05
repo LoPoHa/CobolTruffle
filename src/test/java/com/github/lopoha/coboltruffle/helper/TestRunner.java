@@ -26,9 +26,9 @@ public class TestRunner {
       ExpectedResult expectedResult = gson.fromJson(content, ExpectedResult.class);
       ProgramRun programRun = ProgramRun.runProgram(cobolFileName.getPath());
 
-      assertEquals(expectedResult.getRunResult(), programRun.runResult);
-      assertEquals(expectedResult.getSysout(), programRun.sysout);
       assertEquals(expectedResult.getSyserr(), programRun.syserr);
+      assertEquals(expectedResult.getSysout(), programRun.sysout);
+      assertEquals(expectedResult.getRunResult(), programRun.runResult);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

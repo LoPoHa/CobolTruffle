@@ -1,0 +1,7 @@
+       COPY-SECTION SECTION.
+      *
+           DISPLAY COPY-VARIABLE.
+           MOVE "COPY-SECTION" TO COPY-VARIABLE.
+           DISPLAY COPY-VARIABLE.
+      *
+       EXIT.

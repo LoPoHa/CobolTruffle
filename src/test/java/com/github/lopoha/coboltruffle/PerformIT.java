@@ -8,4 +8,9 @@ public class PerformIT {
   void simpleSection() {
     TestRunner.run("integration/perform/simpleSection");
   }
+
+  @Test
+  void copySection() {
+    TestRunner.run("integration/perform/copySection");
+  }
 }

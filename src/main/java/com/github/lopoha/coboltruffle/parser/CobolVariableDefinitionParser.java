@@ -39,9 +39,10 @@ class CobolVariableDefinitionParser {
 
   private static List<Character> variableGetValue(String variableName, String value, int size) {
     if (value.length() <= size) {
-      List<Character> result = IntStream.range(0, size - value.length())
-          .mapToObj(i -> ' ')
-          .collect(Collectors.toList());
+      List<Character> result = new ArrayList<>(size);
+      for (int i = 0; i < size - value.length(); i++) {
+        result.add(' ');
+      }
       for (char ch: value.toCharArray()) {
         result.add(ch);
       }
