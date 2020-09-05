@@ -9,8 +9,9 @@ import CobolLexerRules;
 //       Pro: Better adhear to standards + maybe some stuff depends on the column (-> investigate)
 //       Con: Allows to break e.g. the 80 char limit, ...
 
-program : identificationDivision environmentDivision dataDivision procedureDivision programEnd;
+program : identificationDivision environmentDivision dataDivision procedureDivision copySectionsIncludes programEnd;
 variableDefinitionCopy : (variableDefinition | copy)+;
+sectionCopy : functionSection*;
 
 identificationDivision : IDENTIFICATION DIVISION DOT
                         programID;
@@ -117,5 +118,7 @@ externalCallInputParameter: USING ID (',' ID)*;
 externalCallOutput: INTO ID;
 
 copy : COPY ID SUPPRESS? DOT;
+
+copySectionsIncludes : copy*;
 
 programEnd : END PROGRAM ID DOT;
