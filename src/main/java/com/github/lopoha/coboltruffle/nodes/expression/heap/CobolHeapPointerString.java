@@ -21,7 +21,7 @@ public final class CobolHeapPointerString extends CobolHeapPointer {
   public CobolHeapPointerString(String name,
       int position,
       int length,
-      List<Character> defaultValue,
+      char[] defaultValue,
       int level,
       String heapName) {
     super(name, position, length, defaultValue, level, heapName);
@@ -37,9 +37,7 @@ public final class CobolHeapPointerString extends CobolHeapPointer {
 
   @Override
   public String getValue(CobolProgramStateNode programState) {
-    // safe, since the parent always returns List<Character>
-    List<Character> chars = super.getRawValue(programState);
-    return chars.stream().map(String::valueOf).collect(Collectors.joining());
+    return String.valueOf(super.getRawValue(programState));
   }
 
   @Override

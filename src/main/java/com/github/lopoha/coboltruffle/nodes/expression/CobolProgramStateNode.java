@@ -5,7 +5,6 @@ import com.github.lopoha.coboltruffle.nodes.expression.heap.RawHeapSlice;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.List;
 import java.util.Map;
 
 /** Contains the complete state of the program. Like an instance of an object. */
@@ -13,7 +12,7 @@ import java.util.Map;
 public class CobolProgramStateNode extends CobolExpressionNode implements TruffleObject {
   public static final String FRAME_NAME = "LOCALSTATE";
 
-  private final List<Character> localFileHeap;
+  private final RawHeapSlice localFileHeap;
   private final Map<String, RawHeapSlice> linkageHeap;
 
   /**
@@ -22,7 +21,7 @@ public class CobolProgramStateNode extends CobolExpressionNode implements Truffl
    * @param localFileHeap the local file heap
    * @param linkageHeap the heap that is passed through the linkage section.
    */
-  public CobolProgramStateNode(List<Character> localFileHeap,
+  public CobolProgramStateNode(RawHeapSlice localFileHeap,
                                Map<String, RawHeapSlice> linkageHeap) {
     assert localFileHeap != null;
     assert linkageHeap != null;
@@ -31,9 +30,21 @@ public class CobolProgramStateNode extends CobolExpressionNode implements Truffl
     this.linkageHeap = linkageHeap;
   }
 
-  public List<Character> getLocalFileHeap() {
-    return this.localFileHeap;
+  public char[] getLocalFileHeap() {
+    return this.localFileHeap.getHeapSlice();
   }
+
+  public void setHeapValue(String heapName, int heapPosition, char[] value) {
+    assert heapPosition > 0;
+    assert value != null;
+
+    if (heapName == null) {
+      localFileHeap.setHeapValue(heapPosition, value);
+    } else {
+      getLinkageHeap(heapName).setHeapValue(heapPosition, value);
+    }
+  }
+
 
   public RawHeapSlice getLinkageHeap(String key) {
     return this.linkageHeap.get(key);

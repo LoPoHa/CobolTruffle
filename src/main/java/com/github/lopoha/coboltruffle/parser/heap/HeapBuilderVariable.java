@@ -1,6 +1,7 @@
 package com.github.lopoha.coboltruffle.parser.heap;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -24,7 +25,7 @@ public class HeapBuilderVariable {
   private final List<HeapBuilderVariable> children = new ArrayList<>();
   final HeapBuilderVariable redefines;
 
-  private List<Character> defaultValue;
+  private char[] defaultValue;
 
   public int getSize() {
     return this.size;
@@ -34,8 +35,8 @@ public class HeapBuilderVariable {
     return new ArrayList<>(children);
   }
 
-  List<Character> getDefaultValue() {
-    return new ArrayList<>(this.defaultValue);
+  char[] getDefaultValue() {
+    return defaultValue;
   }
 
   /**
@@ -53,7 +54,7 @@ public class HeapBuilderVariable {
       int level,
       HeapVariableType type,
       int size,
-      List<Character> defaultValue,
+      char[] defaultValue,
       HeapBuilderVariable redefines) {
     assert level > 0 && level < 100 : "The variable level must be between 1 and 99";
     assert size >= 0 : "The size must be bigger equal 0";
@@ -123,7 +124,7 @@ public class HeapBuilderVariable {
       int level,
       HeapVariableType type,
       int size,
-      List<Character> defaultValue) {
+      char[] defaultValue) {
     assert level > 0 && level < 100 : "The variable level must be between 1 and 99";
     assert size >= 0 : "The size must be bigger equal 0";
     assert type != null;
@@ -147,7 +148,7 @@ public class HeapBuilderVariable {
   public HeapBuilderVariable(int level,
       HeapVariableType type,
       int size,
-      List<Character> defaultValue) {
+      char[] defaultValue) {
     assert level > 0 && level < 100 : "The variable level must be between 1 and 99";
     assert size >= 0 : "The size must be bigger equal 0";
     assert type != null;
@@ -196,10 +197,19 @@ public class HeapBuilderVariable {
   }
 
   private void checkSetDefaultValue() {
-    final List<Character> childDefault = this.children.stream()
-        .filter(v -> v.type != HeapVariableType.Const && v.redefines == null)
-        .flatMap(v -> v.defaultValue.stream())
-        .collect(Collectors.toList());
+    // todo: remove copying...
+    final char[] childDefault = new char[size];
+
+    if (this.defaultValue == null) {
+      int position = 0;
+      for (HeapBuilderVariable child : this.children) {
+        if (child.type != HeapVariableType.Const && child.redefines == null) {
+          System.arraycopy(child.defaultValue, 0, childDefault, position, child.size);
+          position += child.size;
+        }
+      }
+    } //todo: else?
+
 
     final boolean childOnlySpace = childDefault.stream().anyMatch(v -> v != ' ');
 

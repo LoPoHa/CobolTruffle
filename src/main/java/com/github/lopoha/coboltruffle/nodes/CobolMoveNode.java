@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 @NodeInfo(shortName = "move", description = "set a the value of a variable")
 public class CobolMoveNode extends CobolStatementNode {
-  private final List<Character> value;
+  private final char[] value;
   private final CobolHeapPointer from;
   private final CobolHeapPointer target;
 
@@ -21,7 +21,10 @@ public class CobolMoveNode extends CobolStatementNode {
    */
   public CobolMoveNode(String value, CobolHeapPointer target) {
     assert value != null : "value should never be null";
-    this.value = value.chars().mapToObj(e -> (char) e).collect(Collectors.toList());
+    this.value = new char[value.length()];
+    for (int i = 0; i < value.length(); i++) {
+      this.value[i] = value.charAt(i);
+    }
     this.from = null;
     this.target = target;
   }

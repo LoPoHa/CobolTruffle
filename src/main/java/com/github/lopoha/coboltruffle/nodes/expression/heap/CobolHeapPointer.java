@@ -4,6 +4,7 @@ import com.github.lopoha.coboltruffle.nodes.CobolExpressionNode;
 import com.github.lopoha.coboltruffle.nodes.expression.CobolProgramStateNode;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -15,7 +16,7 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
   public final int level;
   protected final String name;
   final int length;
-  final List<Character> defaultValue;
+  final char[] defaultValue;
   private final String heapName;
 
   /**
@@ -37,10 +38,14 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
     this.name = name;
     this.position = position;
     this.length = length;
-    this.defaultValue =
-        defaultValue == null
-            ? new ArrayList<>()
-            : defaultValue.chars().mapToObj(e -> (char) e).collect(Collectors.toList());
+    if (defaultValue != null) {
+      this.defaultValue = new char[defaultValue.length()];
+      for (int i = 0; i < defaultValue.length(); i++) {
+        this.defaultValue[i] = defaultValue.charAt(i);
+      }
+    } else {
+      this.defaultValue = new char[0];
+    }
     this.level = level;
     this.heapName = null;
   }
@@ -55,7 +60,7 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
    * @param level the level of the variable declaration.
    */
   protected CobolHeapPointer(
-      String name, int position, int length, List<Character> defaultValue, int level) {
+      String name, int position, int length, char[] defaultValue, int level) {
     assert name != null;
     assert position >= 0;
     assert length > 0;
@@ -91,10 +96,14 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
     this.name = name;
     this.position = position;
     this.length = length;
-    this.defaultValue =
-        defaultValue == null
-            ? new ArrayList<>()
-            : defaultValue.chars().mapToObj(e -> (char) e).collect(Collectors.toList());
+    if (defaultValue != null) {
+      this.defaultValue = new char[defaultValue.length()];
+      for (int i = 0; i < defaultValue.length(); i++) {
+        this.defaultValue[i] = defaultValue.charAt(i);
+      }
+    } else {
+      this.defaultValue = new char[0];
+    }
     this.level = level;
     this.heapName = heapName;
   }
@@ -114,7 +123,7 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
       String name,
       int position,
       int length,
-      List<Character> defaultValue,
+      char[] defaultValue,
       int level,
       String heapName) {
     assert name != null;
@@ -164,13 +173,13 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
    * @param programState current program state
    * @return the value.
    */
-  public List<Character> getRawValue(CobolProgramStateNode programState) {
+  public char[] getRawValue(CobolProgramStateNode programState) {
     return (this.heapName == null)
-        ? programState.getLocalFileHeap().subList(position, position + length)
-        : programState
-            .getLinkageHeap(this.heapName)
-            .getHeapSlice()
-            .subList(position, position + length);
+        // todo: is the end inclusive or exclusive?
+        ? Arrays.copyOfRange(programState.getLocalFileHeap(), position, position + length)
+        : Arrays.copyOfRange(programState.getLinkageHeap(this.heapName).getHeapSlice(),
+                             position,
+                             position + length);
   }
 
   /**
@@ -179,30 +188,24 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
    * @param value The value to set the variable to.
    * @param programState The current state of the program.
    */
-  public void setValue(List<Character> value, CobolProgramStateNode programState) {
+  public void setValue(char[] value, CobolProgramStateNode programState) {
     assert value != null : "Value required but was null";
 
-    List<Character> heap =
-        (this.heapName == null)
-            ? programState.getLocalFileHeap()
-            : programState.getLinkageHeap(this.heapName).getHeapSlice();
     // todo: check if the alignment etc. is correct
     // todo: is the default for number here space or zero?
-    if (value.size() < this.length) {
-      List<Character> newValue = new ArrayList<>();
-      for (int i = 0; i < this.length - value.size(); i++) {
-        newValue.add(' ');
+    if (value.length < this.length) {
+      char[] newValue = new char[this.length];
+      for (int i = 0; i < this.length - value.length; i++) {
+        newValue[i] = ' ';
       }
-      newValue.addAll(value);
-      IntStream.range(0, this.length)
-          .parallel()
-          .forEach(i -> heap.set(position + i, newValue.get(i)));
-    } else if (value.size() == this.length) {
-      IntStream.range(0, value.size())
-          .parallel()
-          .forEach(i -> heap.set(position + i, value.get(i)));
+      System.arraycopy(value, 0, newValue, (this.length - value.length), value.length);
+      programState.setHeapValue(this.heapName, this.position, newValue);
+    } else if (value.length == this.length) {
+      programState.setHeapValue(this.heapName, this.position, value);
     } else {
-      IntStream.range(0, this.length).parallel().forEach(i -> heap.set(position + i, value.get(i)));
+      programState.setHeapValue(this.heapName,
+                                this.position,
+                                Arrays.copyOfRange(value, 0, this.length));
     }
   }
 

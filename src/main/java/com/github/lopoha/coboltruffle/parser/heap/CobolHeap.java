@@ -25,8 +25,9 @@ public class CobolHeap {
     this.heapName = heapName;
   }
 
-  public List<Character> allocate() {
-    return new ArrayList<>(Collections.nCopies(heapSize, ' '));
+  public char[] allocate() {
+    // todo: is it still required to move space to every element?
+    return new char[this.heapSize];
   }
 
   /**
