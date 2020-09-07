@@ -35,7 +35,7 @@ public class CobolProgramStateNode extends CobolExpressionNode implements Truffl
   }
 
   public void setHeapValue(String heapName, int heapPosition, char[] value) {
-    assert heapPosition > 0;
+    assert heapPosition >= 0;
     assert value != null;
 
     if (heapName == null) {

@@ -37,13 +37,14 @@ class CobolVariableDefinitionParser {
     }
   }
 
-  private static List<Character> variableGetValue(String variableName, String value, int size) {
+  private static char[] variableGetValue(String variableName, String value, int size) {
     if (value.length() <= size) {
-      List<Character> result = IntStream.range(0, size - value.length())
-          .mapToObj(i -> ' ')
-          .collect(Collectors.toList());
-      for (char ch: value.toCharArray()) {
-        result.add(ch);
+      char[] result = new char[size];
+      for (int i = 0; i < size - value.length(); i++) {
+        result[i] = ' ';
+      }
+      for (int i = size - value.length(); i < size; i++) {
+        result[i] = value.charAt(i + (size - value.length()));
       }
       return result;
     } else {
@@ -53,12 +54,16 @@ class CobolVariableDefinitionParser {
 
   // either returns null if no value was specified or a string with the length of the given size
   // and the value right bound + filled with space if it is shorter.
-  private static List<Character> variableGetStringValue(
+  private static char[] variableGetStringValue(
       CobolParser.VariableValueStringContext ctx, String variableName, int size) {
     if (ctx == null) {
       return null;
     } else if (ctx.SPACE() != null) {
-      return IntStream.range(0, size).mapToObj(i -> ' ').collect(Collectors.toList());
+      char[] value = new char[size];
+      for (char ch : value) {
+        ch = ' ';
+      }
+      return value;
     } else {
       String string = ctx.STRING().getText();
       String removedQuotes = string.substring(1, string.length() - 1);
@@ -68,7 +73,7 @@ class CobolVariableDefinitionParser {
 
   // either returns null if no value was specified or a string with the length of the given size
   // and the value right bound + filled with space if it is shorter.
-  private static List<Character> variableGetNumberValue(
+  private static char[] variableGetNumberValue(
       CobolParser.VariableValueNumberContext ctx, String variableName, int size) {
     if (ctx == null) {
       return null;
@@ -86,7 +91,7 @@ class CobolVariableDefinitionParser {
     } else if (dataType.variableDataTypeString() != null) {
       CobolParser.VariableDataTypeStringContext dataTypeString = dataType.variableDataTypeString();
       final int size = variableGetStringLength(dataTypeString);
-      final List<Character> value
+      final char[] value
           = variableGetStringValue(dataTypeString.variableValueString(), null, size);
       return new HeapBuilderVariable(level, HeapVariableType.Filler, size, value);
 
@@ -94,7 +99,7 @@ class CobolVariableDefinitionParser {
       CobolParser.VariableDataTypeNumberContext dataTypeNumber = dataType.variableDataTypeNumber();
       // todo: allow comma values e.g. 999.99
       final int size = variableGetNumberSize(dataTypeNumber);
-      final List<Character> value
+      final char[] value
           = variableGetNumberValue(dataTypeNumber.variableValueNumber(), null, size);
       return new HeapBuilderVariable(level, HeapVariableType.Filler, size, value);
     } else {
@@ -109,7 +114,7 @@ class CobolVariableDefinitionParser {
     if (dataType.variableDataTypeString() != null) {
       CobolParser.VariableDataTypeStringContext dataTypeString = dataType.variableDataTypeString();
       final int size = variableGetStringLength(dataTypeString);
-      final List<Character> value =
+      final char[] value =
           variableGetStringValue(dataTypeString.variableValueString(), variableName, size);
       return new HeapBuilderVariable(variableName, level, HeapVariableType.String, size, value);
 
@@ -117,7 +122,7 @@ class CobolVariableDefinitionParser {
       CobolParser.VariableDataTypeNumberContext dataTypeNumber = dataType.variableDataTypeNumber();
       // todo: allow comma values e.g. 999.99
       final int size = variableGetNumberSize(dataTypeNumber);
-      final List<Character> value =
+      final char[] value =
           variableGetNumberValue(dataTypeNumber.variableValueNumber(), variableName, size);
       return new HeapBuilderVariable(variableName, level, HeapVariableType.Number, size, value);
 
@@ -161,11 +166,11 @@ class CobolVariableDefinitionParser {
     HeapBuilderVariable parent = heapBuilder.getLastVariable();
     String value = constContext.variableValueString().STRING().getText();
 
-    List<Character> defaultValue = new ArrayList<>();
+    char[] defaultValue = new char[value.length() - 2];
     if (value.startsWith("\"")) {
       value = value.substring(1, value.length() - 1);
-      for (char ch: value.toCharArray()) {
-        defaultValue.add(ch);
+      for (int i = 0; i < value.length(); i++) {
+        defaultValue[i] = value.charAt(i);
       }
     } else {
       throw new NotImplementedException();

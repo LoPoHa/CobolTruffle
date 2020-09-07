@@ -198,9 +198,8 @@ public class HeapBuilderVariable {
 
   private void checkSetDefaultValue() {
     // todo: remove copying...
-    final char[] childDefault = new char[size];
-
     if (this.defaultValue == null) {
+      final char[] childDefault = new char[size];
       int position = 0;
       for (HeapBuilderVariable child : this.children) {
         if (child.type != HeapVariableType.Const && child.redefines == null) {
@@ -208,9 +207,11 @@ public class HeapBuilderVariable {
           position += child.size;
         }
       }
+      this.defaultValue = childDefault;
     } //todo: else?
 
 
+    /*
     final boolean childOnlySpace = childDefault.stream().anyMatch(v -> v != ' ');
 
     if (this.defaultValue == null && childDefault.size() > 0) {
@@ -225,6 +226,7 @@ public class HeapBuilderVariable {
     } else if (childDefault.size() > 0 && !childOnlySpace) {
       // todo: what should happen here? an exception? is is ok?
     }
+     */
   }
 
   HeapBuilderVariable findVariable(String name) {
