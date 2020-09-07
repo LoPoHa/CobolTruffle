@@ -34,6 +34,12 @@ public class CobolProgramStateNode extends CobolExpressionNode implements Truffl
     return this.localFileHeap.getHeapSlice();
   }
 
+  /**
+   * Set the variable on the heap.
+   * @param heapName Name of the heap / null if local heap
+   * @param heapPosition the position on the heap.
+   * @param value the new value.
+   */
   public void setHeapValue(String heapName, int heapPosition, char[] value) {
     assert heapPosition >= 0;
     assert value != null;
