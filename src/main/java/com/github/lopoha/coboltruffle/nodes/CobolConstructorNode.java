@@ -63,8 +63,9 @@ public final class CobolConstructorNode extends CobolFunctionLiteralNode {
       inputParameters.put(this.inputParameterNames.get(i), value);
     }
 
-    List<Character> heap = this.cobolHeap.allocate();
-    CobolProgramStateNode programStateNode = new CobolProgramStateNode(heap, inputParameters);
+    char[] heap = this.cobolHeap.allocate();
+    RawHeapSlice localHeap = new RawHeapSlice(heap);
+    CobolProgramStateNode programStateNode = new CobolProgramStateNode(localHeap, inputParameters);
     FrameSlot slot =
         frame
             .getFrameDescriptor()

@@ -16,7 +16,7 @@ public final class CobolHeapPointerRaw extends CobolHeapPointer {
    * @param level the level of the variable declaration.
    */
   public CobolHeapPointerRaw(
-      String name, int position, int length, List<Character> defaultValue, int level) {
+      String name, int position, int length, char[] defaultValue, int level) {
     super(name, position, length, defaultValue, level);
   }
 

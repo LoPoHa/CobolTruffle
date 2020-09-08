@@ -24,7 +24,7 @@ public class CobolHeapPointerConst extends CobolHeapPointer {
       String name,
       int position,
       int length,
-      List<Character> defaultValue,
+      char[] defaultValue,
       int level,
       String heapName) {
     super(name, position, length, defaultValue, level, heapName);
@@ -34,13 +34,13 @@ public class CobolHeapPointerConst extends CobolHeapPointer {
   @Override
   public void initialize(CobolProgramStateNode programState) {
     for (int i = 0; i < this.length; i++) {
-      programState.getLocalFileHeap().set(this.position + i, this.defaultValue.get(i));
+      programState.getLocalFileHeap()[this.position + i] =  this.defaultValue[i];
     }
   }
 
   @Override
-  public void setValue(List<Character> value, CobolProgramStateNode programState) {
-    // todo: this should be checked at "compile time" instead at runtime.
+  public void setValue(char[] value, CobolProgramStateNode programState) {
+    // todo: this should be checked at "compile time" instead of runtime.
     throw new CobolInternalException();
   }
 
