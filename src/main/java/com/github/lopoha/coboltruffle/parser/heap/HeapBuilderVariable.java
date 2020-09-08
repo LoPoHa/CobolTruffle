@@ -200,11 +200,15 @@ public class HeapBuilderVariable {
     // todo: remove copying...
     if (this.defaultValue == null) {
       final char[] childDefault = new char[size];
-      int position = 0;
-      for (HeapBuilderVariable child : this.children) {
-        if (child.type != HeapVariableType.Const && child.redefines == null) {
-          System.arraycopy(child.defaultValue, 0, childDefault, position, child.size);
-          position += child.size;
+      if (this.children.size() == 0) {
+        Arrays.fill(childDefault, ' ');
+      } else {
+        int position = 0;
+        for (HeapBuilderVariable child : this.children) {
+          if (child.type != HeapVariableType.Const && child.redefines == null) {
+            System.arraycopy(child.defaultValue, 0, childDefault, position, child.size);
+            position += child.size;
+          }
         }
       }
       this.defaultValue = childDefault;
