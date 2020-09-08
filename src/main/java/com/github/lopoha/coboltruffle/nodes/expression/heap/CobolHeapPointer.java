@@ -176,6 +176,7 @@ public abstract class CobolHeapPointer extends CobolExpressionNode {
   public char[] getRawValue(CobolProgramStateNode programState) {
     return (this.heapName == null)
         // todo: is the end inclusive or exclusive?
+        // todo: remove the copy here, if not needed
         ? Arrays.copyOfRange(programState.getLocalFileHeap(), position, position + length)
         : Arrays.copyOfRange(programState.getLinkageHeap(this.heapName).getHeapSlice(),
                              position,

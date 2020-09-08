@@ -44,7 +44,7 @@ class CobolVariableDefinitionParser {
         result[i] = ' ';
       }
       for (int i = size - value.length(); i < size; i++) {
-        result[i] = value.charAt(i + (size - value.length()));
+        result[i] = value.charAt(i - (size - value.length()));
       }
       return result;
     } else {
